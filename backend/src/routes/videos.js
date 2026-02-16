@@ -20,7 +20,7 @@ router.get('/:libraryId', async (req, res) => {
     const prefix = req.query.prefix || '';
 
     // Get library and verify ownership
-    const library = await db.prepare(`
+    const library = db.prepare(`
       SELECT * FROM libraries WHERE id = ? AND user_id = ?
     `).get(libraryId, req.user.userId);
 

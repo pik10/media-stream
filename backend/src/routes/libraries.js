@@ -27,7 +27,7 @@ const addLibrarySchema = Joi.object({
  */
 router.get('/', async (req, res) => {
   try {
-    const libraries = await db.prepare(`
+    const libraries = db.prepare(`
       SELECT id, name, endpoint, region, bucket, path_prefix, created_at
       FROM libraries
       WHERE user_id = ?
@@ -60,7 +60,7 @@ router.post('/', async (req, res) => {
     const secretKeyEncrypted = encrypt(secretKey);
 
     // Insert library
-    const result = await db.prepare(`
+    const result = db.prepare(`
       INSERT INTO libraries (user_id, name, endpoint, region, bucket, access_key_encrypted, secret_key_encrypted, path_prefix)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -102,7 +102,7 @@ router.put('/:id', async (req, res) => {
     const libraryId = parseInt(req.params.id);
 
     // Get existing library and verify ownership
-    const existingLibrary = await db.prepare('SELECT * FROM libraries WHERE id = ?').get(libraryId);
+    const existingLibrary = db.prepare('SELECT * FROM libraries WHERE id = ?').get(libraryId);
     if (!existingLibrary) {
       return res.status(404).json({ error: 'Library not found' });
     }
@@ -141,7 +141,7 @@ router.put('/:id', async (req, res) => {
     }
 
     // Update library
-    await db.prepare(`
+    db.prepare(`
       UPDATE libraries
       SET name = ?, endpoint = ?, region = ?, bucket = ?,
           access_key_encrypted = ?, secret_key_encrypted = ?, path_prefix = ?
@@ -185,7 +185,7 @@ router.delete('/:id', async (req, res) => {
     const libraryId = parseInt(req.params.id);
 
     // Verify ownership
-    const library = await db.prepare('SELECT user_id FROM libraries WHERE id = ?').get(libraryId);
+    const library = db.prepare('SELECT user_id FROM libraries WHERE id = ?').get(libraryId);
     if (!library) {
       return res.status(404).json({ error: 'Library not found' });
     }
@@ -194,7 +194,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     // Delete library
-    await db.prepare('DELETE FROM libraries WHERE id = ?').run(libraryId);
+    db.prepare('DELETE FROM libraries WHERE id = ?').run(libraryId);
 
     res.json({ message: 'Library deleted successfully' });
   } catch (error) {
@@ -242,7 +242,7 @@ router.post('/:id/test', async (req, res) => {
     const libraryId = parseInt(req.params.id);
 
     // Get library with credentials
-    const library = await db.prepare(`
+    const library = db.prepare(`
       SELECT * FROM libraries WHERE id = ? AND user_id = ?
     `).get(libraryId, req.user.userId);
 

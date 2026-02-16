@@ -26,7 +26,7 @@ export async function registerUser(username, password) {
   const normalizedUsername = username.toLowerCase().trim();
 
   // Check if user exists
-  const existingUser = await db.prepare('SELECT id FROM users WHERE username = ?').get(normalizedUsername);
+  const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(normalizedUsername);
   if (existingUser) {
     throw new Error('Username already exists');
   }
@@ -35,7 +35,7 @@ export async function registerUser(username, password) {
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   // Insert user
-  const result = await db.prepare(
+  const result = db.prepare(
     'INSERT INTO users (username, password_hash) VALUES (?, ?)'
   ).run(normalizedUsername, passwordHash);
 
@@ -63,7 +63,7 @@ export async function loginUser(username, password) {
   }
 
   // Get user
-  const user = await db.prepare('SELECT * FROM users WHERE username = ?').get(normalizedUsername);
+  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(normalizedUsername);
   if (!user) {
     // Record failed attempt even if user doesn't exist (prevent username enumeration timing)
     recordFailedAttempt(normalizedUsername);
@@ -127,7 +127,7 @@ export function verifyToken(token) {
  * @returns {Object} User object (without password)
  */
 export async function getUserById(userId) {
-  const user = await db.prepare('SELECT id, username, created_at FROM users WHERE id = ?').get(userId);
+  const user = db.prepare('SELECT id, username, created_at FROM users WHERE id = ?').get(userId);
   if (!user) {
     throw new Error('User not found');
   }
@@ -143,7 +143,7 @@ export async function getUserById(userId) {
  */
 export async function changePassword(userId, currentPassword, newPassword) {
   // Get user with password hash
-  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   if (!user) {
     throw new Error('User not found');
   }
@@ -158,7 +158,7 @@ export async function changePassword(userId, currentPassword, newPassword) {
   const newPasswordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
   // Update password
-  await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newPasswordHash, userId);
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newPasswordHash, userId);
 
   return {
     message: 'Password changed successfully'

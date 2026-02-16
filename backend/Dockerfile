@@ -1,13 +1,16 @@
 # Backend Dockerfile
 FROM node:20-alpine
 
+# Install build dependencies for better-sqlite3
+RUN apk add --no-cache python3 make g++
+
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (better-sqlite3 requires native compilation)
 RUN npm ci --omit=dev
 
 # Copy application code

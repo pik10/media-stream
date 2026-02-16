@@ -25,7 +25,7 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
     }
 
     // Get library and verify ownership
-    const library = await db.prepare(`
+    const library = db.prepare(`
       SELECT * FROM libraries WHERE id = ? AND user_id = ?
     `).get(libraryId, req.user.userId);
 
