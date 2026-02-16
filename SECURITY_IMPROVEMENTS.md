@@ -290,43 +290,6 @@ These security improvements are complete, but for full production security, also
 
 ---
 
-## Known Security Exception (Accepted Risk)
-
-**Recorded**: 2026-02-16  
-**Scope**: `backend` production dependencies (`npm audit --omit=dev`)
-
-### Exception Summary
-
-- Remaining audit findings: **5 high**
-- Root cause: transitive dependency chain from `sqlite3@5.1.7` to `tar@6.x`
-- Chain: `sqlite3 -> node-gyp -> make-fetch-happen -> cacache -> tar`
-
-### Why This Is Accepted (Temporary)
-
-- As of 2026-02-16, `sqlite3@5.1.7` is the latest release and still depends on `tar@^6.1.11`.
-- `npm audit` does not provide a safe non-breaking remediation path for this chain.
-- Forcing fixes (`npm audit fix --force`) would apply breaking dependency changes without controlled app-level validation.
-
-### Risk Context
-
-- The vulnerable package is not directly used by application request handlers.
-- It is pulled in through install/build tooling paths used by `sqlite3`.
-- Runtime exposure is lower than a direct API/library vulnerability, but the issue should still be tracked and reviewed.
-
-### Compensating Controls
-
-- Keep backend dependencies updated on a regular schedule.
-- Restrict build/deploy permissions to trusted environments.
-- Continue using containerized deployment and least-privilege host access.
-- Re-run `npm audit --omit=dev` on each backend dependency update.
-
-### Review Trigger
-
-- Re-evaluate immediately when a new `sqlite3` release changes this dependency chain.
-- Also re-evaluate if migrating from `sqlite3` to another maintained database driver.
-
----
-
 ## Rollback Instructions
 
 If you need to rollback these changes:
