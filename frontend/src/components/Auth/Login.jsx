@@ -13,7 +13,6 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent any parent form handlers
     setError('');
     setLoading(true);
 
