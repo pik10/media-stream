@@ -35,11 +35,16 @@ export default function Header() {
 
   return (
     <header className="header">
-      <div className="container">
-        <div className="brand" onClick={() => handleNavClick('/')}>
+      <div className="headerContainer">
+        <button
+          type="button"
+          className="brand"
+          aria-label="Go to home"
+          onClick={() => handleNavClick('/')}
+        >
           <span className="brandIcon">🎬</span>
           <span className="brandText">Media Stream</span>
-        </div>
+        </button>
 
         {/* Desktop Navigation */}
         <nav className="nav">

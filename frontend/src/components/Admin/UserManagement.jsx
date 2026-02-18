@@ -97,9 +97,9 @@ export default function UserManagement() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <div style={styles.searchContainer}>
+    <div className="ms-admin-users" style={styles.container}>
+      <div className="ms-admin-users-header" style={styles.header}>
+        <div className="ms-admin-search" style={styles.searchContainer}>
           <input
             type="text"
             placeholder="Search users... (press Enter)"
@@ -139,7 +139,7 @@ export default function UserManagement() {
       {error && <div style={styles.error}>{error}</div>}
       {successMessage && <div style={styles.success}>{successMessage}</div>}
 
-      <div style={styles.tableContainer}>
+      <div className="ms-table-scroll" style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -180,7 +180,7 @@ export default function UserManagement() {
                   {new Date(user.created_at).toLocaleDateString()}
                 </td>
                 <td style={styles.td}>
-                  <div style={styles.actions}>
+                  <div className="ms-table-actions" style={styles.actions}>
                     <button
                       onClick={() => setEditingUser(user)}
                       style={styles.actionButton}

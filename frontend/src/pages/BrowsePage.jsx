@@ -6,6 +6,8 @@ import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import LazyVideoCard from '../components/LazyVideoCard';
 import SortSelector from '../components/SortSelector';
+import PageLoading from '../components/UI/PageLoading';
+import PageError from '../components/UI/PageError';
 
 export default function BrowsePage() {
   const { libraryId } = useParams();
@@ -120,8 +122,8 @@ export default function BrowsePage() {
     return (
       <>
         <Header />
-        <div style={styles.container}>
-          <div style={styles.loading}>Loading...</div>
+        <div className="ms-page ms-page-wide" style={styles.container}>
+          <PageLoading message="Loading..." />
         </div>
       </>
     );
@@ -130,9 +132,9 @@ export default function BrowsePage() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
+      <div className="ms-page ms-page-wide" style={styles.container}>
         <div style={styles.header}>
-          <div style={styles.topBar}>
+          <div className="ms-page-toolbar" style={styles.topBar}>
             <button onClick={() => navigate('/libraries')} style={styles.backButton}>
               ← Back to Libraries
             </button>
@@ -142,7 +144,7 @@ export default function BrowsePage() {
             </button>
           </div>
 
-          <div style={styles.breadcrumbs}>
+          <div className="ms-breadcrumbs" style={styles.breadcrumbs}>
             <button
               onClick={() => handleBreadcrumbClick(-1)}
               style={styles.breadcrumb}
@@ -188,7 +190,7 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+        <PageError message={error} />
 
         {!loading && items.length === 0 ? (
           <div style={styles.empty}>
@@ -196,11 +198,13 @@ export default function BrowsePage() {
           </div>
         ) : (
           <>
-            <div style={styles.grid}>
+            <div className="ms-video-grid" style={styles.grid}>
               {items.map((item, index) => (
                 item.type === 'folder' ? (
-                  <div
-                    key={index}
+                  <button
+                    type="button"
+                    aria-label={`Open folder ${item.name}`}
+                    key={`${currentPrefix}/${item.name}`}
                     style={styles.card}
                     onClick={() => handleFolderClick(item.name)}
                   >
@@ -210,10 +214,10 @@ export default function BrowsePage() {
                     <div style={styles.cardInfo}>
                       <div style={styles.cardTitle}>{item.name}</div>
                     </div>
-                  </div>
+                  </button>
                 ) : (
                   <LazyVideoCard
-                    key={`${item.key}-${index}`}
+                    key={item.key}
                     video={item}
                     index={index}
                     onClick={() => handleVideoClick(item.key)}
@@ -234,14 +238,6 @@ export default function BrowsePage() {
       </div>
     </>
   );
-}
-
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
 const styles = {
@@ -309,19 +305,6 @@ const styles = {
     marginTop: '8px',
     textAlign: 'center'
   },
-  loading: {
-    textAlign: 'center',
-    padding: '40px',
-    color: '#b0b0b0',
-    fontSize: '18px'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    marginBottom: '20px'
-  },
   empty: {
     textAlign: 'center',
     padding: '60px 20px',
@@ -333,6 +316,10 @@ const styles = {
     gap: '20px'
   },
   card: {
+    width: '100%',
+    padding: 0,
+    textAlign: 'left',
+    appearance: 'none',
     background: '#1a1a1a',
     borderRadius: '12px',
     overflow: 'hidden',

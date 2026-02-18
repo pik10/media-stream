@@ -11,10 +11,10 @@ export default function AdminDashboard() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
-        <h1 style={styles.title}>Admin Dashboard</h1>
+      <div className="ms-page ms-page-wide" style={styles.container}>
+        <h1 className="ms-page-title" style={styles.title}>Admin Dashboard</h1>
 
-        <div style={styles.tabs}>
+        <div className="ms-tabs" style={styles.tabs}>
           <button
             style={activeTab === 'users' ? styles.activeTab : styles.tab}
             onClick={() => setActiveTab('users')}

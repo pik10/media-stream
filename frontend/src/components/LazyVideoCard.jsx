@@ -13,7 +13,9 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
   return (
     <div ref={ref} style={styles.wrapper}>
       {isVisible ? (
-        <div
+        <button
+          type="button"
+          aria-label={`Play ${video.name}`}
           style={{
             ...styles.card,
             animation: `fadeIn 0.3s ease-out ${index * 0.02}s both`
@@ -30,7 +32,7 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
               <div style={styles.cardSize}>{formatBytes(video.size)}</div>
             )}
           </div>
-        </div>
+        </button>
       ) : (
         <div style={styles.skeleton}>
           <div style={styles.skeletonThumb}></div>
@@ -50,6 +52,10 @@ const styles = {
     border: '2px solid #333',
     borderRadius: '8px',
     overflow: 'hidden',
+    width: '100%',
+    padding: 0,
+    textAlign: 'left',
+    appearance: 'none',
     cursor: 'pointer',
     transition: 'all 0.3s ease'
   },

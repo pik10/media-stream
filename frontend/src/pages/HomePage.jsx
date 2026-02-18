@@ -5,6 +5,8 @@ import Header from '../components/Navigation/Header';
 import SearchBar from '../components/SearchBar';
 import LazyVideoCard from '../components/LazyVideoCard';
 import SortSelector from '../components/SortSelector';
+import PageLoading from '../components/UI/PageLoading';
+import PageError from '../components/UI/PageError';
 
 export default function HomePage() {
   const [allVideos, setAllVideos] = useState([]);
@@ -98,8 +100,8 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div style={styles.container}>
-          <div style={styles.loading}>Loading videos...</div>
+        <div className="ms-page ms-page-wide" style={styles.container}>
+          <PageLoading message="Loading videos..." style={styles.loading} />
         </div>
       </>
     );
@@ -109,8 +111,8 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div style={styles.container}>
-          <div style={styles.error}>{error}</div>
+        <div className="ms-page ms-page-wide" style={styles.container}>
+          <PageError message={error} />
         </div>
       </>
     );
@@ -120,7 +122,7 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div style={styles.container}>
+        <div className="ms-page ms-page-wide" style={styles.container}>
           <div style={styles.empty}>
             <h2 style={styles.emptyTitle}>No Videos Found</h2>
             <p style={styles.emptyText}>
@@ -150,9 +152,9 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Your Videos</h1>
+      <div className="ms-page ms-page-wide" style={styles.container}>
+        <div className="ms-page-header" style={styles.header}>
+          <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
 
           <SearchBar
             value={searchTerm}
@@ -174,7 +176,7 @@ export default function HomePage() {
 
         {Object.entries(videosByLibrary).map(([libraryName, videos]) => (
           <div key={libraryName} style={styles.section}>
-            <div style={styles.sectionHeader}>
+            <div className="ms-section-header" style={styles.sectionHeader}>
               <h2 style={styles.sectionTitle}>{libraryName}</h2>
               <button
                 onClick={() => handleBrowseLibrary(videos[0].libraryId)}
@@ -184,7 +186,7 @@ export default function HomePage() {
               </button>
             </div>
 
-            <div style={styles.grid}>
+            <div className="ms-video-grid" style={styles.grid}>
               {videos.slice(0, 12).map((video, index) => (
                 <LazyVideoCard
                   key={`${video.libraryId}-${video.key}`}
@@ -199,14 +201,6 @@ export default function HomePage() {
       </div>
     </>
   );
-}
-
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
 const styles = {
@@ -233,13 +227,6 @@ const styles = {
     padding: '60px 20px',
     color: '#b0b0b0',
     fontSize: '18px'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    marginBottom: '20px'
   },
   empty: {
     textAlign: 'center',

@@ -41,7 +41,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="ms-pagination" style={styles.container}>
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}

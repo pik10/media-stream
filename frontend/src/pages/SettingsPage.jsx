@@ -7,17 +7,17 @@ export default function SettingsPage() {
   return (
     <div style={styles.container}>
       <Header />
-      <main style={styles.main}>
-        <div style={styles.content}>
-          <h1 style={styles.pageTitle}>Settings</h1>
+      <main className="ms-page" style={styles.main}>
+        <div className="ms-content-narrow" style={styles.content}>
+          <h1 className="ms-page-title" style={styles.pageTitle}>Settings</h1>
 
           <div style={styles.userInfo}>
             <h3 style={styles.sectionTitle}>Account Information</h3>
-            <div style={styles.infoRow}>
+            <div className="ms-info-row" style={styles.infoRow}>
               <span style={styles.infoLabel}>Username:</span>
               <span style={styles.infoValue}>{user.username}</span>
             </div>
-            <div style={styles.infoRow}>
+            <div className="ms-info-row" style={styles.infoRow}>
               <span style={styles.infoLabel}>User ID:</span>
               <span style={styles.infoValue}>{user.id}</span>
             </div>

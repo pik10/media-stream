@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { libraries } from '../services/api';
 import AddLibrary from '../components/Library/AddLibrary';
 import Header from '../components/Navigation/Header';
+import PageLoading from '../components/UI/PageLoading';
 
 export default function LibrariesPage() {
   const [libraryList, setLibraryList] = useState([]);
@@ -43,8 +44,8 @@ export default function LibrariesPage() {
     return (
       <>
         <Header />
-        <div style={styles.container}>
-          <div style={styles.loading}>Loading...</div>
+        <div className="ms-page" style={styles.container}>
+          <PageLoading message="Loading..." />
         </div>
       </>
     );
@@ -53,9 +54,9 @@ export default function LibrariesPage() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>My Libraries</h1>
+      <div className="ms-page" style={styles.container}>
+        <div className="ms-page-toolbar" style={styles.header}>
+          <h1 className="ms-page-title" style={styles.title}>My Libraries</h1>
           <div style={styles.headerButtons}>
             <button onClick={() => setShowAddModal(true)} style={styles.addButton}>
               Add Library
@@ -71,7 +72,7 @@ export default function LibrariesPage() {
           </button>
         </div>
       ) : (
-        <div style={styles.grid}>
+        <div className="ms-library-grid" style={styles.grid}>
           {libraryList.map((library) => (
             <div key={library.id} style={styles.card}>
               <h3 style={styles.cardTitle}>{library.name}</h3>
@@ -89,7 +90,7 @@ export default function LibrariesPage() {
                   <span style={styles.value}>{library.region}</span>
                 </div>
               </div>
-              <div style={styles.cardButtons}>
+              <div className="ms-card-buttons" style={styles.cardButtons}>
                 <button
                   onClick={() => navigate(`/browse/${library.id}`)}
                   style={styles.browseButton}
@@ -170,12 +171,6 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer'
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '40px',
-    color: '#b0b0b0',
-    fontSize: '18px'
   },
   empty: {
     textAlign: 'center',

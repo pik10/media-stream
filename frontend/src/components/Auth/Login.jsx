@@ -31,15 +31,8 @@ export default function Login() {
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'An error occurred';
       setError(errorMsg);
-      setErrorTimestamp(Date.now()); // Track when error was set
-      console.error('Login/Register error:', errorMsg); // Keep error visible in console too
-
-      // Also show browser alert as backup
-      setTimeout(() => {
-        if (error) {
-          console.log('Error persisted:', errorMsg);
-        }
-      }, 2000);
+      setErrorTimestamp(Date.now());
+      console.error('Login/Register error:', errorMsg);
     } finally {
       setLoading(false);
     }

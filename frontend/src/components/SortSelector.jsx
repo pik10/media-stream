@@ -15,7 +15,7 @@ export default function SortSelector({ sort, order, onSortChange }) {
   ];
 
   return (
-    <div style={styles.container}>
+    <div className="ms-sort-controls" style={styles.container}>
       <label style={styles.label}>Sort by:</label>
 
       <select

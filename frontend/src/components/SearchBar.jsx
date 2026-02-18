@@ -26,7 +26,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search video
   };
 
   return (
-    <div style={styles.container}>
+    <div className="ms-searchbar" style={styles.container}>
       <input
         type="text"
         value={inputValue}
@@ -35,7 +35,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search video
         placeholder={placeholder}
         style={styles.input}
       />
-      <div style={styles.buttonContainer}>
+      <div className="ms-searchbar-actions" style={styles.buttonContainer}>
         {inputValue && (
           <button
             onClick={handleClear}
