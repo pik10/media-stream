@@ -19,16 +19,8 @@ export const asyncHandler = (fn) => (req, res, next) => {
  * Provides consistent error responses across all routes
  *
  * Usage in route:
- *   throw createError(404, 'User not found');
- *   // or
  *   return sendError(res, 404, 'User not found');
  */
-export const createError = (status, message) => {
-  const error = new Error(message);
-  error.status = status;
-  return error;
-};
-
 export const sendError = (res, status, message) => {
   return res.status(status).json({ error: message });
 };

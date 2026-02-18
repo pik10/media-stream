@@ -228,21 +228,3 @@ export function invalidateCache(libraryId) {
     console.log(`Invalidated cache for library ${libraryId}: ${result.changes} entries removed`);
   }
 }
-
-/**
- * Get cache statistics (for debugging)
- * @returns {Object}
- */
-export function getCacheStats() {
-  const result = db.prepare(`
-    SELECT
-      library_id,
-      COUNT(*) as video_count,
-      MAX(cached_at) as latest_cache,
-      MIN(cached_at) as oldest_cache
-    FROM video_cache
-    GROUP BY library_id
-  `).all();
-
-  return result;
-}

@@ -108,23 +108,3 @@ export function stopCleanupTask() {
     console.log('S3 connection pool cleanup task stopped');
   }
 }
-
-/**
- * Get pool statistics (for debugging)
- */
-export function getPoolStats() {
-  const stats = {
-    size: clientPool.size,
-    clients: []
-  };
-
-  for (const [key, entry] of clientPool) {
-    stats.clients.push({
-      key,
-      ageMs: Date.now() - entry.createdAt,
-      idleMs: Date.now() - entry.lastUsed
-    });
-  }
-
-  return stats;
-}
