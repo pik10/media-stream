@@ -2,18 +2,24 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { libraries, videos } from '../services/api';
 import Header from '../components/Navigation/Header';
+import SearchBar from '../components/SearchBar';
+import LazyVideoCard from '../components/LazyVideoCard';
+import SortSelector from '../components/SortSelector';
 
 export default function HomePage() {
   const [allVideos, setAllVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAllVideos();
-  }, []);
+    fetchAllVideos(searchTerm, sortBy, sortOrder);
+  }, [searchTerm, sortBy, sortOrder]);
 
-  const fetchAllVideos = async () => {
+  const fetchAllVideos = async (search = '', sort = 'date', order = 'desc') => {
     setLoading(true);
     setError('');
 
@@ -27,17 +33,24 @@ export default function HomePage() {
         return;
       }
 
-      // Fetch videos from each library
+      // Fetch videos from all libraries in parallel with search, sorting, and pagination
       const videoPromises = userLibraries.map(async (library) => {
         try {
-          const videoResponse = await videos.list(library.id);
+          const videoResponse = await videos.list(library.id, {
+            search,
+            limit: 12,
+            page: 1,
+            sort,
+            order
+          });
           return {
             library,
-            items: videoResponse.data.items.filter(item => item.type === 'file')
+            items: videoResponse.data.items.filter(item => item.type === 'file'),
+            total: videoResponse.data.pagination?.total || 0
           };
         } catch (err) {
           console.error(`Failed to fetch videos from library ${library.name}:`, err);
-          return { library, items: [] };
+          return { library, items: [], total: 0 };
         }
       });
 
@@ -70,6 +83,15 @@ export default function HomePage() {
 
   const handleBrowseLibrary = (libraryId) => {
     navigate(`/browse/${libraryId}`);
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleSortChange = (sort, order) => {
+    setSortBy(sort);
+    setSortOrder(order);
   };
 
   if (loading) {
@@ -131,6 +153,19 @@ export default function HomePage() {
       <div style={styles.container}>
         <div style={styles.header}>
           <h1 style={styles.title}>Your Videos</h1>
+
+          <SearchBar
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search across all libraries..."
+          />
+
+          <SortSelector
+            sort={sortBy}
+            order={sortOrder}
+            onSortChange={handleSortChange}
+          />
+
           <p style={styles.subtitle}>
             {allVideos.length} video{allVideos.length !== 1 ? 's' : ''} across{' '}
             {Object.keys(videosByLibrary).length} librar{Object.keys(videosByLibrary).length !== 1 ? 'ies' : 'y'}
@@ -151,22 +186,12 @@ export default function HomePage() {
 
             <div style={styles.grid}>
               {videos.slice(0, 12).map((video, index) => (
-                <div
-                  key={index}
-                  style={styles.card}
+                <LazyVideoCard
+                  key={`${video.libraryId}-${video.key}`}
+                  video={video}
+                  index={index}
                   onClick={() => handleVideoClick(video)}
-                >
-                  <div style={styles.thumbnail}>
-                    <div style={styles.playIcon}>▶</div>
-                    <div style={styles.videoIcon}>🎬</div>
-                  </div>
-                  <div style={styles.cardInfo}>
-                    <div style={styles.cardTitle}>{video.name}</div>
-                    {video.size && (
-                      <div style={styles.cardSize}>{formatBytes(video.size)}</div>
-                    )}
-                  </div>
-                </div>
+                />
               ))}
             </div>
           </div>

@@ -63,6 +63,9 @@ const schema = `
 
   CREATE INDEX IF NOT EXISTS idx_libraries_user_id ON libraries(user_id);
   CREATE INDEX IF NOT EXISTS idx_video_cache_library_id ON video_cache(library_id);
+  CREATE INDEX IF NOT EXISTS idx_video_cache_cached_at ON video_cache(cached_at);
+  CREATE INDEX IF NOT EXISTS idx_video_cache_key ON video_cache(key);
+  CREATE INDEX IF NOT EXISTS idx_video_cache_library_cached ON video_cache(library_id, cached_at);
 `;
 
 try {

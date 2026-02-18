@@ -4,6 +4,8 @@ import db from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { encrypt, decrypt } from '../utils/encryption.js';
 import { testConnection } from '../services/s3Service.js';
+import { invalidateLibrary } from '../services/s3ConnectionPool.js';
+import { invalidateCache } from '../services/videoCacheService.js';
 
 const router = express.Router();
 
@@ -157,6 +159,10 @@ router.put('/:id', async (req, res) => {
       libraryId
     );
 
+    // Invalidate S3 pool and cache when library credentials/config change
+    invalidateLibrary(libraryId);
+    invalidateCache(libraryId);
+
     const updatedLibrary = {
       id: libraryId,
       name,
@@ -195,6 +201,10 @@ router.delete('/:id', async (req, res) => {
 
     // Delete library
     db.prepare('DELETE FROM libraries WHERE id = ?').run(libraryId);
+
+    // Invalidate S3 pool and cache when library is deleted
+    invalidateLibrary(libraryId);
+    invalidateCache(libraryId);
 
     res.json({ message: 'Library deleted successfully' });
   } catch (error) {

@@ -2,7 +2,9 @@ import express from 'express';
 import db from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { decrypt } from '../utils/encryption.js';
-import { createS3Client, listObjects, isVideoFile } from '../services/s3Service.js';
+import { isVideoFile } from '../services/s3Service.js';
+import { getOrCreateClient } from '../services/s3ConnectionPool.js';
+import { getCachedVideos, invalidateCache } from '../services/videoCacheService.js';
 
 const router = express.Router();
 
@@ -10,14 +12,80 @@ const router = express.Router();
 router.use(authenticateToken);
 
 /**
+ * Helper function to process cached videos for folder view
+ * Separates videos into folders and files based on current navigation prefix
+ */
+function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
+  const items = [];
+  const folders = new Set();
+
+  for (const video of cachedVideos) {
+    // Remove the full prefix from the key to get relative path
+    let relativePath = video.key;
+    if (fullPrefix) {
+      relativePath = video.key.substring(fullPrefix.length).replace(/^\//, '');
+    }
+
+    // Skip if empty
+    if (!relativePath) continue;
+
+    // Check if this is a folder (contains a slash after removing prefix)
+    const slashIndex = relativePath.indexOf('/');
+    if (slashIndex > 0) {
+      // This is a file in a subfolder, add the folder name
+      const folderName = relativePath.substring(0, slashIndex);
+      folders.add(folderName);
+    } else if (slashIndex === -1) {
+      // This is a file in the current directory
+      items.push({
+        type: 'file',
+        name: relativePath,
+        key: video.key,
+        size: video.size,
+        lastModified: video.last_modified
+      });
+    }
+  }
+
+  // Add folders to items
+  folders.forEach(folderName => {
+    items.unshift({
+      type: 'folder',
+      name: folderName,
+      key: fullPrefix ? `${fullPrefix}/${folderName}` : folderName
+    });
+  });
+
+  return items;
+}
+
+/**
  * GET /api/videos/:libraryId
- * List videos in a library with optional prefix for folder navigation
- * Query params: prefix (optional)
+ * List videos in a library with search, pagination, sorting, and caching
+ * Query params: prefix, search, page, limit, sort, order, refresh
  */
 router.get('/:libraryId', async (req, res) => {
   try {
     const libraryId = parseInt(req.params.libraryId);
-    const prefix = req.query.prefix || '';
+    const {
+      prefix = '',
+      search = '',
+      page = 1,
+      limit = 50,
+      sort = 'date',
+      order = 'desc',
+      refresh = false
+    } = req.query;
+
+    // Validate pagination
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit)));
+    const forceRefresh = refresh === 'true' || refresh === '1';
+
+    // Validate sort parameters
+    const validSorts = ['name', 'size', 'date'];
+    const sortBy = validSorts.includes(sort) ? sort : 'date';
+    const sortOrder = order.toLowerCase() === 'asc' ? 'asc' : 'desc';
 
     // Get library and verify ownership
     const library = db.prepare(`
@@ -38,12 +106,12 @@ router.get('/:libraryId', async (req, res) => {
       return res.status(500).json({ error: 'Library configuration error' });
     }
 
-    // Create S3 client
-    const s3Client = createS3Client({
+    // Get S3 client from pool
+    const s3Client = getOrCreateClient(req.user.userId, libraryId, {
       endpoint: library.endpoint,
       region: library.region,
-      accessKey,
-      secretKey
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey
     });
 
     // Combine library path prefix with requested prefix
@@ -51,56 +119,41 @@ router.get('/:libraryId', async (req, res) => {
       ? `${library.path_prefix}/${prefix}`.replace(/\/+/g, '/').replace(/^\//, '')
       : prefix;
 
-    // List objects
-    const objects = await listObjects(s3Client, library.bucket, fullPrefix);
-
-    // Process objects to separate folders and files
-    const items = [];
-    const folders = new Set();
-
-    for (const obj of objects) {
-      // Remove the full prefix from the key to get relative path
-      let relativePath = obj.Key;
-      if (fullPrefix) {
-        relativePath = obj.Key.substring(fullPrefix.length).replace(/^\//, '');
-      }
-
-      // Skip if empty (happens when listing the prefix itself)
-      if (!relativePath) continue;
-
-      // Check if this is a folder (contains a slash after removing prefix)
-      const slashIndex = relativePath.indexOf('/');
-      if (slashIndex > 0) {
-        // This is a file in a subfolder, add the folder name
-        const folderName = relativePath.substring(0, slashIndex);
-        folders.add(folderName);
-      } else if (slashIndex === -1) {
-        // This is a file in the current directory
-        if (isVideoFile(obj.Key)) {
-          items.push({
-            type: 'file',
-            name: relativePath,
-            key: obj.Key,
-            size: obj.Size,
-            lastModified: obj.LastModified
-          });
-        }
-      }
-    }
-
-    // Add folders to items
-    folders.forEach(folderName => {
-      items.unshift({
-        type: 'folder',
-        name: folderName,
-        key: fullPrefix ? `${fullPrefix}/${folderName}` : folderName
-      });
+    // Get videos from cache
+    const result = await getCachedVideos(libraryId, {
+      s3Client,
+      bucket: library.bucket,
+      pathPrefix: library.path_prefix || '',
+      prefix: fullPrefix,
+      search,
+      page: pageNum,
+      limit: limitNum,
+      sort: sortBy,
+      order: sortOrder,
+      forceRefresh
     });
+
+    // Process for folder structure
+    const items = processItemsForFolderView(result.videos, fullPrefix, prefix);
 
     res.json({
       libraryId,
-      prefix: prefix,
-      items
+      prefix,
+      search,
+      sort: sortBy,
+      order: sortOrder,
+      items,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limitNum),
+        hasMore: pageNum * limitNum < result.total
+      },
+      cache: {
+        cached: result.cached,
+        cachedAt: result.cachedAt
+      }
     });
   } catch (error) {
     console.error('List videos error:', error);
@@ -127,6 +180,36 @@ router.get('/:libraryId', async (req, res) => {
     }
 
     res.status(statusCode).json({ error: errorMessage });
+  }
+});
+
+/**
+ * POST /api/videos/:libraryId/refresh
+ * Manually refresh cache for a library
+ */
+router.post('/:libraryId/refresh', async (req, res) => {
+  try {
+    const libraryId = parseInt(req.params.libraryId);
+
+    // Verify ownership
+    const library = db.prepare(`
+      SELECT * FROM libraries WHERE id = ? AND user_id = ?
+    `).get(libraryId, req.user.userId);
+
+    if (!library) {
+      return res.status(404).json({ error: 'Library not found' });
+    }
+
+    // Invalidate cache
+    invalidateCache(libraryId);
+
+    res.json({
+      success: true,
+      message: 'Cache invalidated. Next request will refresh from S3.'
+    });
+  } catch (error) {
+    console.error('Error refreshing cache:', error);
+    res.status(500).json({ error: 'Failed to refresh cache' });
   }
 });
 

@@ -78,8 +78,21 @@ export const libraries = {
 
 // Videos API
 export const videos = {
-  list: (libraryId, prefix = '') =>
-    api.get(`/videos/${libraryId}`, { params: { prefix } }),
+  list: (libraryId, options = {}) => {
+    // Support both old and new API for backward compatibility
+    if (typeof options === 'string') {
+      // Old call: videos.list(libraryId, prefix)
+      options = { prefix: options };
+    }
+
+    const { prefix = '', search = '', page = 1, limit = 50, sort = 'date', order = 'desc', refresh = false } = options;
+    return api.get(`/videos/${libraryId}`, {
+      params: { prefix, search, page, limit, sort, order, refresh }
+    });
+  },
+
+  refresh: (libraryId) =>
+    api.post(`/videos/${libraryId}/refresh`),
 
   getStreamUrl: (libraryId, key) =>
     `/api/stream/${libraryId}/${encodeURIComponent(key)}?token=${localStorage.getItem('token')}`

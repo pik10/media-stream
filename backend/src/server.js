@@ -12,6 +12,10 @@ import videosRoutes from './routes/videos.js';
 import streamRoutes from './routes/stream.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import './config/database.js'; // Initialize database
+import { startCleanupTask, stopCleanupTask } from './services/s3ConnectionPool.js';
+
+// Start S3 connection pool cleanup
+startCleanupTask();
 
 // Validate required environment variables
 const requiredEnvVars = ['JWT_SECRET', 'ENCRYPTION_KEY'];
@@ -158,6 +162,19 @@ app.listen(PORT, () => {
   console.log(`  GET  /api/videos/:libraryId`);
   console.log(`  GET  /api/stream/:libraryId/:encodedKey`);
   console.log(`\n`);
+});
+
+// Graceful shutdown handlers
+process.on('SIGTERM', () => {
+  console.log('\nSIGTERM received, shutting down gracefully...');
+  stopCleanupTask();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('\nSIGINT received, shutting down gracefully...');
+  stopCleanupTask();
+  process.exit(0);
 });
 
 export default app;

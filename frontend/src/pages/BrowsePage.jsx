@@ -1,25 +1,63 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { videos } from '../services/api';
+import { videos, libraries } from '../services/api';
 import Header from '../components/Navigation/Header';
+import SearchBar from '../components/SearchBar';
+import Pagination from '../components/Pagination';
+import LazyVideoCard from '../components/LazyVideoCard';
+import SortSelector from '../components/SortSelector';
 
 export default function BrowsePage() {
   const { libraryId } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState([]);
+  const [library, setLibrary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const [cacheInfo, setCacheInfo] = useState(null);
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const ITEMS_PER_PAGE = 50;
 
   const currentPrefix = searchParams.get('prefix') || '';
+
+  // Fetch library info once when component mounts
+  useEffect(() => {
+    const fetchLibrary = async () => {
+      try {
+        const response = await libraries.getAll();
+        const lib = response.data.libraries.find(l => l.id === parseInt(libraryId));
+        if (lib) {
+          setLibrary(lib);
+        }
+      } catch (err) {
+        console.error('Failed to fetch library info:', err);
+      }
+    };
+    fetchLibrary();
+  }, [libraryId]);
 
   const fetchVideos = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await videos.list(libraryId, currentPrefix);
+      const response = await videos.list(libraryId, {
+        prefix: currentPrefix,
+        search: searchTerm,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        sort: sortBy,
+        order: sortOrder
+      });
+
       setItems(response.data.items);
+      setPagination(response.data.pagination);
+      setCacheInfo(response.data.cache);
     } catch (err) {
       setError('Failed to load videos');
       console.error('Failed to fetch videos:', err);
@@ -30,7 +68,7 @@ export default function BrowsePage() {
 
   useEffect(() => {
     fetchVideos();
-  }, [libraryId, currentPrefix]);
+  }, [libraryId, currentPrefix, searchTerm, currentPage, sortBy, sortOrder]);
 
   const handleFolderClick = (folderName) => {
     const newPrefix = currentPrefix ? `${currentPrefix}/${folderName}` : folderName;
@@ -51,6 +89,31 @@ export default function BrowsePage() {
     }
   };
 
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await videos.refresh(libraryId);
+      fetchVideos();
+    } catch (err) {
+      console.error('Failed to refresh:', err);
+    }
+  };
+
+  const handleSortChange = (sort, order) => {
+    setSortBy(sort);
+    setSortOrder(order);
+    setCurrentPage(1); // Reset to first page on sort change
+  };
+
   const breadcrumbs = currentPrefix ? currentPrefix.split('/') : [];
 
   if (loading) {
@@ -69,68 +132,105 @@ export default function BrowsePage() {
       <Header />
       <div style={styles.container}>
         <div style={styles.header}>
-          <button onClick={() => navigate('/libraries')} style={styles.backButton}>
-            ← Back to Libraries
-          </button>
+          <div style={styles.topBar}>
+            <button onClick={() => navigate('/libraries')} style={styles.backButton}>
+              ← Back to Libraries
+            </button>
 
-        <div style={styles.breadcrumbs}>
-          <button
-            onClick={() => handleBreadcrumbClick(-1)}
-            style={styles.breadcrumb}
-          >
-            Home
-          </button>
-          {breadcrumbs.map((part, index) => (
-            <span key={index}>
-              <span style={styles.breadcrumbSeparator}>/</span>
-              <button
-                onClick={() => handleBreadcrumbClick(index)}
-                style={styles.breadcrumb}
-              >
-                {part}
-              </button>
-            </span>
-          ))}
-        </div>
-      </div>
+            <button onClick={handleRefresh} style={styles.refreshButton}>
+              ↻ Refresh from S3
+            </button>
+          </div>
 
-      {error && <div style={styles.error}>{error}</div>}
-
-      {items.length === 0 ? (
-        <div style={styles.empty}>
-          <p>No videos or folders found in this location.</p>
-        </div>
-      ) : (
-        <div style={styles.grid}>
-          {items.map((item, index) => (
-            <div
-              key={index}
-              style={styles.card}
-              onClick={() =>
-                item.type === 'folder'
-                  ? handleFolderClick(item.name)
-                  : handleVideoClick(item.key)
-              }
+          <div style={styles.breadcrumbs}>
+            <button
+              onClick={() => handleBreadcrumbClick(-1)}
+              style={styles.breadcrumb}
             >
-              <div style={styles.thumbnail}>
-                {item.type === 'folder' ? (
-                  <div style={styles.folderIcon}>📁</div>
-                ) : (
-                  <div style={styles.videoIcon}>🎬</div>
-                )}
-              </div>
-              <div style={styles.cardInfo}>
-                <div style={styles.cardTitle}>{item.name}</div>
-                {item.type === 'file' && item.size && (
-                  <div style={styles.cardSize}>
-                    {formatBytes(item.size)}
-                  </div>
-                )}
-              </div>
+              {library?.name || 'Library'}
+            </button>
+            {breadcrumbs.map((part, index) => (
+              <span key={index}>
+                <span style={styles.breadcrumbSeparator}>/</span>
+                <button
+                  onClick={() => handleBreadcrumbClick(index)}
+                  style={styles.breadcrumb}
+                >
+                  {part}
+                </button>
+              </span>
+            ))}
+          </div>
+
+          <SearchBar
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search in this library..."
+          />
+
+          <SortSelector
+            sort={sortBy}
+            order={sortOrder}
+            onSortChange={handleSortChange}
+          />
+
+          {cacheInfo?.cachedAt && (
+            <div style={styles.cacheInfo}>
+              Cached at {new Date(cacheInfo.cachedAt).toLocaleTimeString()}
             </div>
-          ))}
+          )}
+
+          {pagination && (
+            <div style={styles.paginationInfo}>
+              Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-
+              {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} of {pagination.total} items
+            </div>
+          )}
         </div>
-      )}
+
+        {error && <div style={styles.error}>{error}</div>}
+
+        {!loading && items.length === 0 ? (
+          <div style={styles.empty}>
+            <p>No videos or folders found in this location.</p>
+          </div>
+        ) : (
+          <>
+            <div style={styles.grid}>
+              {items.map((item, index) => (
+                item.type === 'folder' ? (
+                  <div
+                    key={index}
+                    style={styles.card}
+                    onClick={() => handleFolderClick(item.name)}
+                  >
+                    <div style={styles.thumbnail}>
+                      <div style={styles.folderIcon}>📁</div>
+                    </div>
+                    <div style={styles.cardInfo}>
+                      <div style={styles.cardTitle}>{item.name}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <LazyVideoCard
+                    key={`${item.key}-${index}`}
+                    video={item}
+                    index={index}
+                    onClick={() => handleVideoClick(item.key)}
+                  />
+                )
+              ))}
+            </div>
+
+            {pagination && pagination.totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
+        )}
       </div>
     </>
   );
@@ -153,6 +253,12 @@ const styles = {
   header: {
     marginBottom: '32px'
   },
+  topBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px'
+  },
   backButton: {
     padding: '8px 16px',
     borderRadius: '6px',
@@ -160,8 +266,17 @@ const styles = {
     background: 'transparent',
     color: '#b0b0b0',
     fontSize: '14px',
+    cursor: 'pointer'
+  },
+  refreshButton: {
+    padding: '8px 16px',
+    fontSize: '14px',
+    backgroundColor: '#3b82f6',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
     cursor: 'pointer',
-    marginBottom: '16px'
+    fontWeight: '500'
   },
   breadcrumbs: {
     display: 'flex',
@@ -181,6 +296,18 @@ const styles = {
   breadcrumbSeparator: {
     color: '#6b7280',
     margin: '0 4px'
+  },
+  cacheInfo: {
+    fontSize: '12px',
+    color: '#888',
+    marginTop: '12px',
+    textAlign: 'center'
+  },
+  paginationInfo: {
+    fontSize: '14px',
+    color: '#aaa',
+    marginTop: '8px',
+    textAlign: 'center'
   },
   loading: {
     textAlign: 'center',

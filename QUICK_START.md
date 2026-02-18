@@ -35,7 +35,10 @@
 
 5. **Browse and watch videos**:
    - Click "Browse Videos" on your library card
-   - Navigate through folders if you have any
+   - Navigate through folders using breadcrumbs (Library Name / Folder1 / Folder2)
+   - **Search**: Type keywords in search bar and press Enter
+   - **Sort**: Choose sort field (Name/Size/Date) and order (↑↓)
+   - **Paginate**: Browse large collections 50 items at a time
    - Click on any video file to start streaming
    - Use the video controls to play, pause, seek, adjust volume, or go fullscreen
 
@@ -115,10 +118,30 @@ The SQLite database is stored at:
 - All API endpoints require authentication except login/register
 - Rate limiting is applied to auth endpoints (5 requests per minute)
 
+## New Features
+
+### Search & Filtering
+- Type search terms and press **Enter** to find videos
+- Searches across all video filenames in the library
+- Works with folder paths (e.g., search "2024" finds all videos in 2024 folders)
+
+### Sorting
+- **Sort by Name**: Alphabetical (A-Z or Z-A)
+- **Sort by Size**: File size (largest/smallest first)
+- **Sort by Date**: Last modified date (newest/oldest first)
+- Click the arrow button (↑↓) to toggle sort order
+
+### Performance
+- **Automatic Caching**: Video lists are cached for 5 minutes
+- **Fast Loading**: Only 50 items loaded per page
+- **Lazy Loading**: Videos render as you scroll
+- Click **"↻ Refresh from S3"** to manually update the cache
+
 ## Next Steps
 
 - Add multiple S3 libraries for different buckets
 - Organize your videos in folders for easy navigation
+- Use search to quickly find specific videos
 - The video player supports seeking (jumping to different timestamps)
 - Use breadcrumbs to navigate back through folder hierarchies
 
