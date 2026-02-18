@@ -31,6 +31,13 @@ export default function Performance() {
   const requestRows = metrics.requests || [];
   const dbRows = metrics.db || [];
   const cacheByLibrary = metrics.cache?.byLibrary || [];
+  const refreshQueue = metrics.refreshQueue || { processing: false, queued: 0 };
+  const refreshJobs = metrics.refreshJobs?.recent || [];
+  const refreshCounts = metrics.refreshJobs?.counts || {};
+  const libraryHealth = metrics.libraryHealth || [];
+  const totalRequests = requestRows.reduce((sum, row) => sum + (row.count || 0), 0);
+  const totalRequestErrors = requestRows.reduce((sum, row) => sum + (row.errors || 0), 0);
+  const requestErrorRatePct = totalRequests ? Math.round((totalRequestErrors / totalRequests) * 10000) / 100 : 0;
 
   return (
     <div style={styles.container}>
@@ -51,7 +58,78 @@ export default function Performance() {
           <div style={styles.summaryLabel}>Forced Refreshes</div>
           <div style={styles.summaryValue}>{metrics.cache?.forcedRefreshes ?? 0}</div>
         </div>
+        <div style={styles.summaryCard}>
+          <div style={styles.summaryLabel}>Total Requests</div>
+          <div style={styles.summaryValue}>{totalRequests}</div>
+        </div>
+        <div style={styles.summaryCard}>
+          <div style={styles.summaryLabel}>Request Error Rate</div>
+          <div style={styles.summaryValue}>{requestErrorRatePct}%</div>
+        </div>
+        <div style={styles.summaryCard}>
+          <div style={styles.summaryLabel}>Refresh Queue</div>
+          <div style={styles.summaryValue}>{refreshQueue.queued}</div>
+        </div>
+        <div style={styles.summaryCard}>
+          <div style={styles.summaryLabel}>Queue Processor</div>
+          <div style={styles.summaryValue}>{refreshQueue.processing ? 'Running' : 'Idle'}</div>
+        </div>
       </div>
+
+      <section style={styles.section}>
+        <h3 style={styles.sectionTitle}>Refresh Jobs</h3>
+        <div style={styles.topSummary}>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Queued</div>
+            <div style={styles.summaryValue}>{refreshCounts.queued ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Running</div>
+            <div style={styles.summaryValue}>{refreshCounts.running ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Completed</div>
+            <div style={styles.summaryValue}>{refreshCounts.completed ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Failed</div>
+            <div style={styles.summaryValue}>{refreshCounts.failed ?? 0}</div>
+          </div>
+        </div>
+
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Job</th>
+                <th style={styles.th}>Library</th>
+                <th style={styles.th}>User</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Created</th>
+                <th style={styles.th}>Finished</th>
+              </tr>
+            </thead>
+            <tbody>
+              {refreshJobs.length === 0 ? (
+                <tr>
+                  <td style={styles.emptyCell} colSpan={6}>No refresh jobs yet</td>
+                </tr>
+              ) : (
+                refreshJobs.map((job) => (
+                  <tr key={job.id}>
+                    <td style={styles.td}>#{job.id}</td>
+                    <td style={styles.td}>{job.libraryId}</td>
+                    <td style={styles.td}>{job.userId}</td>
+                    <td style={styles.td}>{job.status}</td>
+                    <td style={styles.td}>{formatDate(job.createdAt)}</td>
+                    <td style={styles.td}>{job.finishedAt ? formatDate(job.finishedAt) : '-'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>Request Latency</h3>
@@ -159,6 +237,40 @@ export default function Performance() {
         </div>
       </section>
 
+      <section style={styles.section}>
+        <h3 style={styles.sectionTitle}>Library Health</h3>
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Library</th>
+                <th style={styles.th}>Owner</th>
+                <th style={styles.th}>Cached Videos</th>
+                <th style={styles.th}>Last Cached</th>
+                <th style={styles.th}>Home</th>
+              </tr>
+            </thead>
+            <tbody>
+              {libraryHealth.length === 0 ? (
+                <tr>
+                  <td style={styles.emptyCell} colSpan={5}>No libraries found</td>
+                </tr>
+              ) : (
+                libraryHealth.map((library) => (
+                  <tr key={library.id}>
+                    <td style={styles.td}>#{library.id} {library.name}</td>
+                    <td style={styles.td}>{library.owner_username || '-'}</td>
+                    <td style={styles.td}>{library.cached_videos}</td>
+                    <td style={styles.td}>{library.last_cached_at ? formatDate(library.last_cached_at) : 'Never'}</td>
+                    <td style={styles.td}>{library.show_on_home ? 'Yes' : 'No'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <div style={styles.footer}>
         <div style={styles.timestamp}>Updated: {new Date(metrics.timestamp).toLocaleString()}</div>
         <button onClick={fetchMetrics} style={styles.refreshButton}>↻ Refresh</button>
@@ -175,6 +287,14 @@ function formatDuration(totalSeconds) {
   if (h > 0) return `${h}h ${m}m ${s}s`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
+}
+
+function formatDate(value) {
+  try {
+    return new Date(value).toLocaleString();
+  } catch (_) {
+    return '-';
+  }
 }
 
 const styles = {

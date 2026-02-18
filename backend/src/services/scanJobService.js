@@ -129,3 +129,36 @@ export function getRefreshQueueStats() {
     queued: jobQueue.length
   };
 }
+
+export function getRefreshJobsSnapshot(limit = 20) {
+  const jobs = Array.from(latestJobs.values())
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const counts = {
+    queued: 0,
+    running: 0,
+    completed: 0,
+    failed: 0
+  };
+
+  jobs.forEach((job) => {
+    if (counts[job.status] !== undefined) {
+      counts[job.status] += 1;
+    }
+  });
+
+  return {
+    counts,
+    recent: jobs.slice(0, limit).map((job) => ({
+      id: job.id,
+      userId: job.userId,
+      libraryId: job.libraryId,
+      status: job.status,
+      createdAt: job.createdAt,
+      startedAt: job.startedAt,
+      finishedAt: job.finishedAt,
+      result: job.result,
+      error: job.error
+    }))
+  };
+}

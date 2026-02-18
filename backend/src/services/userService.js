@@ -182,5 +182,26 @@ export const userService = {
     `).get();
 
     return stats;
+  },
+
+  /**
+   * Get library health summary for admin dashboard
+   */
+  getLibraryHealthSummary() {
+    return db.prepare(`
+      SELECT
+        l.id,
+        l.name,
+        l.user_id,
+        u.username as owner_username,
+        COUNT(vc.id) as cached_videos,
+        MAX(vc.cached_at) as last_cached_at,
+        l.show_on_home
+      FROM libraries l
+      LEFT JOIN users u ON u.id = l.user_id
+      LEFT JOIN video_cache vc ON vc.library_id = l.id
+      GROUP BY l.id
+      ORDER BY l.created_at DESC
+    `).all();
   }
 };

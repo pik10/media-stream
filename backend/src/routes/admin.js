@@ -6,6 +6,7 @@ import { asyncHandler, sendError } from '../utils/asyncHandler.js';
 import { getAttemptStatus, unlockAccount } from '../services/loginAttemptTracker.js';
 import { getMetricsSnapshot } from '../services/metricsService.js';
 import { settingsService } from '../services/settingsService.js';
+import { getRefreshQueueStats, getRefreshJobsSnapshot } from '../services/scanJobService.js';
 import Joi from 'joi';
 
 const router = express.Router();
@@ -237,7 +238,15 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/metrics', async (req, res) => {
   try {
-    res.json(getMetricsSnapshot());
+    const metrics = getMetricsSnapshot();
+    const libraryHealth = userService.getLibraryHealthSummary();
+
+    res.json({
+      ...metrics,
+      refreshQueue: getRefreshQueueStats(),
+      refreshJobs: getRefreshJobsSnapshot(20),
+      libraryHealth
+    });
   } catch (error) {
     console.error('Get metrics error:', error);
     res.status(500).json({ error: 'Failed to get metrics' });
