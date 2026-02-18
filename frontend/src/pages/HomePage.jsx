@@ -170,23 +170,24 @@ export default function HomePage() {
       <Header />
       <div className="ms-page ms-page-wide" style={styles.container}>
         <div className="ms-page-header" style={styles.header}>
-          <div style={styles.titleRow}>
-            <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
-            <div style={styles.searchWrap}>
-              <SearchBar
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Search across all libraries..."
-                margin="0"
-              />
-            </div>
+          <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
+
+          <div style={styles.searchWrap}>
+            <SearchBar
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search across all libraries..."
+              margin="0 auto"
+            />
           </div>
 
-          <SortSelector
-            sort={sortBy}
-            order={sortOrder}
-            onSortChange={handleSortChange}
-          />
+          <div style={styles.sortWrap}>
+            <SortSelector
+              sort={sortBy}
+              order={sortOrder}
+              onSortChange={handleSortChange}
+            />
+          </div>
 
           <p style={styles.subtitle}>
             {allVideos.length} video{allVideos.length !== 1 ? 's' : ''} across{' '}
@@ -233,22 +234,19 @@ const styles = {
   header: {
     marginBottom: '40px'
   },
-  titleRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '16px',
-    flexWrap: 'wrap'
-  },
   title: {
     fontSize: '36px',
     color: '#fff',
     marginBottom: '8px'
   },
   searchWrap: {
-    flex: '1 1 420px',
+    width: '100%',
     maxWidth: '600px',
-    minWidth: '280px'
+    minWidth: '280px',
+    margin: '0 auto'
+  },
+  sortWrap: {
+    marginTop: '8px'
   },
   subtitle: {
     fontSize: '16px',
