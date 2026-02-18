@@ -20,7 +20,8 @@ const addLibrarySchema = Joi.object({
   bucket: Joi.string().min(1).required(),
   accessKey: Joi.string().min(1).required(),
   secretKey: Joi.string().min(1).required(),
-  pathPrefix: Joi.string().allow('').optional()
+  pathPrefix: Joi.string().allow('').optional(),
+  showOnHome: Joi.boolean().optional()
 });
 
 /**
@@ -30,7 +31,7 @@ const addLibrarySchema = Joi.object({
 router.get('/', async (req, res) => {
   try {
     const libraries = db.prepare(`
-      SELECT id, name, endpoint, region, bucket, path_prefix, created_at
+      SELECT id, name, endpoint, region, bucket, path_prefix, show_on_home, created_at
       FROM libraries
       WHERE user_id = ?
       ORDER BY created_at DESC
@@ -55,7 +56,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { name, endpoint, region, bucket, accessKey, secretKey, pathPrefix } = value;
+    const { name, endpoint, region, bucket, accessKey, secretKey, pathPrefix, showOnHome } = value;
 
     // Encrypt credentials
     const accessKeyEncrypted = encrypt(accessKey);
@@ -63,8 +64,8 @@ router.post('/', async (req, res) => {
 
     // Insert library
     const result = db.prepare(`
-      INSERT INTO libraries (user_id, name, endpoint, region, bucket, access_key_encrypted, secret_key_encrypted, path_prefix)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO libraries (user_id, name, endpoint, region, bucket, access_key_encrypted, secret_key_encrypted, path_prefix, show_on_home)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       req.user.userId,
       name,
@@ -73,7 +74,8 @@ router.post('/', async (req, res) => {
       bucket,
       accessKeyEncrypted,
       secretKeyEncrypted,
-      pathPrefix || ''
+      pathPrefix || '',
+      showOnHome === false ? 0 : 1
     );
 
     const library = {
@@ -82,7 +84,8 @@ router.post('/', async (req, res) => {
       endpoint,
       region,
       bucket,
-      path_prefix: pathPrefix || ''
+      path_prefix: pathPrefix || '',
+      show_on_home: showOnHome === false ? 0 : 1
     };
 
     res.status(201).json({
@@ -120,7 +123,8 @@ router.put('/:id', async (req, res) => {
       bucket: Joi.string().min(1).required(),
       accessKey: Joi.string().allow('').optional(),
       secretKey: Joi.string().allow('').optional(),
-      pathPrefix: Joi.string().allow('').optional()
+      pathPrefix: Joi.string().allow('').optional(),
+      showOnHome: Joi.boolean().optional()
     });
 
     // Validate input
@@ -129,7 +133,10 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { name, endpoint, region, bucket, accessKey, secretKey, pathPrefix } = value;
+    const { name, endpoint, region, bucket, accessKey, secretKey, pathPrefix, showOnHome } = value;
+    const nextShowOnHome = typeof showOnHome === 'boolean'
+      ? (showOnHome ? 1 : 0)
+      : (existingLibrary.show_on_home ?? 1);
 
     // If credentials are provided, encrypt them; otherwise keep existing
     let accessKeyEncrypted = existingLibrary.access_key_encrypted;
@@ -146,7 +153,7 @@ router.put('/:id', async (req, res) => {
     db.prepare(`
       UPDATE libraries
       SET name = ?, endpoint = ?, region = ?, bucket = ?,
-          access_key_encrypted = ?, secret_key_encrypted = ?, path_prefix = ?
+          access_key_encrypted = ?, secret_key_encrypted = ?, path_prefix = ?, show_on_home = ?
       WHERE id = ?
     `).run(
       name,
@@ -156,6 +163,7 @@ router.put('/:id', async (req, res) => {
       accessKeyEncrypted,
       secretKeyEncrypted,
       pathPrefix || '',
+      nextShowOnHome,
       libraryId
     );
 
@@ -169,7 +177,8 @@ router.put('/:id', async (req, res) => {
       endpoint,
       region,
       bucket,
-      path_prefix: pathPrefix || ''
+      path_prefix: pathPrefix || '',
+      show_on_home: nextShowOnHome
     };
 
     res.json({

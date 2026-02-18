@@ -46,6 +46,7 @@ const schema = `
     access_key_encrypted TEXT NOT NULL,
     secret_key_encrypted TEXT NOT NULL,
     path_prefix TEXT DEFAULT '',
+    show_on_home BOOLEAN DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
@@ -107,6 +108,14 @@ try {
   if (!existingColumns.includes('login_count')) {
     db.exec('ALTER TABLE users ADD COLUMN login_count INTEGER DEFAULT 0');
     console.log('Added login_count column');
+  }
+
+  // Add libraries.show_on_home column if missing
+  const librariesTableInfo = db.pragma('table_info(libraries)');
+  const libraryColumns = librariesTableInfo.map(col => col.name);
+  if (!libraryColumns.includes('show_on_home')) {
+    db.exec('ALTER TABLE libraries ADD COLUMN show_on_home BOOLEAN DEFAULT 1');
+    console.log('Added libraries.show_on_home column');
   }
 
   // Create user_activity table

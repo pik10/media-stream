@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function SearchBar({ value, onChange, placeholder = "Search videos..." }) {
+export default function SearchBar({ value, onChange, placeholder = "Search videos...", margin = '20px auto' }) {
   const [inputValue, setInputValue] = useState(value);
 
   // Sync with external value changes
@@ -26,7 +26,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search video
   };
 
   return (
-    <div className="ms-searchbar" style={styles.container}>
+    <div className="ms-searchbar" style={{ ...styles.container, margin }}>
       <input
         type="text"
         value={inputValue}

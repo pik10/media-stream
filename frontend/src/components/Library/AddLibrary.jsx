@@ -11,16 +11,18 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
     bucket: library?.bucket || '',
     accessKey: '',
     secretKey: '',
-    pathPrefix: library?.path_prefix || ''
+    pathPrefix: library?.path_prefix || '',
+    showOnHome: library?.show_on_home !== 0
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
 
   const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     });
   };
 
@@ -160,6 +162,19 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
             />
           </div>
 
+          <div style={styles.checkboxRow}>
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                name="showOnHome"
+                checked={formData.showOnHome}
+                onChange={handleChange}
+                style={styles.checkbox}
+              />
+              <span style={styles.checkboxText}>Show this library on Home page</span>
+            </label>
+          </div>
+
           {error && <div style={styles.error}>{error}</div>}
 
           <div style={styles.buttonRow}>
@@ -297,5 +312,23 @@ const styles = {
     fontSize: '12px',
     color: '#6b7280',
     fontWeight: '400'
+  },
+  checkboxRow: {
+    marginTop: '4px'
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    cursor: 'pointer'
+  },
+  checkbox: {
+    width: '16px',
+    height: '16px',
+    cursor: 'pointer'
+  },
+  checkboxText: {
+    color: '#e0e0e0',
+    fontSize: '14px'
   }
 };

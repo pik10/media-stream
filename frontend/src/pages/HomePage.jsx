@@ -10,6 +10,10 @@ import PageError from '../components/UI/PageError';
 
 export default function HomePage() {
   const [allVideos, setAllVideos] = useState([]);
+  const [librarySummary, setLibrarySummary] = useState({
+    total: 0,
+    homeEnabled: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,14 +33,21 @@ export default function HomePage() {
       // Get all libraries
       const libResponse = await libraries.getAll();
       const userLibraries = libResponse.data.libraries;
+      const homeLibraries = userLibraries.filter((library) => library.show_on_home !== 0);
 
-      if (userLibraries.length === 0) {
+      setLibrarySummary({
+        total: userLibraries.length,
+        homeEnabled: homeLibraries.length
+      });
+
+      if (homeLibraries.length === 0) {
+        setAllVideos([]);
         setLoading(false);
         return;
       }
 
       // Fetch videos from all libraries in parallel with search, sorting, and pagination
-      const videoPromises = userLibraries.map(async (library) => {
+      const videoPromises = homeLibraries.map(async (library) => {
         try {
           const videoResponse = await videos.list(library.id, {
             search,
@@ -119,6 +130,9 @@ export default function HomePage() {
   }
 
   if (allVideos.length === 0) {
+    const hasNoLibraries = librarySummary.total === 0;
+    const hasNoHomeLibraries = librarySummary.total > 0 && librarySummary.homeEnabled === 0;
+
     return (
       <>
         <Header />
@@ -126,7 +140,9 @@ export default function HomePage() {
           <div style={styles.empty}>
             <h2 style={styles.emptyTitle}>No Videos Found</h2>
             <p style={styles.emptyText}>
-              You don't have any videos yet. Add an S3 library to get started!
+              {hasNoLibraries && "You don't have any libraries yet. Add an S3 library to get started!"}
+              {hasNoHomeLibraries && 'No libraries are currently enabled for Home. Edit a library and turn on "Show this library on Home page".'}
+              {!hasNoLibraries && !hasNoHomeLibraries && 'No videos match your current search or sorting options.'}
             </p>
             <button
               onClick={() => navigate('/libraries')}
@@ -160,6 +176,7 @@ export default function HomePage() {
             value={searchTerm}
             onChange={handleSearch}
             placeholder="Search across all libraries..."
+            margin="8px auto 14px"
           />
 
           <SortSelector
