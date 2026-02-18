@@ -30,7 +30,6 @@ const streamStats = {
   events: []
 };
 const STREAM_EVENT_RETENTION_MS = 60 * 60 * 1000; // 1 hour
-const STREAM_RECENT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const STREAM_MAX_EVENTS = 5000;
 const EARLY_CLIENT_ABORT_MS = 2000;
 
@@ -245,66 +244,10 @@ export function getMetricsSnapshot() {
     count
   }));
   streamStatus.sort((a, b) => b.count - a.count);
-  const recentEvents = streamStats.events.filter((event) => event.timestamp >= nowMs - STREAM_RECENT_WINDOW_MS);
-  const recentByStatus = new Map();
-  let recentCompleted = 0;
-  let recentIssues = 0;
-  let recentClientAborted = 0;
-  let recentEarlyClientAborted = 0;
-  let recentUpstreamErrors = 0;
-  let recentInvalidRange = 0;
-  let recentNotFound = 0;
-  let recentOtherErrors = 0;
-  const recentDurations = [];
-
-  for (const event of recentEvents) {
-    if (event.statusCode !== null) {
-      const key = String(event.statusCode);
-      recentByStatus.set(key, (recentByStatus.get(key) || 0) + 1);
-    }
-
-    recentDurations.push(event.durationMs);
-    switch (event.outcome) {
-      case 'completed':
-        recentCompleted += 1;
-        break;
-      case 'client_aborted':
-        recentClientAborted += 1;
-        if (event.durationMs < EARLY_CLIENT_ABORT_MS) {
-          recentEarlyClientAborted += 1;
-        }
-        recentIssues += 1;
-        break;
-      case 'upstream_error':
-        recentUpstreamErrors += 1;
-        recentIssues += 1;
-        break;
-      case 'invalid_range':
-        recentInvalidRange += 1;
-        recentIssues += 1;
-        break;
-      case 'not_found':
-        recentNotFound += 1;
-        recentIssues += 1;
-        break;
-      default:
-        recentOtherErrors += 1;
-        recentIssues += 1;
-        break;
-    }
-  }
-
-  const recentTotalOutcomes = recentEvents.length;
-  const recentByStatusRows = Array.from(recentByStatus.entries()).map(([statusCode, count]) => ({
-    statusCode: parseInt(statusCode, 10),
-    count
-  }));
-  recentByStatusRows.sort((a, b) => b.count - a.count);
 
   const totalCacheEvents = cacheStats.hits + cacheStats.misses;
   const totalHardFailures = streamStats.upstreamErrors + streamStats.invalidRange + streamStats.notFound + streamStats.otherErrors;
   const totalStreamOutcomes = streamStats.completed + streamStats.clientAborted + streamStats.upstreamErrors + streamStats.invalidRange + streamStats.notFound + streamStats.otherErrors;
-  const recentHardFailures = recentUpstreamErrors + recentInvalidRange + recentNotFound + recentOtherErrors;
   return {
     timestamp: new Date().toISOString(),
     uptimeSeconds: Math.floor(process.uptime()),
@@ -336,27 +279,7 @@ export function getMetricsSnapshot() {
       avgDurationMs: average(streamStats.samples),
       p95DurationMs: percentile(streamStats.samples, 95),
       byStatus: streamStatus,
-      byLibrary: streamByLibrary,
-      recent15m: {
-        outcomes: recentTotalOutcomes,
-        completed: recentCompleted,
-        issues: recentIssues,
-        clientAborted: recentClientAborted,
-        earlyClientAborted: recentEarlyClientAborted,
-        upstreamErrors: recentUpstreamErrors,
-        invalidRange: recentInvalidRange,
-        notFound: recentNotFound,
-        otherErrors: recentOtherErrors,
-        hardFailures: recentHardFailures,
-        hardFailureRatePct: recentTotalOutcomes ? Math.round((recentHardFailures / recentTotalOutcomes) * 10000) / 100 : 0,
-        clientAbortRatePct: recentTotalOutcomes ? Math.round((recentClientAborted / recentTotalOutcomes) * 10000) / 100 : 0,
-        earlyClientAbortRatePct: recentTotalOutcomes ? Math.round((recentEarlyClientAborted / recentTotalOutcomes) * 10000) / 100 : 0,
-        completionRatePct: recentTotalOutcomes ? Math.round((recentCompleted / recentTotalOutcomes) * 10000) / 100 : 0,
-        issueRatePct: recentTotalOutcomes ? Math.round((recentIssues / recentTotalOutcomes) * 10000) / 100 : 0,
-        avgDurationMs: average(recentDurations),
-        p95DurationMs: percentile(recentDurations, 95),
-        byStatus: recentByStatusRows
-      }
+      byLibrary: streamByLibrary
     }
   };
 }
