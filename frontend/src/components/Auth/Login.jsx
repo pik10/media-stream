@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../services/api';
 
@@ -9,7 +9,25 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorTimestamp, setErrorTimestamp] = useState(0);
+  const [allowRegistrations, setAllowRegistrations] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRegistrationStatus = async () => {
+      try {
+        const response = await auth.getRegistrationStatus();
+        const enabled = response.data.allowRegistrations === true;
+        setAllowRegistrations(enabled);
+        if (!enabled) {
+          setIsLogin(true);
+        }
+      } catch (err) {
+        console.error('Failed to fetch registration status:', err);
+      }
+    };
+
+    fetchRegistrationStatus();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +41,10 @@ export default function Login() {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         navigate('/libraries');
       } else {
+        if (!allowRegistrations) {
+          setError('New user registration is currently disabled by admin');
+          return;
+        }
         await auth.register(username, password);
         setIsLogin(true);
         setError('✓ Registration successful! Please login.');
@@ -99,18 +121,20 @@ export default function Login() {
           </button>
         </form>
 
-        <div style={styles.toggle}>
-          {isLogin ? "Don't have an account? " : 'Already have an account? '}
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            style={styles.toggleButton}
-          >
-            {isLogin ? 'Register' : 'Login'}
-          </button>
-        </div>
+        {allowRegistrations && (
+          <div style={styles.toggle}>
+            {isLogin ? "Don't have an account? " : 'Already have an account? '}
+            <button
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+              }}
+              style={styles.toggleButton}
+            >
+              {isLogin ? 'Register' : 'Login'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

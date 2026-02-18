@@ -48,6 +48,9 @@ export const auth = {
   login: (username, password) =>
     api.post('/auth/login', { username, password }),
 
+  getRegistrationStatus: () =>
+    api.get('/auth/registration-status'),
+
   getMe: () =>
     api.get('/auth/me'),
 

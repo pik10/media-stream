@@ -24,6 +24,19 @@ const changePasswordSchema = Joi.object({
 });
 
 /**
+ * GET /api/auth/registration-status
+ * Public endpoint for login screen behavior
+ */
+router.get('/registration-status', (req, res) => {
+  try {
+    res.json({ allowRegistrations: settingsService.getAllowRegistrations() });
+  } catch (error) {
+    console.error('Get registration status error:', error);
+    res.status(500).json({ error: 'Failed to get registration status' });
+  }
+});
+
+/**
  * POST /api/auth/register
  * Register a new user
  */
