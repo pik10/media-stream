@@ -247,13 +247,15 @@ export default function Performance() {
                 <th style={styles.th}>Owner</th>
                 <th style={styles.th}>Cached Videos</th>
                 <th style={styles.th}>Last Cached</th>
+                <th style={styles.th}>Last Refresh</th>
+                <th style={styles.th}>Refresh Error</th>
                 <th style={styles.th}>Home</th>
               </tr>
             </thead>
             <tbody>
               {libraryHealth.length === 0 ? (
                 <tr>
-                  <td style={styles.emptyCell} colSpan={5}>No libraries found</td>
+                  <td style={styles.emptyCell} colSpan={7}>No libraries found</td>
                 </tr>
               ) : (
                 libraryHealth.map((library) => (
@@ -262,6 +264,11 @@ export default function Performance() {
                     <td style={styles.td}>{library.owner_username || '-'}</td>
                     <td style={styles.td}>{library.cached_videos}</td>
                     <td style={styles.td}>{library.last_cached_at ? formatDate(library.last_cached_at) : 'Never'}</td>
+                    <td style={styles.td}>
+                      {library.last_refresh_status}
+                      {library.last_refresh_at ? ` (${formatDate(library.last_refresh_at)})` : ''}
+                    </td>
+                    <td style={styles.td}>{library.last_refresh_error || '-'}</td>
                     <td style={styles.td}>{library.show_on_home ? 'Yes' : 'No'}</td>
                   </tr>
                 ))

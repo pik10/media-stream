@@ -6,7 +6,7 @@ import { asyncHandler, sendError } from '../utils/asyncHandler.js';
 import { getAttemptStatus, unlockAccount } from '../services/loginAttemptTracker.js';
 import { getMetricsSnapshot } from '../services/metricsService.js';
 import { settingsService } from '../services/settingsService.js';
-import { getRefreshQueueStats, getRefreshJobsSnapshot } from '../services/scanJobService.js';
+import { getRefreshQueueStats, getRefreshJobsSnapshot, getLatestRefreshJobsByLibrary } from '../services/scanJobService.js';
 import Joi from 'joi';
 
 const router = express.Router();
@@ -240,12 +240,23 @@ router.get('/metrics', async (req, res) => {
   try {
     const metrics = getMetricsSnapshot();
     const libraryHealth = userService.getLibraryHealthSummary();
+    const latestByLibrary = getLatestRefreshJobsByLibrary();
+
+    const libraryHealthWithRefresh = libraryHealth.map((library) => {
+      const refresh = latestByLibrary[`${library.user_id}-${library.id}`];
+      return {
+        ...library,
+        last_refresh_status: refresh?.status || 'idle',
+        last_refresh_error: refresh?.error || null,
+        last_refresh_at: refresh?.finishedAt || refresh?.startedAt || refresh?.createdAt || null
+      };
+    });
 
     res.json({
       ...metrics,
       refreshQueue: getRefreshQueueStats(),
       refreshJobs: getRefreshJobsSnapshot(20),
-      libraryHealth
+      libraryHealth: libraryHealthWithRefresh
     });
   } catch (error) {
     console.error('Get metrics error:', error);

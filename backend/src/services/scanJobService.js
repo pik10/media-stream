@@ -162,3 +162,20 @@ export function getRefreshJobsSnapshot(limit = 20) {
     }))
   };
 }
+
+export function getLatestRefreshJobsByLibrary() {
+  const snapshot = {};
+
+  for (const job of latestJobs.values()) {
+    const key = `${job.userId}-${job.libraryId}`;
+    snapshot[key] = {
+      status: job.status,
+      error: job.error,
+      createdAt: job.createdAt,
+      startedAt: job.startedAt,
+      finishedAt: job.finishedAt
+    };
+  }
+
+  return snapshot;
+}
