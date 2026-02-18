@@ -91,9 +91,14 @@ export const userService = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (allowed.includes(key)) {
+      // Ignore undefined keys so partial updates don't try to bind invalid values.
+      if (allowed.includes(key) && value !== undefined) {
         fields.push(`${key} = ?`);
-        values.push(value);
+        if (key === 'is_active' || key === 'is_admin') {
+          values.push(value ? 1 : 0);
+        } else {
+          values.push(value);
+        }
       }
     }
 

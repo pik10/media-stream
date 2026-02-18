@@ -49,7 +49,7 @@ export default function UserManagement() {
       fetchUsers();
     } catch (err) {
       console.error('Failed to update user:', err);
-      alert('Failed to update user status');
+      alert(err.response?.data?.error || 'Failed to update user status');
     }
   };
 
