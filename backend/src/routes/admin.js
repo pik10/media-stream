@@ -2,6 +2,7 @@ import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 import { userService } from '../services/userService.js';
+import { asyncHandler, sendError } from '../utils/asyncHandler.js';
 import Joi from 'joi';
 
 const router = express.Router();
@@ -13,41 +14,31 @@ router.use(requireAdmin);
 /**
  * GET /api/admin/users - List all users
  */
-router.get('/users', async (req, res) => {
-  try {
-    const { search, isActive } = req.query;
-    const users = userService.getAllUsers({
-      search,
-      isActive: isActive !== undefined ? isActive === 'true' : undefined
-    });
-    res.json({ users });
-  } catch (error) {
-    console.error('List users error:', error);
-    res.status(500).json({ error: 'Failed to list users' });
-  }
-});
+router.get('/users', asyncHandler(async (req, res) => {
+  const { search, isActive } = req.query;
+  const users = userService.getAllUsers({
+    search,
+    isActive: isActive !== undefined ? isActive === 'true' : undefined
+  });
+  res.json({ users });
+}));
 
 /**
  * GET /api/admin/users/:id - Get user details
  */
-router.get('/users/:id', async (req, res) => {
-  try {
-    const userId = parseInt(req.params.id);
-    const user = userService.getUserById(userId);
+router.get('/users/:id', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = userService.getUserById(userId);
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Get recent activity
-    const activity = userService.getUserActivity(userId, 20);
-
-    res.json({ user, activity });
-  } catch (error) {
-    console.error('Get user error:', error);
-    res.status(500).json({ error: 'Failed to get user' });
+  if (!user) {
+    return sendError(res, 404, 'User not found');
   }
-});
+
+  // Get recent activity
+  const activity = userService.getUserActivity(userId, 20);
+
+  res.json({ user, activity });
+}));
 
 /**
  * POST /api/admin/users - Create user
