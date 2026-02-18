@@ -32,9 +32,7 @@ export default function Performance() {
   const dbRows = metrics.db || [];
   const cacheByLibrary = metrics.cache?.byLibrary || [];
   const stream = metrics.stream || {};
-  const recent15m = stream.recent15m || {};
   const streamStatusRows = stream.byStatus || [];
-  const streamRecentStatusRows = recent15m.byStatus || [];
   const streamByLibrary = stream.byLibrary || [];
   const refreshQueue = metrics.refreshQueue || { processing: false, queued: 0 };
   const refreshJobs = metrics.refreshJobs?.recent || [];
@@ -121,42 +119,6 @@ export default function Performance() {
           </div>
         </div>
 
-        <h4 style={styles.subSectionTitle}>Last 15 Minutes</h4>
-        <div style={styles.topSummary}>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Outcomes</div>
-            <div style={styles.summaryValue}>{recent15m.outcomes ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Server Failure Rate</div>
-            <div style={styles.summaryValue}>{recent15m.hardFailureRatePct ?? 0}%</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Hard Failures</div>
-            <div style={styles.summaryValue}>{recent15m.hardFailures ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Client Aborts</div>
-            <div style={styles.summaryValue}>{recent15m.clientAborted ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Client Abort Rate</div>
-            <div style={styles.summaryValue}>{recent15m.clientAbortRatePct ?? 0}%</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Early Aborts (&lt;2s)</div>
-            <div style={styles.summaryValue}>{recent15m.earlyClientAborted ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Upstream Errors</div>
-            <div style={styles.summaryValue}>{recent15m.upstreamErrors ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Avg Duration (ms)</div>
-            <div style={styles.summaryValue}>{recent15m.avgDurationMs ?? 0}</div>
-          </div>
-        </div>
-
         <div style={styles.tableWrap}>
           <table style={styles.table}>
             <thead>
@@ -173,33 +135,6 @@ export default function Performance() {
               ) : (
                 streamStatusRows.map((row) => (
                   <tr key={row.statusCode}>
-                    <td style={styles.td}>{row.statusCode}</td>
-                    <td style={styles.td}>{row.count}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div style={{ height: '12px' }} />
-
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>HTTP Status (15m)</th>
-                <th style={styles.th}>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {streamRecentStatusRows.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={2}>No 15-minute playback status metrics yet</td>
-                </tr>
-              ) : (
-                streamRecentStatusRows.map((row) => (
-                  <tr key={`recent-${row.statusCode}`}>
                     <td style={styles.td}>{row.statusCode}</td>
                     <td style={styles.td}>{row.count}</td>
                   </tr>
@@ -494,7 +429,6 @@ const styles = {
   summaryValue: { color: '#fff', fontSize: '24px', fontWeight: '700' },
   section: { marginBottom: '24px' },
   sectionTitle: { color: '#fff', fontSize: '18px', marginBottom: '12px' },
-  subSectionTitle: { color: '#ddd', fontSize: '15px', marginBottom: '12px' },
   tableWrap: { overflowX: 'auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
