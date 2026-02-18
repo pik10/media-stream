@@ -104,6 +104,11 @@ router.put('/users/:id', async (req, res) => {
       return res.status(400).json({ error: 'Cannot remove your own admin privileges' });
     }
 
+    // Prevent self-deactivation/lockout
+    if (userId === req.user.userId && is_active === false) {
+      return res.status(400).json({ error: 'Cannot deactivate your own account' });
+    }
+
     const updated = userService.updateUser(userId, {
       email,
       is_active,

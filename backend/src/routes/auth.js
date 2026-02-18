@@ -88,6 +88,9 @@ router.post('/login', authLimiter, async (req, res) => {
     if (error.message === 'Invalid credentials') {
       return res.status(401).json({ error: error.message });
     }
+    if (error.message === 'Account is inactive') {
+      return res.status(403).json({ error: error.message });
+    }
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }

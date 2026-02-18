@@ -1,4 +1,5 @@
 import { verifyToken } from '../services/authService.js';
+import db from '../config/database.js';
 
 /**
  * Middleware to verify JWT token from query parameter (for video streaming)
@@ -13,7 +14,15 @@ export function authenticateStreamToken(req, res, next) {
 
   try {
     const decoded = verifyToken(token);
-    req.user = decoded; // Attach user info to request
+    const user = db.prepare('SELECT id, is_active FROM users WHERE id = ?').get(decoded.userId);
+    if (!user) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    if (user.is_active !== 1) {
+      return res.status(403).json({ error: 'Account is inactive' });
+    }
+
+    req.user = decoded; // Attach token info to request
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Invalid or expired token' });

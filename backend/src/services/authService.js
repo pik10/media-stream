@@ -76,6 +76,11 @@ export async function loginUser(username, password) {
     throw new Error('Invalid credentials');
   }
 
+  // Explicitly block inactive accounts from signing in.
+  if (user.is_active !== 1) {
+    throw new Error('Account is inactive');
+  }
+
   // Verify password
   const isValid = await bcrypt.compare(password, user.password_hash);
   if (!isValid) {
