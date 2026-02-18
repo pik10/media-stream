@@ -2,9 +2,9 @@ import express from 'express';
 import db from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { decrypt } from '../utils/encryption.js';
-import { isVideoFile } from '../services/s3Service.js';
 import { getOrCreateClient } from '../services/s3ConnectionPool.js';
-import { getCachedVideos, invalidateCache } from '../services/videoCacheService.js';
+import { getCachedVideos } from '../services/videoCacheService.js';
+import { enqueueLibraryRefresh, getLibraryRefreshStatus } from '../services/scanJobService.js';
 
 const router = express.Router();
 
@@ -213,16 +213,45 @@ router.post('/:libraryId/refresh', async (req, res) => {
       return res.status(404).json({ error: 'Library not found' });
     }
 
-    // Invalidate cache
-    invalidateCache(libraryId);
+    const { enqueued, job } = enqueueLibraryRefresh(req.user.userId, libraryId);
 
-    res.json({
+    const statusMessage = job.status === 'running'
+      ? 'Refresh already running for this library'
+      : (enqueued ? 'Refresh queued and started in background' : 'Refresh already queued for this library');
+
+    res.status(enqueued ? 202 : 200).json({
       success: true,
-      message: 'Cache invalidated. Next request will refresh from S3.'
+      enqueued,
+      status: job.status,
+      message: statusMessage
     });
   } catch (error) {
     console.error('Error refreshing cache:', error);
     res.status(500).json({ error: 'Failed to refresh cache' });
+  }
+});
+
+/**
+ * GET /api/videos/:libraryId/refresh-status
+ * Get background refresh status for a library
+ */
+router.get('/:libraryId/refresh-status', async (req, res) => {
+  try {
+    const libraryId = parseInt(req.params.libraryId);
+
+    const library = db.prepare(`
+      SELECT id FROM libraries WHERE id = ? AND user_id = ?
+    `).get(libraryId, req.user.userId);
+
+    if (!library) {
+      return res.status(404).json({ error: 'Library not found' });
+    }
+
+    const status = getLibraryRefreshStatus(req.user.userId, libraryId);
+    res.json(status);
+  } catch (error) {
+    console.error('Error fetching refresh status:', error);
+    res.status(500).json({ error: 'Failed to fetch refresh status' });
   }
 });
 

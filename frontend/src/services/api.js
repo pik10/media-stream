@@ -97,6 +97,9 @@ export const videos = {
   refresh: (libraryId) =>
     api.post(`/videos/${libraryId}/refresh`),
 
+  refreshStatus: (libraryId) =>
+    api.get(`/videos/${libraryId}/refresh-status`),
+
   getStreamUrl: (libraryId, key) =>
     `/api/stream/${libraryId}/${encodeURIComponent(key)}?token=${localStorage.getItem('token')}`
 };

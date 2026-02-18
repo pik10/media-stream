@@ -93,6 +93,26 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
 }
 
 /**
+ * Refresh cache for a library immediately
+ * @param {number} libraryId
+ * @param {Object} options - { s3Client, bucket, pathPrefix }
+ * @returns {Promise<number>} Number of videos cached
+ */
+export async function refreshLibraryCache(libraryId, options = {}) {
+  const {
+    s3Client,
+    bucket,
+    pathPrefix = ''
+  } = options;
+
+  if (!s3Client || !bucket) {
+    throw new Error('Missing required refresh options: s3Client and bucket');
+  }
+
+  return refreshCache(libraryId, s3Client, bucket, pathPrefix);
+}
+
+/**
  * Get cached videos with search, pagination, and sorting
  * @param {number} libraryId
  * @param {Object} options - { s3Client, bucket, pathPrefix, prefix, search, page, limit, sort, order, forceRefresh }

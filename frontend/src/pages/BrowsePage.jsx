@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { videos, libraries } from '../services/api';
 import Header from '../components/Navigation/Header';
@@ -21,9 +21,11 @@ export default function BrowsePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [cacheInfo, setCacheInfo] = useState(null);
+  const [refreshStatus, setRefreshStatus] = useState(null);
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
   const ITEMS_PER_PAGE = 50;
+  const refreshPollTimeoutRef = useRef(null);
 
   const currentPrefix = searchParams.get('prefix') || '';
 
@@ -72,6 +74,32 @@ export default function BrowsePage() {
     fetchVideos();
   }, [libraryId, currentPrefix, searchTerm, currentPage, sortBy, sortOrder]);
 
+  useEffect(() => {
+    return () => {
+      if (refreshPollTimeoutRef.current) {
+        clearTimeout(refreshPollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const pollRefreshStatus = async () => {
+    try {
+      const response = await videos.refreshStatus(libraryId);
+      setRefreshStatus(response.data);
+
+      if (response.data.status === 'queued' || response.data.status === 'running') {
+        refreshPollTimeoutRef.current = setTimeout(pollRefreshStatus, 3000);
+        return;
+      }
+
+      if (response.data.status === 'completed') {
+        fetchVideos();
+      }
+    } catch (err) {
+      console.error('Failed to poll refresh status:', err);
+    }
+  };
+
   const handleFolderClick = (folderName) => {
     const newPrefix = currentPrefix ? `${currentPrefix}/${folderName}` : folderName;
     setSearchParams({ prefix: newPrefix });
@@ -103,10 +131,18 @@ export default function BrowsePage() {
 
   const handleRefresh = async () => {
     try {
-      await videos.refresh(libraryId);
-      fetchVideos();
+      const response = await videos.refresh(libraryId);
+      setRefreshStatus({
+        status: response.data.status,
+        message: response.data.message
+      });
+      pollRefreshStatus();
     } catch (err) {
       console.error('Failed to refresh:', err);
+      setRefreshStatus({
+        status: 'failed',
+        message: 'Failed to queue refresh'
+      });
     }
   };
 
@@ -179,6 +215,13 @@ export default function BrowsePage() {
           {cacheInfo?.cachedAt && (
             <div style={styles.cacheInfo}>
               Cached at {new Date(cacheInfo.cachedAt).toLocaleTimeString()}
+            </div>
+          )}
+
+          {refreshStatus?.status && (
+            <div style={styles.refreshStatus}>
+              {refreshStatus.message || `Refresh status: ${refreshStatus.status}`}
+              {refreshStatus.status === 'completed' && ' (latest cache loaded)'}
             </div>
           )}
 
@@ -297,6 +340,12 @@ const styles = {
     fontSize: '12px',
     color: '#888',
     marginTop: '12px',
+    textAlign: 'center'
+  },
+  refreshStatus: {
+    fontSize: '12px',
+    color: '#93c5fd',
+    marginTop: '8px',
     textAlign: 'center'
   },
   paginationInfo: {
