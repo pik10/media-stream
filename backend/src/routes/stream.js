@@ -2,7 +2,8 @@ import express from 'express';
 import db from '../config/database.js';
 import { authenticateStreamToken } from '../middleware/streamAuth.js';
 import { decrypt } from '../utils/encryption.js';
-import { createS3Client, getObjectStream, getVideoMimeType } from '../services/s3Service.js';
+import { getObjectStream, getVideoMimeType } from '../services/s3Service.js';
+import { getOrCreateClient } from '../services/s3ConnectionPool.js';
 import { recordStreamStart, recordStreamOutcome } from '../services/metricsService.js';
 
 const router = express.Router();
@@ -62,12 +63,12 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
       return res.status(500).json({ error: 'Library configuration error' });
     }
 
-    // Create S3 client
-    const s3Client = createS3Client({
+    // Reuse pooled S3 client to reduce connection churn under range-heavy playback.
+    const s3Client = getOrCreateClient(req.user.userId, libraryId, {
       endpoint: library.endpoint,
       region: library.region,
-      accessKey,
-      secretKey
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey
     });
 
     // Parse Range header
