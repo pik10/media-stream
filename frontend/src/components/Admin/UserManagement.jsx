@@ -187,21 +187,21 @@ export default function UserManagement() {
                       style={styles.actionButton}
                       title="Edit user"
                     >
-                      ✏️
+                      ✎
                     </button>
                     <button
                       onClick={() => handleResetPassword(user.id, user.username)}
                       style={styles.actionButton}
                       title="Reset password"
                     >
-                      🔑
+                      🔒
                     </button>
                     <button
                       onClick={() => handleDeleteUser(user.id, user.username)}
                       style={styles.deleteButton}
                       title="Delete user"
                     >
-                      🗑️
+                      ✕
                     </button>
                   </div>
                 </td>

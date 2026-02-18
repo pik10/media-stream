@@ -40,31 +40,31 @@ export default function Statistics() {
     {
       label: 'Total Users',
       value: stats.total_users,
-      icon: '👥',
+      icon: '👤',
       color: '#3b82f6'
     },
     {
       label: 'Active Users',
       value: stats.active_users,
-      icon: '✅',
+      icon: '✓',
       color: '#10b981'
     },
     {
       label: 'Admin Users',
       value: stats.admin_users,
-      icon: '⚡',
+      icon: '★',
       color: '#f59e0b'
     },
     {
       label: 'Total Libraries',
       value: stats.total_libraries,
-      icon: '📚',
+      icon: '▣',
       color: '#8b5cf6'
     },
     {
       label: 'Cached Videos',
       value: stats.cached_videos,
-      icon: '🎬',
+      icon: '▶',
       color: '#ec4899'
     }
   ];
@@ -85,10 +85,10 @@ export default function Statistics() {
 
       <div style={styles.refreshInfo}>
         <p style={styles.infoText}>
-          💡 Statistics are updated in real-time
+          ℹ Statistics are updated in real-time
         </p>
         <button onClick={fetchStatistics} style={styles.refreshButton}>
-          🔄 Refresh
+          ↻ Refresh
         </button>
       </div>
     </div>
