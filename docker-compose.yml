@@ -11,6 +11,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - FRONTEND_URL=${FRONTEND_URL}
+      - STREAM_TOKEN_EXPIRY=${STREAM_TOKEN_EXPIRY}
     volumes:
       # Persist database - mount data directory instead of file
       - ./data:/app/data
