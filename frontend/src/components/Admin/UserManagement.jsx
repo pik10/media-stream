@@ -60,7 +60,6 @@ export default function UserManagement() {
     try {
       await admin.updateUser(userId, { is_active: !currentStatus });
       await fetchUsers();
-      showToast('success', `User marked as ${currentStatus ? 'inactive' : 'active'}`);
     } catch (err) {
       console.error('Failed to update user:', err);
       showToast('error', err.response?.data?.error || 'Failed to update user status');
@@ -73,7 +72,6 @@ export default function UserManagement() {
     try {
       await admin.updateUser(userId, { is_admin: !currentStatus });
       await fetchUsers();
-      showToast('success', `${currentStatus ? 'Removed' : 'Granted'} admin privileges`);
     } catch (err) {
       console.error('Failed to update user:', err);
       showToast('error', err.response?.data?.error || 'Failed to update admin status');
@@ -82,11 +80,10 @@ export default function UserManagement() {
 
   const confirmDeleteUser = async () => {
     if (!deletingUser) return;
-    const { id: userId, username } = deletingUser;
+    const { id: userId } = deletingUser;
     try {
       await admin.deleteUser(userId);
       await fetchUsers();
-      showToast('success', `Deleted user "${username}"`);
       setDeletingUser(null);
     } catch (err) {
       console.error('Failed to delete user:', err);
@@ -94,11 +91,10 @@ export default function UserManagement() {
     }
   };
 
-  const handleUnlockUser = async (userId, username) => {
+  const handleUnlockUser = async (userId) => {
     try {
       await admin.unlockUser(userId);
       await fetchUsers();
-      showToast('success', `Cleared lockout for ${username}`);
     } catch (err) {
       console.error('Failed to unlock user:', err);
       showToast('error', err.response?.data?.error || 'Failed to unlock user');
@@ -111,17 +107,14 @@ export default function UserManagement() {
 
   const handlePasswordResetSuccess = async () => {
     await fetchUsers();
-    showToast('success', 'Password reset successfully');
   };
 
   const handleCreateSuccess = async () => {
     await fetchUsers();
-    showToast('success', 'User created successfully');
   };
 
   const handleEditSuccess = async () => {
     await fetchUsers();
-    showToast('success', 'User updated successfully');
   };
 
   if (loading) {
@@ -258,7 +251,7 @@ export default function UserManagement() {
                   <div className="ms-table-actions" style={styles.actions}>
                     {(user.is_locked || (user.failed_attempts || 0) > 0) && (
                       <button
-                        onClick={() => handleUnlockUser(user.id, user.username)}
+                        onClick={() => handleUnlockUser(user.id)}
                         style={styles.unlockButton}
                         title="Clear lockout and failed attempts"
                       >
