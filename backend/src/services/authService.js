@@ -31,17 +31,22 @@ export async function registerUser(username, password) {
     throw new Error('Username already exists');
   }
 
+  // Check if this is the first user - they should become admin automatically
+  const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
+  const isFirstUser = userCount.count === 0;
+
   // Hash password
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-  // Insert user
+  // Insert user (first user becomes admin)
   const result = db.prepare(
-    'INSERT INTO users (username, password_hash) VALUES (?, ?)'
-  ).run(normalizedUsername, passwordHash);
+    'INSERT INTO users (username, password_hash, is_admin, is_active) VALUES (?, ?, ?, 1)'
+  ).run(normalizedUsername, passwordHash, isFirstUser ? 1 : 0);
 
   return {
     id: result.lastInsertRowid,
-    username: normalizedUsername
+    username: normalizedUsername,
+    isAdmin: isFirstUser
   };
 }
 
