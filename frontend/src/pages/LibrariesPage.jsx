@@ -7,15 +7,45 @@ import PageLoading from '../components/UI/PageLoading';
 
 export default function LibrariesPage() {
   const [libraryList, setLibraryList] = useState([]);
+  const [connectionStatus, setConnectionStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLibrary, setEditingLibrary] = useState(null);
   const navigate = useNavigate();
 
+  const checkLibraryConnection = async (libraryId) => {
+    setConnectionStatus(prev => ({
+      ...prev,
+      [libraryId]: { state: 'checking', message: 'Checking...' }
+    }));
+
+    try {
+      await libraries.test(libraryId);
+      setConnectionStatus(prev => ({
+        ...prev,
+        [libraryId]: { state: 'ok', message: 'Connected' }
+      }));
+    } catch (error) {
+      setConnectionStatus(prev => ({
+        ...prev,
+        [libraryId]: {
+          state: 'error',
+          message: error.response?.data?.error || 'Connection issue'
+        }
+      }));
+    }
+  };
+
   const fetchLibraries = async () => {
     try {
       const response = await libraries.getAll();
-      setLibraryList(response.data.libraries);
+      const fetchedLibraries = response.data.libraries;
+      setLibraryList(fetchedLibraries);
+
+      // Start lightweight background connection checks without blocking page load.
+      fetchedLibraries.forEach((library) => {
+        checkLibraryConnection(library.id);
+      });
     } catch (error) {
       console.error('Failed to fetch libraries:', error);
     } finally {
@@ -76,6 +106,19 @@ export default function LibrariesPage() {
           {libraryList.map((library) => (
             <div key={library.id} style={styles.card}>
               <h3 style={styles.cardTitle}>{library.name}</h3>
+              <div style={styles.statusRow}>
+                <span style={styles.statusLabel}>Connection:</span>
+                <span style={{
+                  ...styles.statusBadge,
+                  ...(connectionStatus[library.id]?.state === 'ok'
+                    ? styles.statusOk
+                    : connectionStatus[library.id]?.state === 'error'
+                      ? styles.statusError
+                      : styles.statusChecking)
+                }}>
+                  {connectionStatus[library.id]?.message || 'Checking...'}
+                </span>
+              </div>
               <div style={styles.cardInfo}>
                 <div style={styles.infoRow}>
                   <span style={styles.label}>Endpoint:</span>
@@ -96,6 +139,13 @@ export default function LibrariesPage() {
                   style={styles.browseButton}
                 >
                   Browse Videos
+                </button>
+                <button
+                  onClick={() => checkLibraryConnection(library.id)}
+                  style={styles.testButton}
+                  disabled={connectionStatus[library.id]?.state === 'checking'}
+                >
+                  {connectionStatus[library.id]?.state === 'checking' ? 'Checking...' : 'Check Connection'}
                 </button>
                 <button
                   onClick={() => setEditingLibrary(library)}
@@ -190,8 +240,39 @@ const styles = {
   },
   cardTitle: {
     fontSize: '20px',
-    marginBottom: '16px',
+    marginBottom: '10px',
     color: '#fff'
+  },
+  statusRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '14px'
+  },
+  statusLabel: {
+    color: '#6b7280',
+    fontSize: '13px'
+  },
+  statusBadge: {
+    fontSize: '12px',
+    fontWeight: '600',
+    padding: '4px 8px',
+    borderRadius: '999px'
+  },
+  statusOk: {
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.12)',
+    border: '1px solid rgba(16, 185, 129, 0.35)'
+  },
+  statusError: {
+    color: '#f87171',
+    background: 'rgba(248, 113, 113, 0.12)',
+    border: '1px solid rgba(248, 113, 113, 0.35)'
+  },
+  statusChecking: {
+    color: '#fbbf24',
+    background: 'rgba(251, 191, 36, 0.12)',
+    border: '1px solid rgba(251, 191, 36, 0.35)'
   },
   cardInfo: {
     marginBottom: '20px',
@@ -235,6 +316,16 @@ const styles = {
     border: '1px solid #3b82f6',
     background: 'transparent',
     color: '#3b82f6',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer'
+  },
+  testButton: {
+    padding: '10px 14px',
+    borderRadius: '6px',
+    border: '1px solid #f59e0b',
+    background: 'transparent',
+    color: '#fbbf24',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer'
