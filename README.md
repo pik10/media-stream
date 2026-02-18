@@ -10,6 +10,7 @@ A secure, full-stack web application for streaming videos from S3-compatible sto
 
 ### 🔐 Security First
 - **JWT Authentication** with secure token management
+- **Short-Lived Stream Tokens** - Scoped playback tokens for stream URLs
 - **Account Lockout** - 5 failed attempts = 15-minute lockout
 - **Rate Limiting** - Protects against brute force attacks
 - **Password Security** - bcrypt with cost factor 12
@@ -33,6 +34,7 @@ A secure, full-stack web application for streaming videos from S3-compatible sto
 ### 🚀 Performance & Scalability
 - **Video Metadata Caching** - 5-minute cache reduces S3 API calls by 95%+
 - **S3 Connection Pooling** - Reuses connections for better performance
+- **S3 Retry Backoff** - Retries transient S3 errors with exponential backoff
 - **Playback Health Metrics** - Admin dashboard tracks server failures vs client aborts
 - **Pagination** - Load 50 items per page for smooth browsing
 - **Lazy Loading** - Progressive rendering reduces initial load time
@@ -82,6 +84,9 @@ See **[DOCKER_QUICK_START.md](DOCKER_QUICK_START.md)** for detailed Docker deplo
    JWT_SECRET=your-super-secret-jwt-key-change-this
    ENCRYPTION_KEY=your-super-secret-encryption-key-change-this
    FRONTEND_URL=http://localhost:5173
+   STREAM_TOKEN_EXPIRY=5m
+   S3_RETRY_ATTEMPTS=3
+   S3_RETRY_BASE_DELAY_MS=120
    ```
 
 3. **Start backend**
@@ -167,6 +172,7 @@ See **[DOCKER_QUICK_START.md](DOCKER_QUICK_START.md)** for detailed Docker deplo
 
 ### Authentication & Authorization
 - JWT tokens with 24-hour expiry
+- Short-lived stream tokens for video playback (`/api/videos/:libraryId/stream-token`)
 - Case-insensitive username authentication
 - Password hashing with bcrypt (cost: 12)
 - Account lockout after failed login attempts
