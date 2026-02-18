@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { admin } from '../../services/api';
 import CreateUserModal from './CreateUserModal';
 import EditUserModal from './EditUserModal';
+import ResetPasswordModal from './ResetPasswordModal';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [resettingUser, setResettingUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -78,20 +80,13 @@ export default function UserManagement() {
     }
   };
 
-  const handleResetPassword = async (userId, username) => {
-    const newPassword = prompt(`Enter new password for user "${username}":`);
-    if (!newPassword || newPassword.length < 6) {
-      alert('Password must be at least 6 characters');
-      return;
-    }
+  const handleResetPassword = (user) => {
+    setResettingUser(user);
+  };
 
-    try {
-      await admin.resetPassword(userId, newPassword);
-      alert('Password reset successfully');
-    } catch (err) {
-      console.error('Failed to reset password:', err);
-      alert('Failed to reset password');
-    }
+  const handlePasswordResetSuccess = () => {
+    alert('Password reset successfully');
+    fetchUsers();
   };
 
   if (loading) {
@@ -190,7 +185,7 @@ export default function UserManagement() {
                       ✎
                     </button>
                     <button
-                      onClick={() => handleResetPassword(user.id, user.username)}
+                      onClick={() => handleResetPassword(user)}
                       style={styles.actionButton}
                       title="Reset password"
                     >
@@ -227,6 +222,14 @@ export default function UserManagement() {
           user={editingUser}
           onClose={() => setEditingUser(null)}
           onUpdated={fetchUsers}
+        />
+      )}
+
+      {resettingUser && (
+        <ResetPasswordModal
+          user={resettingUser}
+          onClose={() => setResettingUser(null)}
+          onSuccess={handlePasswordResetSuccess}
         />
       )}
     </div>
