@@ -220,6 +220,7 @@ GET  /api/videos/:libraryId        - List videos with advanced filtering
        ?order=       - Order: asc, desc (default: desc)
        ?refresh=     - Force cache refresh: true, false
 POST /api/videos/:libraryId/refresh - Manually refresh cache
+POST /api/videos/:libraryId/stream-token - Mint short-lived stream token for one key
 GET  /api/stream/:libraryId/:key   - Stream video with Range support
 ```
 

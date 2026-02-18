@@ -1,5 +1,51 @@
 import { S3Client, ListObjectsV2Command, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 
+const S3_RETRY_ATTEMPTS = Math.max(1, parseInt(process.env.S3_RETRY_ATTEMPTS || '3', 10));
+const S3_RETRY_BASE_DELAY_MS = Math.max(25, parseInt(process.env.S3_RETRY_BASE_DELAY_MS || '120', 10));
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableS3Error(error) {
+  const status = error?.$metadata?.httpStatusCode;
+  const name = error?.name || '';
+  const code = error?.Code || error?.code || '';
+
+  if (status === 429 || status >= 500) return true;
+  if (['SlowDown', 'InternalError', 'ServiceUnavailable', 'RequestTimeout', 'TimeoutError'].includes(code)) return true;
+  if (['SlowDown', 'InternalError', 'ServiceUnavailable', 'RequestTimeout', 'TimeoutError'].includes(name)) return true;
+
+  const message = `${error?.message || ''}`.toLowerCase();
+  if (message.includes('socket hang up') || message.includes('timeout') || message.includes('temporarily unavailable') || message.includes('econnreset') || message.includes('eai_again')) {
+    return true;
+  }
+
+  return false;
+}
+
+async function sendWithRetry(client, command, operationName) {
+  let attempt = 0;
+
+  while (attempt < S3_RETRY_ATTEMPTS) {
+    try {
+      return await client.send(command);
+    } catch (error) {
+      const retryable = isRetryableS3Error(error);
+      const isLastAttempt = attempt >= S3_RETRY_ATTEMPTS - 1;
+
+      if (!retryable || isLastAttempt) {
+        throw error;
+      }
+
+      const delayMs = S3_RETRY_BASE_DELAY_MS * (2 ** attempt) + Math.floor(Math.random() * 50);
+      console.warn(`[s3-retry] ${operationName} failed (attempt ${attempt + 1}/${S3_RETRY_ATTEMPTS}): ${error.name || error.Code || error.message}. retrying in ${delayMs}ms`);
+      await sleep(delayMs);
+      attempt += 1;
+    }
+  }
+}
+
 /**
  * Create S3 client with custom configuration
  * @param {Object} config - S3 configuration
@@ -39,7 +85,7 @@ export async function listObjects(client, bucket, prefix = '', maxKeys = 1000, m
       ContinuationToken: continuationToken
     });
 
-    const response = await client.send(command);
+    const response = await sendWithRetry(client, command, 'ListObjectsV2');
     const contents = response.Contents || [];
     allObjects.push(...contents);
 
@@ -75,7 +121,7 @@ export async function getObjectStream(client, bucket, key, options = {}) {
   }
 
   const command = new GetObjectCommand(params);
-  const response = await client.send(command);
+  const response = await sendWithRetry(client, command, 'GetObject');
 
   return {
     stream: response.Body,
@@ -101,7 +147,7 @@ export async function getObjectMetadata(client, bucket, key) {
     Key: key
   });
 
-  const response = await client.send(command);
+  const response = await sendWithRetry(client, command, 'HeadObject');
 
   return {
     contentType: response.ContentType,

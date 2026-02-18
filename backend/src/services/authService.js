@@ -10,6 +10,7 @@ import {
 
 const BCRYPT_ROUNDS = 12;
 const TOKEN_EXPIRY = '24h';
+const STREAM_TOKEN_EXPIRY = process.env.STREAM_TOKEN_EXPIRY || '5m';
 
 // Don't store JWT_SECRET in a constant - access directly from process.env
 // to avoid ES6 module hoisting issues
@@ -124,6 +125,27 @@ export async function loginUser(username, password) {
       isAdmin: user.is_admin === 1
     }
   };
+}
+
+/**
+ * Create a short-lived JWT for streaming a specific video key.
+ * @param {Object} params
+ * @param {number} params.userId
+ * @param {number} params.libraryId
+ * @param {string} params.key
+ * @returns {string} JWT stream token
+ */
+export function createStreamToken({ userId, libraryId, key }) {
+  return jwt.sign(
+    {
+      tokenType: 'stream',
+      userId,
+      libraryId,
+      key
+    },
+    getJwtSecret(),
+    { expiresIn: STREAM_TOKEN_EXPIRY }
+  );
 }
 
 /**

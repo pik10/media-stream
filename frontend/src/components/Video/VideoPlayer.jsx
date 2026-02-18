@@ -9,12 +9,38 @@ export default function VideoPlayer() {
   const videoRef = useRef(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [streamUrl, setStreamUrl] = useState('');
 
   const decodedKey = decodeURIComponent(videoKey);
-  const streamUrl = videos.getStreamUrl(libraryId, decodedKey);
 
   useEffect(() => {
-    if (videoRef.current) {
+    let cancelled = false;
+
+    const fetchStreamToken = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const response = await videos.getStreamToken(libraryId, decodedKey);
+        if (cancelled) return;
+        const url = videos.getStreamUrl(libraryId, decodedKey, response.data.streamToken);
+        setStreamUrl(url);
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Failed to create stream token:', err);
+        setError('Failed to start video stream. Please try again.');
+        setLoading(false);
+      }
+    };
+
+    fetchStreamToken();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [libraryId, decodedKey]);
+
+  useEffect(() => {
+    if (videoRef.current && streamUrl) {
       videoRef.current.load();
     }
   }, [streamUrl]);
@@ -57,7 +83,7 @@ export default function VideoPlayer() {
             onLoadedData={handleLoadedData}
             onError={handleError}
           >
-            <source src={streamUrl} />
+            {streamUrl && <source src={streamUrl} />}
             Your browser does not support the video tag.
           </video>
         </div>

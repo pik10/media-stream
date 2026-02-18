@@ -1,10 +1,8 @@
 import express from 'express';
-import db from '../config/database.js';
 import { authenticateStreamToken } from '../middleware/streamAuth.js';
-import { decrypt } from '../utils/encryption.js';
 import { getObjectStream, getVideoMimeType } from '../services/s3Service.js';
-import { getOrCreateClient } from '../services/s3ConnectionPool.js';
 import { recordStreamStart, recordStreamOutcome } from '../services/metricsService.js';
+import { getOwnedLibraryS3Context } from '../services/libraryAccessService.js';
 
 const router = express.Router();
 
@@ -44,32 +42,13 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
       return res.status(400).json({ error: 'Invalid file path' });
     }
 
-    // Get library and verify ownership
-    const library = db.prepare(`
-      SELECT * FROM libraries WHERE id = ? AND user_id = ?
-    `).get(libraryId, req.user.userId);
-
-    if (!library) {
-      return res.status(404).json({ error: 'Library not found' });
+    if (req.user.tokenType === 'stream') {
+      if (req.user.libraryId !== libraryId || req.user.key !== key) {
+        return res.status(403).json({ error: 'Invalid stream token' });
+      }
     }
 
-    // Decrypt credentials
-    const accessKey = decrypt(library.access_key_encrypted);
-    const secretKey = decrypt(library.secret_key_encrypted);
-
-    // Validate decrypted credentials
-    if (!accessKey || !secretKey) {
-      console.error('Failed to decrypt credentials for library:', libraryId);
-      return res.status(500).json({ error: 'Library configuration error' });
-    }
-
-    // Reuse pooled S3 client to reduce connection churn under range-heavy playback.
-    const s3Client = getOrCreateClient(req.user.userId, libraryId, {
-      endpoint: library.endpoint,
-      region: library.region,
-      accessKeyId: accessKey,
-      secretAccessKey: secretKey
-    });
+    const { library, s3Client } = getOwnedLibraryS3Context(libraryId, req.user.userId);
 
     // Parse Range header
     const range = req.headers.range;
@@ -142,7 +121,10 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
 
     // Check if headers already sent
     if (!res.headersSent) {
-      if (error.name === 'NoSuchKey' || error.Code === 'NoSuchKey') {
+      if (error.status) {
+        finalizeStreamMetric('other_error', error.status);
+        res.status(error.status).json({ error: error.message });
+      } else if (error.name === 'NoSuchKey' || error.Code === 'NoSuchKey') {
         finalizeStreamMetric('not_found', 404);
         res.status(404).json({ error: 'Video not found' });
       } else if (error.name === 'InvalidRange' || error.Code === 'InvalidRange' || error.$metadata?.httpStatusCode === 416) {

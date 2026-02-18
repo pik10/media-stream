@@ -100,8 +100,15 @@ export const videos = {
   refreshStatus: (libraryId) =>
     api.get(`/videos/${libraryId}/refresh-status`),
 
-  getStreamUrl: (libraryId, key) =>
-    `/api/stream/${libraryId}/${encodeURIComponent(key)}?token=${localStorage.getItem('token')}`
+  getStreamToken: (libraryId, key) =>
+    api.post(`/videos/${libraryId}/stream-token`, { key }),
+
+  getStreamUrl: (libraryId, key, streamToken) => {
+    if (streamToken) {
+      return `/api/stream/${libraryId}/${encodeURIComponent(key)}?streamToken=${encodeURIComponent(streamToken)}`;
+    }
+    return `/api/stream/${libraryId}/${encodeURIComponent(key)}?token=${localStorage.getItem('token')}`;
+  }
 };
 
 // Admin API

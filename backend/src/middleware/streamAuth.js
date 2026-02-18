@@ -5,7 +5,7 @@ import { verifyToken } from '../services/authService.js';
  * HTML5 video elements can't send Authorization headers, so we use query params
  */
 export function authenticateStreamToken(req, res, next) {
-  const token = req.query.token || req.headers['authorization']?.split(' ')[1];
+  const token = req.query.streamToken || req.query.token || req.headers['authorization']?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });

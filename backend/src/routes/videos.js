@@ -1,15 +1,19 @@
 import express from 'express';
-import db from '../config/database.js';
+import Joi from 'joi';
 import { authenticateToken } from '../middleware/auth.js';
-import { decrypt } from '../utils/encryption.js';
-import { getOrCreateClient } from '../services/s3ConnectionPool.js';
 import { getCachedVideos } from '../services/videoCacheService.js';
 import { enqueueLibraryRefresh, getLibraryRefreshStatus } from '../services/scanJobService.js';
+import { getOwnedLibrary, getOwnedLibraryS3Context } from '../services/libraryAccessService.js';
+import { createStreamToken } from '../services/authService.js';
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(authenticateToken);
+
+const streamTokenSchema = Joi.object({
+  key: Joi.string().min(1).required()
+});
 
 /**
  * Helper function to process cached videos for folder view
@@ -87,32 +91,7 @@ router.get('/:libraryId', async (req, res) => {
     const sortBy = validSorts.includes(sort) ? sort : 'date';
     const sortOrder = order.toLowerCase() === 'asc' ? 'asc' : 'desc';
 
-    // Get library and verify ownership
-    const library = db.prepare(`
-      SELECT * FROM libraries WHERE id = ? AND user_id = ?
-    `).get(libraryId, req.user.userId);
-
-    if (!library) {
-      return res.status(404).json({ error: 'Library not found' });
-    }
-
-    // Decrypt credentials
-    const accessKey = decrypt(library.access_key_encrypted);
-    const secretKey = decrypt(library.secret_key_encrypted);
-
-    // Validate decrypted credentials
-    if (!accessKey || !secretKey) {
-      console.error('Failed to decrypt credentials for library:', libraryId);
-      return res.status(500).json({ error: 'Library configuration error' });
-    }
-
-    // Get S3 client from pool
-    const s3Client = getOrCreateClient(req.user.userId, libraryId, {
-      endpoint: library.endpoint,
-      region: library.region,
-      accessKeyId: accessKey,
-      secretAccessKey: secretKey
-    });
+    const { library, s3Client } = getOwnedLibraryS3Context(libraryId, req.user.userId);
 
     // Combine library path prefix with requested prefix
     const fullPrefix = library.path_prefix
@@ -175,7 +154,10 @@ router.get('/:libraryId', async (req, res) => {
     let errorMessage = 'Failed to list videos';
     let statusCode = 500;
 
-    if (error.Code === 'NoSuchBucket' || error.name === 'NoSuchBucket') {
+    if (error.status) {
+      errorMessage = error.message;
+      statusCode = error.status;
+    } else if (error.Code === 'NoSuchBucket' || error.name === 'NoSuchBucket') {
       errorMessage = 'S3 bucket not found. Please check your library configuration.';
       statusCode = 404;
     } else if (error.Code === 'InvalidAccessKeyId' || error.name === 'InvalidAccessKeyId') {
@@ -204,14 +186,7 @@ router.post('/:libraryId/refresh', async (req, res) => {
   try {
     const libraryId = parseInt(req.params.libraryId);
 
-    // Verify ownership
-    const library = db.prepare(`
-      SELECT * FROM libraries WHERE id = ? AND user_id = ?
-    `).get(libraryId, req.user.userId);
-
-    if (!library) {
-      return res.status(404).json({ error: 'Library not found' });
-    }
+    getOwnedLibrary(libraryId, req.user.userId);
 
     const { enqueued, job } = enqueueLibraryRefresh(req.user.userId, libraryId);
 
@@ -227,7 +202,47 @@ router.post('/:libraryId/refresh', async (req, res) => {
     });
   } catch (error) {
     console.error('Error refreshing cache:', error);
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Failed to refresh cache' });
+  }
+});
+
+/**
+ * POST /api/videos/:libraryId/stream-token
+ * Mint short-lived token for a specific video key.
+ */
+router.post('/:libraryId/stream-token', async (req, res) => {
+  try {
+    const libraryId = parseInt(req.params.libraryId);
+    const { error, value } = streamTokenSchema.validate(req.body || {});
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
+    const key = value.key;
+    if (key.includes('..') || key.startsWith('/') || key.includes('\\')) {
+      return res.status(400).json({ error: 'Invalid file path' });
+    }
+
+    getOwnedLibrary(libraryId, req.user.userId);
+    const streamToken = createStreamToken({
+      userId: req.user.userId,
+      libraryId,
+      key
+    });
+
+    res.json({
+      streamToken,
+      expiresIn: '5m'
+    });
+  } catch (error) {
+    console.error('Create stream token error:', error);
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Failed to create stream token' });
   }
 });
 
@@ -239,18 +254,15 @@ router.get('/:libraryId/refresh-status', async (req, res) => {
   try {
     const libraryId = parseInt(req.params.libraryId);
 
-    const library = db.prepare(`
-      SELECT id FROM libraries WHERE id = ? AND user_id = ?
-    `).get(libraryId, req.user.userId);
-
-    if (!library) {
-      return res.status(404).json({ error: 'Library not found' });
-    }
+    getOwnedLibrary(libraryId, req.user.userId);
 
     const status = getLibraryRefreshStatus(req.user.userId, libraryId);
     res.json(status);
   } catch (error) {
     console.error('Error fetching refresh status:', error);
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Failed to fetch refresh status' });
   }
 });
