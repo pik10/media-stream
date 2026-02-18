@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Navigation/Header';
 import UserManagement from '../components/Admin/UserManagement';
 import Statistics from '../components/Admin/Statistics';
+import Performance from '../components/Admin/Performance';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('users');
@@ -27,11 +28,18 @@ export default function AdminDashboard() {
           >
             ▦ Statistics
           </button>
+          <button
+            style={activeTab === 'performance' ? styles.activeTab : styles.tab}
+            onClick={() => setActiveTab('performance')}
+          >
+            ◴ Performance
+          </button>
         </div>
 
         <div style={styles.content}>
           {activeTab === 'users' && <UserManagement />}
           {activeTab === 'stats' && <Statistics />}
+          {activeTab === 'performance' && <Performance />}
         </div>
       </div>
     </>

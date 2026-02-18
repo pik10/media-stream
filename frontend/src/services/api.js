@@ -115,8 +115,14 @@ export const admin = {
   deleteUser: (userId) =>
     api.delete(`/admin/users/${userId}`),
 
+  unlockUser: (userId) =>
+    api.post(`/admin/users/${userId}/unlock`),
+
   resetPassword: (userId, newPassword) =>
     api.post(`/admin/users/${userId}/reset-password`, { newPassword }),
+
+  getMetrics: () =>
+    api.get('/admin/metrics'),
 
   getStatistics: () =>
     api.get('/admin/statistics')

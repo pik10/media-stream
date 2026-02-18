@@ -1,5 +1,6 @@
 import db from '../config/database.js';
 import { listObjects, isVideoFile } from './s3Service.js';
+import { measureDbQuery, recordCacheHit, recordCacheMiss } from './metricsService.js';
 
 /**
  * Video Cache Service
@@ -15,11 +16,13 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  * @returns {Object} { fresh: boolean, cachedAt: string|null }
  */
 function getCacheStatus(libraryId) {
-  const result = db.prepare(`
-    SELECT MAX(cached_at) as latest
-    FROM video_cache
-    WHERE library_id = ?
-  `).get(libraryId);
+  const result = measureDbQuery('video_cache.get_cache_status', () =>
+    db.prepare(`
+      SELECT MAX(cached_at) as latest
+      FROM video_cache
+      WHERE library_id = ?
+    `).get(libraryId)
+  );
 
   if (!result.latest) {
     return { fresh: false, cachedAt: null };
@@ -99,10 +102,13 @@ export async function getCachedVideos(libraryId, options = {}) {
 
   // Refresh if stale or forced
   if (!cacheStatus.fresh || forceRefresh) {
+    recordCacheMiss(libraryId, { forcedRefresh: forceRefresh });
     await refreshCache(libraryId, s3Client, bucket, pathPrefix);
     // Update cache status after refresh
     cacheStatus.cachedAt = new Date().toISOString();
     cacheStatus.fresh = true;
+  } else {
+    recordCacheHit(libraryId);
   }
 
   // Build SQL query
@@ -123,7 +129,9 @@ export async function getCachedVideos(libraryId, options = {}) {
 
   // Get total count
   const countSql = sql.replace('SELECT *', 'SELECT COUNT(*) as total');
-  const { total } = db.prepare(countSql).get(...params);
+  const { total } = measureDbQuery('video_cache.count_filtered', () =>
+    db.prepare(countSql).get(...params)
+  );
 
   // Apply sorting
   const sortColumn = {
@@ -137,7 +145,9 @@ export async function getCachedVideos(libraryId, options = {}) {
   sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ? OFFSET ?`;
   params.push(limit, (page - 1) * limit);
 
-  const videos = db.prepare(sql).all(...params);
+  const videos = measureDbQuery('video_cache.list_filtered', () =>
+    db.prepare(sql).all(...params)
+  );
 
   return {
     videos,

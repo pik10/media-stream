@@ -81,6 +81,18 @@ export default function UserManagement() {
     }
   };
 
+  const handleUnlockUser = async (userId, username) => {
+    try {
+      await admin.unlockUser(userId);
+      setSuccessMessage(`Cleared lockout for ${username}`);
+      fetchUsers();
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to unlock user:', err);
+      alert(err.response?.data?.error || 'Failed to unlock user');
+    }
+  };
+
   const handleResetPassword = (user) => {
     setResettingUser(user);
   };
@@ -95,6 +107,20 @@ export default function UserManagement() {
   if (loading) {
     return <div style={styles.loading}>Loading users...</div>;
   }
+
+  const formatLockoutStatus = (user) => {
+    if (user.is_locked && user.locked_until) {
+      const lockedUntil = new Date(user.locked_until);
+      const minutes = Math.max(1, Math.ceil((lockedUntil.getTime() - Date.now()) / 60000));
+      return `Locked (${minutes}m)`;
+    }
+
+    if ((user.failed_attempts || 0) > 0) {
+      return `${user.failed_attempts} failed`;
+    }
+
+    return 'None';
+  };
 
   return (
     <div className="ms-admin-users" style={styles.container}>
@@ -149,6 +175,7 @@ export default function UserManagement() {
               <th style={styles.th}>Login Count</th>
               <th style={styles.th}>Admin</th>
               <th style={styles.th}>Status</th>
+              <th style={styles.th}>Lockout</th>
               <th style={styles.th}>Created</th>
               <th style={styles.th}>Actions</th>
             </tr>
@@ -177,10 +204,24 @@ export default function UserManagement() {
                   </button>
                 </td>
                 <td style={styles.td}>
+                  <span style={user.is_locked ? styles.lockedBadge : styles.lockoutText}>
+                    {formatLockoutStatus(user)}
+                  </span>
+                </td>
+                <td style={styles.td}>
                   {new Date(user.created_at).toLocaleDateString()}
                 </td>
                 <td style={styles.td}>
                   <div className="ms-table-actions" style={styles.actions}>
+                    {(user.is_locked || (user.failed_attempts || 0) > 0) && (
+                      <button
+                        onClick={() => handleUnlockUser(user.id, user.username)}
+                        style={styles.unlockButton}
+                        title="Clear lockout and failed attempts"
+                      >
+                        🔓
+                      </button>
+                    )}
                     <button
                       onClick={() => setEditingUser(user)}
                       style={styles.actionButton}
@@ -388,6 +429,24 @@ const styles = {
   actions: {
     display: 'flex',
     gap: '8px'
+  },
+  lockoutText: {
+    color: '#aaa',
+    fontSize: '12px'
+  },
+  lockedBadge: {
+    color: '#f59e0b',
+    fontSize: '12px',
+    fontWeight: '600'
+  },
+  unlockButton: {
+    padding: '6px 10px',
+    backgroundColor: '#f59e0b',
+    color: '#111',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px'
   },
   actionButton: {
     padding: '6px 10px',

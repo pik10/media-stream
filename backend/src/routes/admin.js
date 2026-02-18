@@ -3,6 +3,8 @@ import { authenticateToken } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 import { userService } from '../services/userService.js';
 import { asyncHandler, sendError } from '../utils/asyncHandler.js';
+import { getAttemptStatus, unlockAccount } from '../services/loginAttemptTracker.js';
+import { getMetricsSnapshot } from '../services/metricsService.js';
 import Joi from 'joi';
 
 const router = express.Router();
@@ -20,7 +22,17 @@ router.get('/users', asyncHandler(async (req, res) => {
     search,
     isActive: isActive !== undefined ? isActive === 'true' : undefined
   });
-  res.json({ users });
+  const enrichedUsers = users.map((user) => {
+    const attemptStatus = getAttemptStatus(user.username);
+    return {
+      ...user,
+      is_locked: attemptStatus.isLocked,
+      locked_until: attemptStatus.lockedUntil ? attemptStatus.lockedUntil.toISOString() : null,
+      failed_attempts: attemptStatus.failedAttempts,
+      attempts_remaining: attemptStatus.attemptsRemaining
+    };
+  });
+  res.json({ users: enrichedUsers });
 }));
 
 /**
@@ -179,6 +191,34 @@ router.post('/users/:id/reset-password', async (req, res) => {
 });
 
 /**
+ * POST /api/admin/users/:id/unlock - Clear lockout/failed attempts
+ */
+router.post('/users/:id/unlock', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const user = userService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    unlockAccount(user.username);
+
+    userService.logActivity(
+      req.user.userId,
+      'user_unlocked',
+      `Unlocked account for user: ${user.username}`,
+      req.ip
+    );
+
+    res.json({ message: 'User lockout cleared successfully' });
+  } catch (error) {
+    console.error('Unlock user error:', error);
+    res.status(500).json({ error: 'Failed to unlock user' });
+  }
+});
+
+/**
  * GET /api/admin/statistics - Get system statistics
  */
 router.get('/statistics', async (req, res) => {
@@ -188,6 +228,18 @@ router.get('/statistics', async (req, res) => {
   } catch (error) {
     console.error('Get statistics error:', error);
     res.status(500).json({ error: 'Failed to get statistics' });
+  }
+});
+
+/**
+ * GET /api/admin/metrics - Get in-memory operational metrics
+ */
+router.get('/metrics', async (req, res) => {
+  try {
+    res.json(getMetricsSnapshot());
+  } catch (error) {
+    console.error('Get metrics error:', error);
+    res.status(500).json({ error: 'Failed to get metrics' });
   }
 });
 

@@ -11,13 +11,18 @@ const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes window
 
+function normalizeUsername(username) {
+  return String(username || '').toLowerCase().trim();
+}
+
 /**
  * Check if an account is locked
  * @param {string} username
  * @returns {Object} { isLocked: boolean, lockedUntil: Date|null }
  */
 export function isAccountLocked(username) {
-  const record = failedAttempts.get(username);
+  const normalizedUsername = normalizeUsername(username);
+  const record = failedAttempts.get(normalizedUsername);
 
   if (!record) {
     return { isLocked: false, lockedUntil: null };
@@ -28,7 +33,7 @@ export function isAccountLocked(username) {
   // Check if lockout period has expired
   if (record.lockedUntil && now >= record.lockedUntil) {
     // Lockout expired, clear the record
-    failedAttempts.delete(username);
+    failedAttempts.delete(normalizedUsername);
     return { isLocked: false, lockedUntil: null };
   }
 
@@ -46,8 +51,9 @@ export function isAccountLocked(username) {
  * @returns {Object} { isLocked: boolean, attemptsRemaining: number, lockedUntil: Date|null }
  */
 export function recordFailedAttempt(username) {
+  const normalizedUsername = normalizeUsername(username);
   const now = Date.now();
-  let record = failedAttempts.get(username);
+  let record = failedAttempts.get(normalizedUsername);
 
   if (!record) {
     // First failed attempt
@@ -56,7 +62,7 @@ export function recordFailedAttempt(username) {
       firstAttempt: now,
       lockedUntil: null
     };
-    failedAttempts.set(username, record);
+    failedAttempts.set(normalizedUsername, record);
     return {
       isLocked: false,
       attemptsRemaining: MAX_ATTEMPTS - 1,
@@ -71,7 +77,7 @@ export function recordFailedAttempt(username) {
       firstAttempt: now,
       lockedUntil: null
     };
-    failedAttempts.set(username, record);
+    failedAttempts.set(normalizedUsername, record);
     return {
       isLocked: false,
       attemptsRemaining: MAX_ATTEMPTS - 1,
@@ -85,9 +91,9 @@ export function recordFailedAttempt(username) {
   // Lock account if max attempts reached
   if (record.count >= MAX_ATTEMPTS) {
     record.lockedUntil = now + LOCKOUT_DURATION_MS;
-    failedAttempts.set(username, record);
+    failedAttempts.set(normalizedUsername, record);
 
-    console.warn(`Account locked: ${username} (${record.count} failed attempts)`);
+    console.warn(`Account locked: ${normalizedUsername} (${record.count} failed attempts)`);
 
     return {
       isLocked: true,
@@ -96,7 +102,7 @@ export function recordFailedAttempt(username) {
     };
   }
 
-  failedAttempts.set(username, record);
+  failedAttempts.set(normalizedUsername, record);
   return {
     isLocked: false,
     attemptsRemaining: MAX_ATTEMPTS - record.count,
@@ -109,7 +115,55 @@ export function recordFailedAttempt(username) {
  * @param {string} username
  */
 export function clearFailedAttempts(username) {
-  failedAttempts.delete(username);
+  const normalizedUsername = normalizeUsername(username);
+  failedAttempts.delete(normalizedUsername);
+}
+
+/**
+ * Get lockout/attempt status for admin visibility
+ * @param {string} username
+ * @returns {Object}
+ */
+export function getAttemptStatus(username) {
+  const normalizedUsername = normalizeUsername(username);
+  const record = failedAttempts.get(normalizedUsername);
+
+  if (!record) {
+    return {
+      isLocked: false,
+      lockedUntil: null,
+      failedAttempts: 0,
+      attemptsRemaining: MAX_ATTEMPTS
+    };
+  }
+
+  const lockStatus = isAccountLocked(normalizedUsername);
+  if (!lockStatus.isLocked && !failedAttempts.has(normalizedUsername)) {
+    return {
+      isLocked: false,
+      lockedUntil: null,
+      failedAttempts: 0,
+      attemptsRemaining: MAX_ATTEMPTS
+    };
+  }
+
+  const activeRecord = failedAttempts.get(normalizedUsername);
+  const count = activeRecord?.count || 0;
+
+  return {
+    isLocked: lockStatus.isLocked,
+    lockedUntil: lockStatus.lockedUntil,
+    failedAttempts: count,
+    attemptsRemaining: Math.max(0, MAX_ATTEMPTS - count)
+  };
+}
+
+/**
+ * Unlock account and clear failed attempts
+ * @param {string} username
+ */
+export function unlockAccount(username) {
+  clearFailedAttempts(username);
 }
 
 /**

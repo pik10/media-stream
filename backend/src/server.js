@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import './config/database.js'; // Initialize database
 import { startCleanupTask, stopCleanupTask } from './services/s3ConnectionPool.js';
+import { recordRequestMetric } from './services/metricsService.js';
 
 // Start S3 connection pool cleanup
 startCleanupTask();
@@ -104,9 +105,25 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging
+// Request logging + latency metrics
+const SLOW_REQUEST_MS = parseInt(process.env.SLOW_REQUEST_MS || '1000', 10);
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  const start = process.hrtime.bigint();
+  const startIso = new Date().toISOString();
+
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+    const path = req.originalUrl.split('?')[0];
+    recordRequestMetric(req.method, path, res.statusCode, durationMs);
+
+    const logLine = `${startIso} - ${req.method} ${path} ${res.statusCode} ${durationMs.toFixed(2)}ms`;
+    if (durationMs >= SLOW_REQUEST_MS) {
+      console.warn(`[slow-request] ${logLine}`);
+    } else {
+      console.log(logLine);
+    }
+  });
+
   next();
 });
 
