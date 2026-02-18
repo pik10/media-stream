@@ -3,17 +3,20 @@ import { admin } from '../../services/api';
 import CreateUserModal from './CreateUserModal';
 import EditUserModal from './EditUserModal';
 import ResetPasswordModal from './ResetPasswordModal';
+import ToastStack from '../UI/ToastStack';
+import { useToasts } from '../../hooks/useToasts';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [pageError, setPageError] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [resettingUser, setResettingUser] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const { toasts, showToast, dismissToast } = useToasts();
   const currentUser = (() => {
     try {
       return JSON.parse(localStorage.getItem('user') || '{}');
@@ -32,10 +35,10 @@ export default function UserManagement() {
       setLoading(true);
       const response = await admin.listUsers({ search: searchQuery });
       setUsers(response.data.users);
-      setError('');
+      setPageError('');
     } catch (err) {
       console.error('Failed to fetch users:', err);
-      setError('Failed to load users');
+      setPageError('Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -56,52 +59,49 @@ export default function UserManagement() {
 
     try {
       await admin.updateUser(userId, { is_active: !currentStatus });
-      fetchUsers();
+      await fetchUsers();
+      showToast('success', `User marked as ${currentStatus ? 'inactive' : 'active'}`);
     } catch (err) {
       console.error('Failed to update user:', err);
-      alert(err.response?.data?.error || 'Failed to update user status');
+      showToast('error', err.response?.data?.error || 'Failed to update user status');
     }
   };
 
   const handleToggleAdmin = async (userId, currentStatus) => {
     if (userId === currentUserId && currentStatus === true) return;
 
-    if (!confirm(`Are you sure you want to ${currentStatus ? 'remove' : 'grant'} admin privileges?`)) {
-      return;
-    }
-
     try {
       await admin.updateUser(userId, { is_admin: !currentStatus });
-      fetchUsers();
+      await fetchUsers();
+      showToast('success', `${currentStatus ? 'Removed' : 'Granted'} admin privileges`);
     } catch (err) {
       console.error('Failed to update user:', err);
-      alert(err.response?.data?.error || 'Failed to update admin status');
+      showToast('error', err.response?.data?.error || 'Failed to update admin status');
     }
   };
 
-  const handleDeleteUser = async (userId, username) => {
-    if (!confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
-      return;
-    }
-
+  const confirmDeleteUser = async () => {
+    if (!deletingUser) return;
+    const { id: userId, username } = deletingUser;
     try {
       await admin.deleteUser(userId);
-      fetchUsers();
+      await fetchUsers();
+      showToast('success', `Deleted user "${username}"`);
+      setDeletingUser(null);
     } catch (err) {
       console.error('Failed to delete user:', err);
-      alert(err.response?.data?.error || 'Failed to delete user');
+      showToast('error', err.response?.data?.error || 'Failed to delete user');
     }
   };
 
   const handleUnlockUser = async (userId, username) => {
     try {
       await admin.unlockUser(userId);
-      setSuccessMessage(`Cleared lockout for ${username}`);
-      fetchUsers();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      await fetchUsers();
+      showToast('success', `Cleared lockout for ${username}`);
     } catch (err) {
       console.error('Failed to unlock user:', err);
-      alert(err.response?.data?.error || 'Failed to unlock user');
+      showToast('error', err.response?.data?.error || 'Failed to unlock user');
     }
   };
 
@@ -109,11 +109,19 @@ export default function UserManagement() {
     setResettingUser(user);
   };
 
-  const handlePasswordResetSuccess = () => {
-    setSuccessMessage('Password reset successfully');
-    fetchUsers();
-    // Auto-dismiss after 3 seconds
-    setTimeout(() => setSuccessMessage(''), 3000);
+  const handlePasswordResetSuccess = async () => {
+    await fetchUsers();
+    showToast('success', 'Password reset successfully');
+  };
+
+  const handleCreateSuccess = async () => {
+    await fetchUsers();
+    showToast('success', 'User created successfully');
+  };
+
+  const handleEditSuccess = async () => {
+    await fetchUsers();
+    showToast('success', 'User updated successfully');
   };
 
   if (loading) {
@@ -174,8 +182,9 @@ export default function UserManagement() {
         </button>
       </div>
 
-      {error && <div style={styles.error}>{error}</div>}
-      {successMessage && <div style={styles.success}>{successMessage}</div>}
+      {pageError && <div style={styles.error}>{pageError}</div>}
+
+      <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
       <div className="ms-table-scroll" style={styles.tableContainer}>
         <table style={styles.table}>
@@ -271,7 +280,7 @@ export default function UserManagement() {
                       ⟳
                     </button>
                     <button
-                      onClick={() => handleDeleteUser(user.id, user.username)}
+                      onClick={() => setDeletingUser({ id: user.id, username: user.username })}
                       style={styles.deleteButton}
                       title="Delete user"
                     >
@@ -292,7 +301,7 @@ export default function UserManagement() {
       {showCreateModal && (
         <CreateUserModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={fetchUsers}
+          onCreated={handleCreateSuccess}
         />
       )}
 
@@ -301,7 +310,7 @@ export default function UserManagement() {
           user={editingUser}
           currentUserId={currentUserId}
           onClose={() => setEditingUser(null)}
-          onUpdated={fetchUsers}
+          onUpdated={handleEditSuccess}
         />
       )}
 
@@ -311,6 +320,33 @@ export default function UserManagement() {
           onClose={() => setResettingUser(null)}
           onSuccess={handlePasswordResetSuccess}
         />
+      )}
+
+      {deletingUser && (
+        <div style={styles.confirmOverlay} onClick={() => setDeletingUser(null)}>
+          <div style={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h3 style={styles.confirmTitle}>Delete User</h3>
+            <p style={styles.confirmText}>
+              Are you sure you want to delete user "{deletingUser.username}"? This action cannot be undone.
+            </p>
+            <div style={styles.confirmActions}>
+              <button
+                type="button"
+                onClick={() => setDeletingUser(null)}
+                style={styles.confirmCancel}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteUser}
+                style={styles.confirmDelete}
+              >
+                Delete User
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -386,14 +422,6 @@ const styles = {
     color: '#fff',
     borderRadius: '6px',
     marginBottom: '20px'
-  },
-  success: {
-    padding: '12px',
-    backgroundColor: '#10b981',
-    color: '#fff',
-    borderRadius: '6px',
-    marginBottom: '20px',
-    animation: 'fadeIn 0.3s ease-out'
   },
   tableContainer: {
     overflowX: 'auto',
@@ -510,5 +538,55 @@ const styles = {
     padding: '40px',
     color: '#666',
     fontSize: '16px'
+  },
+  confirmOverlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1300
+  },
+  confirmModal: {
+    backgroundColor: '#1a1a1a',
+    border: '1px solid #333',
+    borderRadius: '10px',
+    width: '90%',
+    maxWidth: '420px',
+    padding: '20px'
+  },
+  confirmTitle: {
+    margin: 0,
+    marginBottom: '12px',
+    color: '#fff',
+    fontSize: '20px'
+  },
+  confirmText: {
+    margin: 0,
+    marginBottom: '18px',
+    color: '#ccc',
+    lineHeight: 1.4
+  },
+  confirmActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px'
+  },
+  confirmCancel: {
+    padding: '10px 14px',
+    backgroundColor: '#333',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer'
+  },
+  confirmDelete: {
+    padding: '10px 14px',
+    backgroundColor: '#dc2626',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer'
   }
 };
