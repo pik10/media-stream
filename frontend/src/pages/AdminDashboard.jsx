@@ -19,13 +19,13 @@ export default function AdminDashboard() {
             style={activeTab === 'users' ? styles.activeTab : styles.tab}
             onClick={() => setActiveTab('users')}
           >
-            👥 User Management
+            ◉ User Management
           </button>
           <button
             style={activeTab === 'stats' ? styles.activeTab : styles.tab}
             onClick={() => setActiveTab('stats')}
           >
-            📊 Statistics
+            ▦ Statistics
           </button>
         </div>
 

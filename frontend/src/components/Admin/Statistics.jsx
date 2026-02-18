@@ -40,7 +40,7 @@ export default function Statistics() {
     {
       label: 'Total Users',
       value: stats.total_users,
-      icon: '👤',
+      icon: '◉',
       color: '#3b82f6'
     },
     {

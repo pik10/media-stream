@@ -194,7 +194,7 @@ export default function UserManagement() {
                       style={styles.actionButton}
                       title="Reset password"
                     >
-                      🔒
+                      ⟳
                     </button>
                     <button
                       onClick={() => handleDeleteUser(user.id, user.username)}
