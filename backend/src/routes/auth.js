@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { registerUser, loginUser, getUserById, changePassword } from '../services/authService.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
+import { settingsService } from '../services/settingsService.js';
 
 const router = express.Router();
 
@@ -28,6 +29,10 @@ const changePasswordSchema = Joi.object({
  */
 router.post('/register', authLimiter, async (req, res) => {
   try {
+    if (!settingsService.getAllowRegistrations()) {
+      return res.status(403).json({ error: 'New user registration is currently disabled by admin' });
+    }
+
     // Validate input
     const { error, value } = registerSchema.validate(req.body);
     if (error) {

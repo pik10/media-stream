@@ -61,6 +61,12 @@ const schema = `
     UNIQUE(library_id, key)
   );
 
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE INDEX IF NOT EXISTS idx_libraries_user_id ON libraries(user_id);
   CREATE INDEX IF NOT EXISTS idx_video_cache_library_id ON video_cache(library_id);
   CREATE INDEX IF NOT EXISTS idx_video_cache_cached_at ON video_cache(cached_at);
@@ -125,6 +131,16 @@ try {
   console.log('User management schema ready');
 } catch (err) {
   console.error('Failed to run user management migrations:', err);
+}
+
+// Initialize app settings defaults
+try {
+  db.prepare(`
+    INSERT OR IGNORE INTO app_settings (key, value)
+    VALUES ('allow_registrations', 'true')
+  `).run();
+} catch (err) {
+  console.error('Failed to initialize app settings defaults:', err);
 }
 
 export default db;

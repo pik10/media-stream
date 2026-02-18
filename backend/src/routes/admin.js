@@ -5,6 +5,7 @@ import { userService } from '../services/userService.js';
 import { asyncHandler, sendError } from '../utils/asyncHandler.js';
 import { getAttemptStatus, unlockAccount } from '../services/loginAttemptTracker.js';
 import { getMetricsSnapshot } from '../services/metricsService.js';
+import { settingsService } from '../services/settingsService.js';
 import Joi from 'joi';
 
 const router = express.Router();
@@ -240,6 +241,51 @@ router.get('/metrics', async (req, res) => {
   } catch (error) {
     console.error('Get metrics error:', error);
     res.status(500).json({ error: 'Failed to get metrics' });
+  }
+});
+
+/**
+ * GET /api/admin/settings - Get admin-configurable settings
+ */
+router.get('/settings', async (req, res) => {
+  try {
+    res.json(settingsService.getAdminSettings());
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Failed to get settings' });
+  }
+});
+
+/**
+ * PUT /api/admin/settings - Update admin-configurable settings
+ */
+router.put('/settings', async (req, res) => {
+  try {
+    const schema = Joi.object({
+      allowRegistrations: Joi.boolean().required()
+    });
+
+    const { error, value } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
+    settingsService.setAllowRegistrations(value.allowRegistrations);
+
+    userService.logActivity(
+      req.user.userId,
+      'settings_updated',
+      `Updated allowRegistrations=${value.allowRegistrations}`,
+      req.ip
+    );
+
+    res.json({
+      message: 'Settings updated successfully',
+      ...settingsService.getAdminSettings()
+    });
+  } catch (error) {
+    console.error('Update settings error:', error);
+    res.status(500).json({ error: 'Failed to update settings' });
   }
 });
 

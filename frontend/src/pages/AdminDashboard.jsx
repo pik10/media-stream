@@ -4,6 +4,7 @@ import Header from '../components/Navigation/Header';
 import UserManagement from '../components/Admin/UserManagement';
 import Statistics from '../components/Admin/Statistics';
 import Performance from '../components/Admin/Performance';
+import AdminSettings from '../components/Admin/AdminSettings';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('users');
@@ -34,12 +35,19 @@ export default function AdminDashboard() {
           >
             ◴ Performance
           </button>
+          <button
+            style={activeTab === 'settings' ? styles.activeTab : styles.tab}
+            onClick={() => setActiveTab('settings')}
+          >
+            ⚙ Settings
+          </button>
         </div>
 
         <div style={styles.content}>
           {activeTab === 'users' && <UserManagement />}
           {activeTab === 'stats' && <Statistics />}
           {activeTab === 'performance' && <Performance />}
+          {activeTab === 'settings' && <AdminSettings />}
         </div>
       </div>
     </>

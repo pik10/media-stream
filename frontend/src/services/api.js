@@ -124,6 +124,12 @@ export const admin = {
   getMetrics: () =>
     api.get('/admin/metrics'),
 
+  getSettings: () =>
+    api.get('/admin/settings'),
+
+  updateSettings: (settings) =>
+    api.put('/admin/settings', settings),
+
   getStatistics: () =>
     api.get('/admin/statistics')
 };
