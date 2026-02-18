@@ -76,4 +76,55 @@ try {
   process.exit(1);
 }
 
+// Run migrations for user management features
+try {
+  const tableInfo = db.pragma('table_info(users)');
+  const existingColumns = tableInfo.map(col => col.name);
+
+  // Add new columns if they don't exist
+  if (!existingColumns.includes('is_admin')) {
+    db.exec('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0');
+    console.log('Added is_admin column');
+  }
+  if (!existingColumns.includes('is_active')) {
+    db.exec('ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1');
+    console.log('Added is_active column');
+  }
+  if (!existingColumns.includes('email')) {
+    db.exec('ALTER TABLE users ADD COLUMN email TEXT');
+    console.log('Added email column');
+  }
+  if (!existingColumns.includes('last_login')) {
+    db.exec('ALTER TABLE users ADD COLUMN last_login DATETIME');
+    console.log('Added last_login column');
+  }
+  if (!existingColumns.includes('login_count')) {
+    db.exec('ALTER TABLE users ADD COLUMN login_count INTEGER DEFAULT 0');
+    console.log('Added login_count column');
+  }
+
+  // Create user_activity table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_activity (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      action TEXT NOT NULL,
+      details TEXT,
+      ip_address TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Create indexes
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_user_activity_user_id ON user_activity(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_activity_created_at ON user_activity(created_at);
+  `);
+
+  console.log('User management schema ready');
+} catch (err) {
+  console.error('Failed to run user management migrations:', err);
+}
+
 export default db;

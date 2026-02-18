@@ -5,6 +5,8 @@ import LibrariesPage from './pages/LibrariesPage';
 import BrowsePage from './pages/BrowsePage';
 import SettingsPage from './pages/SettingsPage';
 import VideoPlayer from './components/Video/VideoPlayer';
+import AdminDashboard from './pages/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -51,21 +53,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
-}
-
-// Protected route wrapper that checks for authentication
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem('token');
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
 }
 
 export default App;

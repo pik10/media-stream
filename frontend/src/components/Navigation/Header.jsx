@@ -7,6 +7,17 @@ export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Check if user is admin
+  const isAdmin = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      const user = JSON.parse(userStr || '{}');
+      return user.isAdmin === true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -50,6 +61,15 @@ export default function Header() {
           >
             Settings
           </button>
+          {isAdmin() && (
+            <button
+              onClick={() => navigate('/admin')}
+              className={`navButton ${isActive('/admin') ? 'navButtonActive' : ''}`}
+              style={{ color: '#3b82f6', fontWeight: '600' }}
+            >
+              ⚡ Admin
+            </button>
+          )}
         </nav>
 
         <button onClick={handleLogout} className="logoutButton">
@@ -89,6 +109,15 @@ export default function Header() {
           >
             Settings
           </button>
+          {isAdmin() && (
+            <button
+              onClick={() => handleNavClick('/admin')}
+              className={`mobileNavButton ${isActive('/admin') ? 'mobileNavButtonActive' : ''}`}
+              style={{ color: '#3b82f6', fontWeight: '600' }}
+            >
+              ⚡ Admin
+            </button>
+          )}
           <button
             onClick={() => {
               handleLogout();

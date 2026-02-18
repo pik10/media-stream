@@ -98,4 +98,28 @@ export const videos = {
     `/api/stream/${libraryId}/${encodeURIComponent(key)}?token=${localStorage.getItem('token')}`
 };
 
+// Admin API
+export const admin = {
+  listUsers: (filters) =>
+    api.get('/admin/users', { params: filters }),
+
+  getUser: (userId) =>
+    api.get(`/admin/users/${userId}`),
+
+  createUser: (userData) =>
+    api.post('/admin/users', userData),
+
+  updateUser: (userId, updates) =>
+    api.put(`/admin/users/${userId}`, updates),
+
+  deleteUser: (userId) =>
+    api.delete(`/admin/users/${userId}`),
+
+  resetPassword: (userId, newPassword) =>
+    api.post(`/admin/users/${userId}/reset-password`, { newPassword }),
+
+  getStatistics: () =>
+    api.get('/admin/statistics')
+};
+
 export default api;

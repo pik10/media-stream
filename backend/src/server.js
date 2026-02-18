@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import librariesRoutes from './routes/libraries.js';
 import videosRoutes from './routes/videos.js';
 import streamRoutes from './routes/stream.js';
+import adminRoutes from './routes/admin.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import './config/database.js'; // Initialize database
 import { startCleanupTask, stopCleanupTask } from './services/s3ConnectionPool.js';
@@ -119,6 +120,7 @@ app.use('/api/auth', authRoutes); // Auth routes have their own stricter rate li
 app.use('/api/libraries', apiLimiter, librariesRoutes);
 app.use('/api/videos', apiLimiter, videosRoutes);
 app.use('/api/stream', streamRoutes);
+app.use('/api/admin', adminRoutes); // Admin routes (require admin auth)
 
 // 404 handler
 app.use((req, res) => {

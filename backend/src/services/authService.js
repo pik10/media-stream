@@ -92,9 +92,21 @@ export async function loginUser(username, password) {
   // Clear failed attempts on successful login
   clearFailedAttempts(normalizedUsername);
 
-  // Generate token
+  // Update last_login and login_count
+  db.prepare(`
+    UPDATE users
+    SET last_login = CURRENT_TIMESTAMP,
+        login_count = COALESCE(login_count, 0) + 1
+    WHERE id = ?
+  `).run(user.id);
+
+  // Generate token with isAdmin flag
   const token = jwt.sign(
-    { userId: user.id, username: user.username },
+    {
+      userId: user.id,
+      username: user.username,
+      isAdmin: user.is_admin === 1
+    },
     getJwtSecret(),
     { expiresIn: TOKEN_EXPIRY }
   );
@@ -103,7 +115,8 @@ export async function loginUser(username, password) {
     token,
     user: {
       id: user.id,
-      username: user.username
+      username: user.username,
+      isAdmin: user.is_admin === 1
     }
   };
 }
@@ -127,11 +140,15 @@ export function verifyToken(token) {
  * @returns {Object} User object (without password)
  */
 export async function getUserById(userId) {
-  const user = db.prepare('SELECT id, username, created_at FROM users WHERE id = ?').get(userId);
+  const user = db.prepare('SELECT id, username, email, is_admin, is_active, created_at, last_login FROM users WHERE id = ?').get(userId);
   if (!user) {
     throw new Error('User not found');
   }
-  return user;
+  return {
+    ...user,
+    isAdmin: user.is_admin === 1,
+    isActive: user.is_active === 1
+  };
 }
 
 /**
