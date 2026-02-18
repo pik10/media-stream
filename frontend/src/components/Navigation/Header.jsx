@@ -42,7 +42,7 @@ export default function Header() {
           aria-label="Go to home"
           onClick={() => handleNavClick('/')}
         >
-          <span className="brandIcon">🎬</span>
+          <span className="brandIcon" aria-hidden="true">▶</span>
           <span className="brandText">Media Stream</span>
         </button>
 

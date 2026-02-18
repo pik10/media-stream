@@ -30,7 +30,17 @@
 }
 
 .brandIcon {
-  font-size: 28px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 .brandText {
