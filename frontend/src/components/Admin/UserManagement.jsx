@@ -8,6 +8,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -85,8 +86,10 @@ export default function UserManagement() {
   };
 
   const handlePasswordResetSuccess = () => {
-    alert('Password reset successfully');
+    setSuccessMessage('Password reset successfully');
     fetchUsers();
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   if (loading) {
@@ -134,6 +137,7 @@ export default function UserManagement() {
       </div>
 
       {error && <div style={styles.error}>{error}</div>}
+      {successMessage && <div style={styles.success}>{successMessage}</div>}
 
       <div style={styles.tableContainer}>
         <table style={styles.table}>
@@ -306,6 +310,14 @@ const styles = {
     color: '#fff',
     borderRadius: '6px',
     marginBottom: '20px'
+  },
+  success: {
+    padding: '12px',
+    backgroundColor: '#10b981',
+    color: '#fff',
+    borderRadius: '6px',
+    marginBottom: '20px',
+    animation: 'fadeIn 0.3s ease-out'
   },
   tableContainer: {
     overflowX: 'auto',
