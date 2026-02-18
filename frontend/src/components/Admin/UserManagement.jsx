@@ -101,22 +101,6 @@ export default function UserManagement() {
     }
   };
 
-  const handleResetPassword = (user) => {
-    setResettingUser(user);
-  };
-
-  const handlePasswordResetSuccess = async () => {
-    await fetchUsers();
-  };
-
-  const handleCreateSuccess = async () => {
-    await fetchUsers();
-  };
-
-  const handleEditSuccess = async () => {
-    await fetchUsers();
-  };
-
   if (loading) {
     return <div style={styles.loading}>Loading users...</div>;
   }
@@ -266,7 +250,7 @@ export default function UserManagement() {
                       ✎
                     </button>
                     <button
-                      onClick={() => handleResetPassword(user)}
+                      onClick={() => setResettingUser(user)}
                       style={styles.actionButton}
                       title="Reset password"
                     >
@@ -294,7 +278,7 @@ export default function UserManagement() {
       {showCreateModal && (
         <CreateUserModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={handleCreateSuccess}
+          onCreated={fetchUsers}
         />
       )}
 
@@ -303,7 +287,7 @@ export default function UserManagement() {
           user={editingUser}
           currentUserId={currentUserId}
           onClose={() => setEditingUser(null)}
-          onUpdated={handleEditSuccess}
+          onUpdated={fetchUsers}
         />
       )}
 
@@ -311,7 +295,7 @@ export default function UserManagement() {
         <ResetPasswordModal
           user={resettingUser}
           onClose={() => setResettingUser(null)}
-          onSuccess={handlePasswordResetSuccess}
+          onSuccess={fetchUsers}
         />
       )}
 

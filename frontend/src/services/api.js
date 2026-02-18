@@ -51,9 +51,6 @@ export const auth = {
   getRegistrationStatus: () =>
     api.get('/auth/registration-status'),
 
-  getMe: () =>
-    api.get('/auth/me'),
-
   changePassword: (currentPassword, newPassword) =>
     api.put('/auth/change-password', { currentPassword, newPassword })
 };
@@ -82,12 +79,6 @@ export const libraries = {
 // Videos API
 export const videos = {
   list: (libraryId, options = {}) => {
-    // Support both old and new API for backward compatibility
-    if (typeof options === 'string') {
-      // Old call: videos.list(libraryId, prefix)
-      options = { prefix: options };
-    }
-
     const { prefix = '', search = '', page = 1, limit = 50, sort = 'date', order = 'desc', refresh = false } = options;
     return api.get(`/videos/${libraryId}`, {
       params: { prefix, search, page, limit, sort, order, refresh }
@@ -115,9 +106,6 @@ export const videos = {
 export const admin = {
   listUsers: (filters) =>
     api.get('/admin/users', { params: filters }),
-
-  getUser: (userId) =>
-    api.get(`/admin/users/${userId}`),
 
   createUser: (userData) =>
     api.post('/admin/users', userData),
