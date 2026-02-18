@@ -7,18 +7,19 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
-  }, [search]);
+  }, [searchQuery]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await admin.listUsers({ search });
+      const response = await admin.listUsers({ search: searchQuery });
       setUsers(response.data.users);
       setError('');
     } catch (err) {
@@ -26,6 +27,16 @@ export default function UserManagement() {
       setError('Failed to load users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -90,13 +101,35 @@ export default function UserManagement() {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={styles.searchInput}
-        />
+        <div style={styles.searchContainer}>
+          <input
+            type="text"
+            placeholder="Search users... (press Enter)"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={styles.searchInput}
+          />
+          <button
+            onClick={handleSearch}
+            style={styles.searchButton}
+            title="Search"
+          >
+            🔍
+          </button>
+          {searchInput && (
+            <button
+              onClick={() => {
+                setSearchInput('');
+                setSearchQuery('');
+              }}
+              style={styles.clearButton}
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <button
           onClick={() => setShowCreateModal(true)}
           style={styles.createButton}
@@ -211,6 +244,13 @@ const styles = {
     marginBottom: '20px',
     gap: '10px'
   },
+  searchContainer: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    position: 'relative'
+  },
   searchInput: {
     flex: 1,
     padding: '12px 16px',
@@ -220,6 +260,26 @@ const styles = {
     backgroundColor: '#1a1a1a',
     color: '#fff',
     outline: 'none'
+  },
+  searchButton: {
+    padding: '12px 16px',
+    fontSize: '18px',
+    backgroundColor: '#333',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  clearButton: {
+    padding: '12px 16px',
+    fontSize: '18px',
+    backgroundColor: '#555',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   createButton: {
     padding: '12px 24px',

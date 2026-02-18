@@ -65,7 +65,10 @@ export default function Header() {
             <button
               onClick={() => navigate('/admin')}
               className={`navButton ${isActive('/admin') ? 'navButtonActive' : ''}`}
-              style={{ color: '#3b82f6', fontWeight: '600' }}
+              style={{
+                color: isActive('/admin') ? '#fff' : '#3b82f6',
+                fontWeight: '600'
+              }}
             >
               ⚡ Admin
             </button>
@@ -113,7 +116,10 @@ export default function Header() {
             <button
               onClick={() => handleNavClick('/admin')}
               className={`mobileNavButton ${isActive('/admin') ? 'mobileNavButtonActive' : ''}`}
-              style={{ color: '#3b82f6', fontWeight: '600' }}
+              style={{
+                color: isActive('/admin') ? '#fff' : '#3b82f6',
+                fontWeight: '600'
+              }}
             >
               ⚡ Admin
             </button>
