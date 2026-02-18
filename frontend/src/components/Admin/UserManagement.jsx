@@ -14,6 +14,14 @@ export default function UserManagement() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [resettingUser, setResettingUser] = useState(null);
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch (e) {
+      return {};
+    }
+  })();
+  const currentUserId = Number(currentUser.id);
 
   useEffect(() => {
     fetchUsers();
@@ -44,6 +52,8 @@ export default function UserManagement() {
   };
 
   const handleToggleActive = async (userId, currentStatus) => {
+    if (userId === currentUserId && currentStatus === true) return;
+
     try {
       await admin.updateUser(userId, { is_active: !currentStatus });
       fetchUsers();
@@ -54,6 +64,8 @@ export default function UserManagement() {
   };
 
   const handleToggleAdmin = async (userId, currentStatus) => {
+    if (userId === currentUserId && currentStatus === true) return;
+
     if (!confirm(`Are you sure you want to ${currentStatus ? 'remove' : 'grant'} admin privileges?`)) {
       return;
     }
@@ -188,20 +200,42 @@ export default function UserManagement() {
                 <td style={styles.td}>{user.library_count}</td>
                 <td style={styles.td}>{user.login_count || 0}</td>
                 <td style={styles.td}>
+                  {(() => {
+                    const isSelf = Number(user.id) === currentUserId;
+                    const disableAdminToggle = isSelf && user.is_admin;
+                    return (
                   <button
                     onClick={() => handleToggleAdmin(user.id, user.is_admin)}
-                    style={user.is_admin ? styles.adminBadge : styles.notAdminBadge}
+                    disabled={disableAdminToggle}
+                    title={disableAdminToggle ? 'You cannot remove your own admin privileges' : ''}
+                    style={{
+                      ...(user.is_admin ? styles.adminBadge : styles.notAdminBadge),
+                      ...(disableAdminToggle ? styles.disabledToggle : {})
+                    }}
                   >
                     {user.is_admin ? '✓ Admin' : 'User'}
                   </button>
+                    );
+                  })()}
                 </td>
                 <td style={styles.td}>
+                  {(() => {
+                    const isSelf = Number(user.id) === currentUserId;
+                    const disableActiveToggle = isSelf && user.is_active;
+                    return (
                   <button
                     onClick={() => handleToggleActive(user.id, user.is_active)}
-                    style={user.is_active ? styles.activeBadge : styles.inactiveBadge}
+                    disabled={disableActiveToggle}
+                    title={disableActiveToggle ? 'You cannot deactivate your own account' : ''}
+                    style={{
+                      ...(user.is_active ? styles.activeBadge : styles.inactiveBadge),
+                      ...(disableActiveToggle ? styles.disabledToggle : {})
+                    }}
                   >
                     {user.is_active ? 'Active' : 'Inactive'}
                   </button>
+                    );
+                  })()}
                 </td>
                 <td style={styles.td}>
                   <span style={user.is_locked ? styles.lockedBadge : styles.lockoutText}>
@@ -265,6 +299,7 @@ export default function UserManagement() {
       {editingUser && (
         <EditUserModal
           user={editingUser}
+          currentUserId={currentUserId}
           onClose={() => setEditingUser(null)}
           onUpdated={fetchUsers}
         />
@@ -425,6 +460,10 @@ const styles = {
     fontSize: '12px',
     cursor: 'pointer',
     fontWeight: '600'
+  },
+  disabledToggle: {
+    opacity: 0.55,
+    cursor: 'not-allowed'
   },
   actions: {
     display: 'flex',
