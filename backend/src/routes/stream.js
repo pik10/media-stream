@@ -77,7 +77,7 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': mimeType,
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'private, max-age=3600'
       });
 
       // Pipe stream to response
@@ -90,7 +90,7 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
         'Content-Length': fileSize,
         'Content-Type': mimeType,
         'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'private, max-age=3600'
       });
 
       // Pipe stream to response
