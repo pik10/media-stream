@@ -33,6 +33,7 @@ A secure, full-stack web application for streaming videos from S3-compatible sto
 ### 🚀 Performance & Scalability
 - **Video Metadata Caching** - 5-minute cache reduces S3 API calls by 95%+
 - **S3 Connection Pooling** - Reuses connections for better performance
+- **Playback Health Metrics** - Admin dashboard tracks server failures vs client aborts
 - **Pagination** - Load 50 items per page for smooth browsing
 - **Lazy Loading** - Progressive rendering reduces initial load time
 - **Database-Level Filtering** - Fast search and sorting with indexed queries
@@ -347,6 +348,11 @@ MP4, MKV, WebM, AVI, MOV, M4V, FLV, WMV, MPEG, MPG
 - ✓ Cache automatically refreshes every 5 minutes
 - ✓ Organize videos into folders for easier navigation
 - ✓ Use search to narrow down results
+
+### Playback metrics interpretation
+- ✓ In **Admin → Performance → Playback Health**, prioritize **Server Failure Rate** and **Hard Failures**
+- ✓ High `499` / **Client Aborts** can be normal on iPhone Safari due to range-request churn
+- ✓ Investigate buffering using **Upstream Errors**, `5xx`, and sustained early abort spikes
 
 ## 📄 License
 

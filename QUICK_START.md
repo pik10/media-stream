@@ -136,6 +136,7 @@ The SQLite database is stored at:
 - **Fast Loading**: Only 50 items loaded per page
 - **Lazy Loading**: Videos render as you scroll
 - Click **"↻ Refresh from S3"** to manually update the cache
+- Admin users can use **Performance → Playback Health** to distinguish server failures from client aborts
 
 ## Next Steps
 
