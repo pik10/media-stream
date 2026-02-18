@@ -2,7 +2,8 @@ import express from 'express';
 import db from '../config/database.js';
 import { authenticateStreamToken } from '../middleware/streamAuth.js';
 import { decrypt } from '../utils/encryption.js';
-import { createS3Client, getObjectStream, getObjectMetadata, getVideoMimeType } from '../services/s3Service.js';
+import { createS3Client, getObjectStream, getVideoMimeType } from '../services/s3Service.js';
+import { recordStreamStart, recordStreamOutcome } from '../services/metricsService.js';
 
 const router = express.Router();
 
@@ -15,8 +16,26 @@ router.use(authenticateStreamToken);
  * The key is base64url encoded to handle special characters in paths
  */
 router.get('/:libraryId/:encodedKey', async (req, res) => {
+  let libraryId;
+  let stream;
+  let metricsStarted = false;
+  let finalized = false;
+  const startedAt = Date.now();
+
+  const finalizeStreamMetric = (outcome, statusCode) => {
+    if (finalized || !metricsStarted) return;
+    finalized = true;
+    recordStreamOutcome(libraryId, outcome, statusCode, Date.now() - startedAt);
+  };
+
+  const cleanupStream = () => {
+    if (stream && !stream.destroyed) {
+      stream.destroy();
+    }
+  };
+
   try {
-    const libraryId = parseInt(req.params.libraryId);
+    libraryId = parseInt(req.params.libraryId);
     const key = decodeURIComponent(req.params.encodedKey);
 
     // Validate key to prevent path traversal attacks
@@ -51,56 +70,71 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
       secretKey
     });
 
-    // Get object metadata first to know the size
-    const metadata = await getObjectMetadata(s3Client, library.bucket, key);
-    const fileSize = metadata.contentLength;
-    const mimeType = metadata.contentType || getVideoMimeType(key);
-
     // Parse Range header
     const range = req.headers.range;
+    recordStreamStart(libraryId);
+    metricsStarted = true;
 
     if (range) {
       // Handle range request (for video seeking)
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-      const chunkSize = end - start + 1;
-
-      // Get object stream with range
-      const { stream } = await getObjectStream(s3Client, library.bucket, key, {
-        range: `bytes=${start}-${end}`
+      const rangeResponse = await getObjectStream(s3Client, library.bucket, key, {
+        range
       });
+      stream = rangeResponse.stream;
 
       // Send partial content response
       res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Range': rangeResponse.contentRange,
         'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': mimeType,
+        'Content-Length': rangeResponse.contentLength,
+        'Content-Type': rangeResponse.contentType || getVideoMimeType(key),
         'Cache-Control': 'private, max-age=3600'
       });
-
-      // Pipe stream to response
-      stream.pipe(res);
     } else {
       // Handle full file request
-      const { stream } = await getObjectStream(s3Client, library.bucket, key);
+      const fullResponse = await getObjectStream(s3Client, library.bucket, key);
+      stream = fullResponse.stream;
 
       res.writeHead(200, {
-        'Content-Length': fileSize,
-        'Content-Type': mimeType,
+        'Content-Length': fullResponse.contentLength,
+        'Content-Type': fullResponse.contentType || getVideoMimeType(key),
         'Accept-Ranges': 'bytes',
         'Cache-Control': 'private, max-age=3600'
       });
-
-      // Pipe stream to response
-      stream.pipe(res);
     }
 
-    // Handle stream errors
-    res.on('error', (error) => {
-      console.error('Stream error:', error);
+    req.on('aborted', () => {
+      cleanupStream();
+      finalizeStreamMetric('client_aborted', 499);
     });
+    res.on('close', () => {
+      if (!finalized) {
+        cleanupStream();
+        finalizeStreamMetric('client_aborted', 499);
+      }
+    });
+    res.on('error', cleanupStream);
+    res.on('finish', () => {
+      if (res.statusCode >= 200 && res.statusCode < 400) {
+        finalizeStreamMetric('completed', res.statusCode);
+      } else {
+        finalizeStreamMetric('other_error', res.statusCode);
+      }
+    });
+
+    stream.on('error', (error) => {
+      console.error('Stream error:', error);
+      cleanupStream();
+      finalizeStreamMetric('upstream_error', 502);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Streaming failed' });
+      } else {
+        res.destroy(error);
+      }
+    });
+
+    // Pipe stream to response
+    stream.pipe(res);
 
   } catch (error) {
     console.error('Streaming error:', error);
@@ -108,10 +142,17 @@ router.get('/:libraryId/:encodedKey', async (req, res) => {
     // Check if headers already sent
     if (!res.headersSent) {
       if (error.name === 'NoSuchKey' || error.Code === 'NoSuchKey') {
+        finalizeStreamMetric('not_found', 404);
         res.status(404).json({ error: 'Video not found' });
+      } else if (error.name === 'InvalidRange' || error.Code === 'InvalidRange' || error.$metadata?.httpStatusCode === 416) {
+        finalizeStreamMetric('invalid_range', 416);
+        res.status(416).json({ error: 'Requested range not satisfiable' });
       } else {
+        finalizeStreamMetric('other_error', 500);
         res.status(500).json({ error: 'Streaming failed' });
       }
+    } else {
+      finalizeStreamMetric('other_error', res.statusCode || 500);
     }
   }
 });

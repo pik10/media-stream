@@ -14,6 +14,25 @@ const cacheStats = {
   forcedRefreshes: 0,
   byLibrary: new Map()
 };
+const streamStats = {
+  started: 0,
+  active: 0,
+  completed: 0,
+  clientAborted: 0,
+  earlyClientAborted: 0,
+  upstreamErrors: 0,
+  invalidRange: 0,
+  notFound: 0,
+  otherErrors: 0,
+  byStatus: new Map(),
+  byLibrary: new Map(),
+  samples: [],
+  events: []
+};
+const STREAM_EVENT_RETENTION_MS = 60 * 60 * 1000; // 1 hour
+const STREAM_RECENT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const STREAM_MAX_EVENTS = 5000;
+const EARLY_CLIENT_ABORT_MS = 2000;
 
 function percentile(samples, p) {
   if (!samples || samples.length === 0) return 0;
@@ -47,6 +66,33 @@ function getLibraryEntry(libraryId) {
     cacheStats.byLibrary.set(key, { hits: 0, misses: 0, forcedRefreshes: 0 });
   }
   return cacheStats.byLibrary.get(key);
+}
+
+function getStreamLibraryEntry(libraryId) {
+  const key = String(libraryId);
+  if (!streamStats.byLibrary.has(key)) {
+    streamStats.byLibrary.set(key, {
+      started: 0,
+      completed: 0,
+      clientAborted: 0,
+      earlyClientAborted: 0,
+      upstreamErrors: 0,
+      invalidRange: 0,
+      notFound: 0,
+      otherErrors: 0
+    });
+  }
+  return streamStats.byLibrary.get(key);
+}
+
+function pruneOldStreamEvents(nowMs) {
+  const cutoff = nowMs - STREAM_EVENT_RETENTION_MS;
+  while (streamStats.events.length > 0 && streamStats.events[0].timestamp < cutoff) {
+    streamStats.events.shift();
+  }
+  if (streamStats.events.length > STREAM_MAX_EVENTS) {
+    streamStats.events.splice(0, streamStats.events.length - STREAM_MAX_EVENTS);
+  }
 }
 
 export function recordRequestMetric(method, path, statusCode, durationMs) {
@@ -101,7 +147,71 @@ export function recordCacheMiss(libraryId, { forcedRefresh = false } = {}) {
   }
 }
 
+export function recordStreamStart(libraryId) {
+  streamStats.started += 1;
+  streamStats.active += 1;
+  getStreamLibraryEntry(libraryId).started += 1;
+}
+
+export function recordStreamOutcome(libraryId, outcome, statusCode, durationMs) {
+  const nowMs = Date.now();
+  pruneOldStreamEvents(nowMs);
+  const safeDurationMs = Math.max(0, Number(durationMs || 0));
+  pushSample(streamStats.samples, safeDurationMs);
+
+  if (streamStats.active > 0) {
+    streamStats.active -= 1;
+  }
+
+  if (statusCode !== undefined && statusCode !== null) {
+    const statusKey = String(statusCode);
+    streamStats.byStatus.set(statusKey, (streamStats.byStatus.get(statusKey) || 0) + 1);
+  }
+
+  streamStats.events.push({
+    timestamp: nowMs,
+    libraryId,
+    outcome,
+    statusCode: statusCode ?? null,
+    durationMs: safeDurationMs
+  });
+
+  const libraryEntry = getStreamLibraryEntry(libraryId);
+  switch (outcome) {
+    case 'completed':
+      streamStats.completed += 1;
+      libraryEntry.completed += 1;
+      break;
+    case 'client_aborted':
+      streamStats.clientAborted += 1;
+      libraryEntry.clientAborted += 1;
+      if (safeDurationMs < EARLY_CLIENT_ABORT_MS) {
+        streamStats.earlyClientAborted += 1;
+        libraryEntry.earlyClientAborted += 1;
+      }
+      break;
+    case 'upstream_error':
+      streamStats.upstreamErrors += 1;
+      libraryEntry.upstreamErrors += 1;
+      break;
+    case 'invalid_range':
+      streamStats.invalidRange += 1;
+      libraryEntry.invalidRange += 1;
+      break;
+    case 'not_found':
+      streamStats.notFound += 1;
+      libraryEntry.notFound += 1;
+      break;
+    default:
+      streamStats.otherErrors += 1;
+      libraryEntry.otherErrors += 1;
+      break;
+  }
+}
+
 export function getMetricsSnapshot() {
+  const nowMs = Date.now();
+  pruneOldStreamEvents(nowMs);
   const requestMetrics = Array.from(requestStats.entries()).map(([endpoint, stat]) => ({
     endpoint,
     count: stat.count,
@@ -126,8 +236,75 @@ export function getMetricsSnapshot() {
     libraryId: parseInt(libraryId, 10),
     ...stat
   }));
+  const streamByLibrary = Array.from(streamStats.byLibrary.entries()).map(([libraryId, stat]) => ({
+    libraryId: parseInt(libraryId, 10),
+    ...stat
+  }));
+  const streamStatus = Array.from(streamStats.byStatus.entries()).map(([statusCode, count]) => ({
+    statusCode: parseInt(statusCode, 10),
+    count
+  }));
+  streamStatus.sort((a, b) => b.count - a.count);
+  const recentEvents = streamStats.events.filter((event) => event.timestamp >= nowMs - STREAM_RECENT_WINDOW_MS);
+  const recentByStatus = new Map();
+  let recentCompleted = 0;
+  let recentIssues = 0;
+  let recentClientAborted = 0;
+  let recentEarlyClientAborted = 0;
+  let recentUpstreamErrors = 0;
+  let recentInvalidRange = 0;
+  let recentNotFound = 0;
+  let recentOtherErrors = 0;
+  const recentDurations = [];
+
+  for (const event of recentEvents) {
+    if (event.statusCode !== null) {
+      const key = String(event.statusCode);
+      recentByStatus.set(key, (recentByStatus.get(key) || 0) + 1);
+    }
+
+    recentDurations.push(event.durationMs);
+    switch (event.outcome) {
+      case 'completed':
+        recentCompleted += 1;
+        break;
+      case 'client_aborted':
+        recentClientAborted += 1;
+        if (event.durationMs < EARLY_CLIENT_ABORT_MS) {
+          recentEarlyClientAborted += 1;
+        }
+        recentIssues += 1;
+        break;
+      case 'upstream_error':
+        recentUpstreamErrors += 1;
+        recentIssues += 1;
+        break;
+      case 'invalid_range':
+        recentInvalidRange += 1;
+        recentIssues += 1;
+        break;
+      case 'not_found':
+        recentNotFound += 1;
+        recentIssues += 1;
+        break;
+      default:
+        recentOtherErrors += 1;
+        recentIssues += 1;
+        break;
+    }
+  }
+
+  const recentTotalOutcomes = recentEvents.length;
+  const recentByStatusRows = Array.from(recentByStatus.entries()).map(([statusCode, count]) => ({
+    statusCode: parseInt(statusCode, 10),
+    count
+  }));
+  recentByStatusRows.sort((a, b) => b.count - a.count);
 
   const totalCacheEvents = cacheStats.hits + cacheStats.misses;
+  const totalHardFailures = streamStats.upstreamErrors + streamStats.invalidRange + streamStats.notFound + streamStats.otherErrors;
+  const totalStreamOutcomes = streamStats.completed + streamStats.clientAborted + streamStats.upstreamErrors + streamStats.invalidRange + streamStats.notFound + streamStats.otherErrors;
+  const recentHardFailures = recentUpstreamErrors + recentInvalidRange + recentNotFound + recentOtherErrors;
   return {
     timestamp: new Date().toISOString(),
     uptimeSeconds: Math.floor(process.uptime()),
@@ -139,6 +316,47 @@ export function getMetricsSnapshot() {
       forcedRefreshes: cacheStats.forcedRefreshes,
       hitRatePct: totalCacheEvents ? Math.round((cacheStats.hits / totalCacheEvents) * 10000) / 100 : 0,
       byLibrary: perLibrary
+    },
+    stream: {
+      started: streamStats.started,
+      active: streamStats.active,
+      completed: streamStats.completed,
+      clientAborted: streamStats.clientAborted,
+      earlyClientAborted: streamStats.earlyClientAborted,
+      upstreamErrors: streamStats.upstreamErrors,
+      invalidRange: streamStats.invalidRange,
+      notFound: streamStats.notFound,
+      otherErrors: streamStats.otherErrors,
+      hardFailures: totalHardFailures,
+      hardFailureRatePct: totalStreamOutcomes ? Math.round((totalHardFailures / totalStreamOutcomes) * 10000) / 100 : 0,
+      clientAbortRatePct: totalStreamOutcomes ? Math.round((streamStats.clientAborted / totalStreamOutcomes) * 10000) / 100 : 0,
+      earlyClientAbortRatePct: totalStreamOutcomes ? Math.round((streamStats.earlyClientAborted / totalStreamOutcomes) * 10000) / 100 : 0,
+      completionRatePct: totalStreamOutcomes ? Math.round((streamStats.completed / totalStreamOutcomes) * 10000) / 100 : 0,
+      issueRatePct: totalStreamOutcomes ? Math.round(((streamStats.clientAborted + streamStats.upstreamErrors + streamStats.invalidRange + streamStats.notFound + streamStats.otherErrors) / totalStreamOutcomes) * 10000) / 100 : 0,
+      avgDurationMs: average(streamStats.samples),
+      p95DurationMs: percentile(streamStats.samples, 95),
+      byStatus: streamStatus,
+      byLibrary: streamByLibrary,
+      recent15m: {
+        outcomes: recentTotalOutcomes,
+        completed: recentCompleted,
+        issues: recentIssues,
+        clientAborted: recentClientAborted,
+        earlyClientAborted: recentEarlyClientAborted,
+        upstreamErrors: recentUpstreamErrors,
+        invalidRange: recentInvalidRange,
+        notFound: recentNotFound,
+        otherErrors: recentOtherErrors,
+        hardFailures: recentHardFailures,
+        hardFailureRatePct: recentTotalOutcomes ? Math.round((recentHardFailures / recentTotalOutcomes) * 10000) / 100 : 0,
+        clientAbortRatePct: recentTotalOutcomes ? Math.round((recentClientAborted / recentTotalOutcomes) * 10000) / 100 : 0,
+        earlyClientAbortRatePct: recentTotalOutcomes ? Math.round((recentEarlyClientAborted / recentTotalOutcomes) * 10000) / 100 : 0,
+        completionRatePct: recentTotalOutcomes ? Math.round((recentCompleted / recentTotalOutcomes) * 10000) / 100 : 0,
+        issueRatePct: recentTotalOutcomes ? Math.round((recentIssues / recentTotalOutcomes) * 10000) / 100 : 0,
+        avgDurationMs: average(recentDurations),
+        p95DurationMs: percentile(recentDurations, 95),
+        byStatus: recentByStatusRows
+      }
     }
   };
 }

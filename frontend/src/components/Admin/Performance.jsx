@@ -31,6 +31,11 @@ export default function Performance() {
   const requestRows = metrics.requests || [];
   const dbRows = metrics.db || [];
   const cacheByLibrary = metrics.cache?.byLibrary || [];
+  const stream = metrics.stream || {};
+  const recent15m = stream.recent15m || {};
+  const streamStatusRows = stream.byStatus || [];
+  const streamRecentStatusRows = recent15m.byStatus || [];
+  const streamByLibrary = stream.byLibrary || [];
   const refreshQueue = metrics.refreshQueue || { processing: false, queued: 0 };
   const refreshJobs = metrics.refreshJobs?.recent || [];
   const refreshCounts = metrics.refreshJobs?.counts || {};
@@ -38,7 +43,6 @@ export default function Performance() {
   const totalRequests = requestRows.reduce((sum, row) => sum + (row.count || 0), 0);
   const totalRequestErrors = requestRows.reduce((sum, row) => sum + (row.errors || 0), 0);
   const requestErrorRatePct = totalRequests ? Math.round((totalRequestErrors / totalRequests) * 10000) / 100 : 0;
-
   return (
     <div style={styles.container}>
       <div style={styles.topSummary}>
@@ -75,6 +79,177 @@ export default function Performance() {
           <div style={styles.summaryValue}>{refreshQueue.processing ? 'Running' : 'Idle'}</div>
         </div>
       </div>
+
+      <section style={styles.section}>
+        <h3 style={styles.sectionTitle}>Playback Health</h3>
+        <div style={styles.topSummary}>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Stream Starts</div>
+            <div style={styles.summaryValue}>{stream.started ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Active Streams</div>
+            <div style={styles.summaryValue}>{stream.active ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Server Failure Rate</div>
+            <div style={styles.summaryValue}>{stream.hardFailureRatePct ?? 0}%</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Hard Failures</div>
+            <div style={styles.summaryValue}>{stream.hardFailures ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Client Abort Rate</div>
+            <div style={styles.summaryValue}>{stream.clientAbortRatePct ?? 0}%</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Client Aborts</div>
+            <div style={styles.summaryValue}>{stream.clientAborted ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Early Aborts (&lt;2s)</div>
+            <div style={styles.summaryValue}>{stream.earlyClientAborted ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Upstream Errors</div>
+            <div style={styles.summaryValue}>{stream.upstreamErrors ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Avg Duration (ms)</div>
+            <div style={styles.summaryValue}>{stream.avgDurationMs ?? 0}</div>
+          </div>
+        </div>
+
+        <h4 style={styles.subSectionTitle}>Last 15 Minutes</h4>
+        <div style={styles.topSummary}>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Outcomes</div>
+            <div style={styles.summaryValue}>{recent15m.outcomes ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Server Failure Rate</div>
+            <div style={styles.summaryValue}>{recent15m.hardFailureRatePct ?? 0}%</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Hard Failures</div>
+            <div style={styles.summaryValue}>{recent15m.hardFailures ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Client Aborts</div>
+            <div style={styles.summaryValue}>{recent15m.clientAborted ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Client Abort Rate</div>
+            <div style={styles.summaryValue}>{recent15m.clientAbortRatePct ?? 0}%</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Early Aborts (&lt;2s)</div>
+            <div style={styles.summaryValue}>{recent15m.earlyClientAborted ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Upstream Errors</div>
+            <div style={styles.summaryValue}>{recent15m.upstreamErrors ?? 0}</div>
+          </div>
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryLabel}>Avg Duration (ms)</div>
+            <div style={styles.summaryValue}>{recent15m.avgDurationMs ?? 0}</div>
+          </div>
+        </div>
+
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>HTTP Status</th>
+                <th style={styles.th}>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {streamStatusRows.length === 0 ? (
+                <tr>
+                  <td style={styles.emptyCell} colSpan={2}>No playback status metrics yet</td>
+                </tr>
+              ) : (
+                streamStatusRows.map((row) => (
+                  <tr key={row.statusCode}>
+                    <td style={styles.td}>{row.statusCode}</td>
+                    <td style={styles.td}>{row.count}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ height: '12px' }} />
+
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>HTTP Status (15m)</th>
+                <th style={styles.th}>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {streamRecentStatusRows.length === 0 ? (
+                <tr>
+                  <td style={styles.emptyCell} colSpan={2}>No 15-minute playback status metrics yet</td>
+                </tr>
+              ) : (
+                streamRecentStatusRows.map((row) => (
+                  <tr key={`recent-${row.statusCode}`}>
+                    <td style={styles.td}>{row.statusCode}</td>
+                    <td style={styles.td}>{row.count}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ height: '12px' }} />
+
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Library</th>
+                <th style={styles.th}>Starts</th>
+                <th style={styles.th}>Completed</th>
+                <th style={styles.th}>Aborted</th>
+                <th style={styles.th}>Early Aborts (&lt;2s)</th>
+                <th style={styles.th}>Upstream Errors</th>
+                <th style={styles.th}>Invalid Range</th>
+                <th style={styles.th}>Not Found</th>
+                <th style={styles.th}>Other Errors</th>
+              </tr>
+            </thead>
+            <tbody>
+              {streamByLibrary.length === 0 ? (
+                <tr>
+                  <td style={styles.emptyCell} colSpan={9}>No per-library playback metrics yet</td>
+                </tr>
+              ) : (
+                streamByLibrary.map((row) => (
+                  <tr key={row.libraryId}>
+                    <td style={styles.td}>{row.libraryId}</td>
+                    <td style={styles.td}>{row.started}</td>
+                    <td style={styles.td}>{row.completed}</td>
+                    <td style={styles.td}>{row.clientAborted}</td>
+                    <td style={styles.td}>{row.earlyClientAborted}</td>
+                    <td style={styles.td}>{row.upstreamErrors}</td>
+                    <td style={styles.td}>{row.invalidRange}</td>
+                    <td style={styles.td}>{row.notFound}</td>
+                    <td style={styles.td}>{row.otherErrors}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>Refresh Jobs</h3>
@@ -319,6 +494,7 @@ const styles = {
   summaryValue: { color: '#fff', fontSize: '24px', fontWeight: '700' },
   section: { marginBottom: '24px' },
   sectionTitle: { color: '#fff', fontSize: '18px', marginBottom: '12px' },
+  subSectionTitle: { color: '#ddd', fontSize: '15px', marginBottom: '12px' },
   tableWrap: { overflowX: 'auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
