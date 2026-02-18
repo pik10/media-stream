@@ -170,14 +170,17 @@ export default function HomePage() {
       <Header />
       <div className="ms-page ms-page-wide" style={styles.container}>
         <div className="ms-page-header" style={styles.header}>
-          <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
-
-          <SearchBar
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Search across all libraries..."
-            margin="8px auto 14px"
-          />
+          <div style={styles.titleRow}>
+            <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
+            <div style={styles.searchWrap}>
+              <SearchBar
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Search across all libraries..."
+                margin="0"
+              />
+            </div>
+          </div>
 
           <SortSelector
             sort={sortBy}
@@ -230,10 +233,22 @@ const styles = {
   header: {
     marginBottom: '40px'
   },
+  titleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
+    flexWrap: 'wrap'
+  },
   title: {
     fontSize: '36px',
     color: '#fff',
     marginBottom: '8px'
+  },
+  searchWrap: {
+    flex: '1 1 420px',
+    maxWidth: '600px',
+    minWidth: '280px'
   },
   subtitle: {
     fontSize: '16px',
