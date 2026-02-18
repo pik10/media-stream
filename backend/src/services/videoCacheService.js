@@ -10,6 +10,21 @@ import { measureDbQuery, recordCacheHit, recordCacheMiss } from './metricsServic
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+function getDisplayNameFromKey(key, prefix = '') {
+  let relative = key;
+
+  if (prefix) {
+    relative = key.substring(prefix.length).replace(/^\//, '');
+  }
+
+  const slashIndex = relative.indexOf('/');
+  if (slashIndex > 0) {
+    return relative.substring(0, slashIndex);
+  }
+
+  return relative;
+}
+
 /**
  * Get cache status for a library
  * @param {number} libraryId
@@ -133,21 +148,46 @@ export async function getCachedVideos(libraryId, options = {}) {
     db.prepare(countSql).get(...params)
   );
 
-  // Apply sorting
-  const sortColumn = {
-    'name': 'key',
-    'size': 'size',
-    'date': 'last_modified'
-  }[sort] || 'last_modified';
-
   const sortOrder = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-  sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ? OFFSET ?`;
-  params.push(limit, (page - 1) * limit);
+  let videos = [];
 
-  const videos = measureDbQuery('video_cache.list_filtered', () =>
-    db.prepare(sql).all(...params)
-  );
+  if (sort === 'name') {
+    // For natural case-insensitive sorting by displayed name, sort in-memory then paginate.
+    const allFilteredVideos = measureDbQuery('video_cache.list_filtered', () =>
+      db.prepare(sql).all(...params)
+    );
+
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    });
+
+    allFilteredVideos.sort((a, b) => {
+      const aName = getDisplayNameFromKey(a.key, prefix);
+      const bName = getDisplayNameFromKey(b.key, prefix);
+      return collator.compare(aName, bName);
+    });
+
+    if (sortOrder === 'DESC') {
+      allFilteredVideos.reverse();
+    }
+
+    const offset = (page - 1) * limit;
+    videos = allFilteredVideos.slice(offset, offset + limit);
+  } else {
+    const sortColumn = {
+      'size': 'size',
+      'date': 'last_modified'
+    }[sort] || 'last_modified';
+
+    sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ? OFFSET ?`;
+    params.push(limit, (page - 1) * limit);
+
+    videos = measureDbQuery('video_cache.list_filtered', () =>
+      db.prepare(sql).all(...params)
+    );
+  }
 
   return {
     videos,

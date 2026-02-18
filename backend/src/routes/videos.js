@@ -134,7 +134,20 @@ router.get('/:libraryId', async (req, res) => {
     });
 
     // Process for folder structure
-    const items = processItemsForFolderView(result.videos, fullPrefix, prefix);
+    let items = processItemsForFolderView(result.videos, fullPrefix, prefix);
+
+    if (sortBy === 'name') {
+      const collator = new Intl.Collator(undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      });
+      const direction = sortOrder === 'asc' ? 1 : -1;
+      const compareByName = (a, b) => direction * collator.compare(a.name, b.name);
+
+      const folders = items.filter(item => item.type === 'folder').sort(compareByName);
+      const files = items.filter(item => item.type === 'file').sort(compareByName);
+      items = [...folders, ...files];
+    }
 
     res.json({
       libraryId,
