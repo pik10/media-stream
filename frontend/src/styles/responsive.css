@@ -122,6 +122,10 @@
     width: 100%;
   }
 
+  .ms-admin-create-button {
+    width: 100%;
+  }
+
   .ms-table-actions {
     flex-wrap: wrap;
   }
@@ -227,5 +231,27 @@
 
   .ms-video-card-wrap {
     min-height: 0;
+  }
+
+  .ms-admin-search {
+    flex-wrap: wrap;
+  }
+
+  .ms-admin-search-input {
+    flex-basis: 100%;
+  }
+
+  .ms-admin-mobile-kv {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .ms-admin-mobile-key {
+    margin-top: 6px;
+  }
+
+  .ms-admin-mobile-actions .ms-admin-pill,
+  .ms-admin-actions-mobile .ms-admin-action-btn {
+    flex: 1 1 calc(50% - 6px);
   }
 }

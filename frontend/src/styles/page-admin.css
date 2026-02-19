@@ -254,6 +254,9 @@ body[data-theme="dark"] .ms-admin-tab-active {
 }
 
 .ms-admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px 10px;
   border-radius: 4px;
   font-size: 16px;
@@ -288,14 +291,14 @@ body[data-theme="dark"] .ms-admin-tab-active {
 }
 
 .ms-admin-mobile-key {
-  color: #9ca3af;
+  color: var(--ms-text-dim);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .ms-admin-mobile-value {
-  color: #e5e7eb;
+  color: var(--ms-text-soft);
   font-size: 13px;
   word-break: break-word;
 }
@@ -305,6 +308,16 @@ body[data-theme="dark"] .ms-admin-tab-active {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.ms-admin-actions-mobile {
+  margin-top: 10px;
+}
+
+.ms-admin-action-btn-text {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
 }
 
 .ms-confirm-overlay {

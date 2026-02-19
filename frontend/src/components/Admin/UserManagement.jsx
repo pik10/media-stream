@@ -151,37 +151,37 @@ export default function UserManagement() {
     );
   };
 
-  const renderActions = (user) => (
-    <div className="ms-table-actions ms-admin-actions">
+  const renderActions = (user, mobile = false) => (
+    <div className={`ms-table-actions ms-admin-actions ${mobile ? 'ms-admin-actions-mobile' : ''}`}>
       {(user.is_locked || (user.failed_attempts || 0) > 0) && (
         <button
           onClick={() => handleUnlockUser(user.id)}
-          className="ms-button ms-button-warning-solid ms-admin-action-btn"
+          className={`ms-button ms-button-warning-solid ms-admin-action-btn ${mobile ? 'ms-admin-action-btn-text' : ''}`}
           title="Clear lockout and failed attempts"
         >
-          🔓
+          {mobile ? 'Unlock' : '🔓'}
         </button>
       )}
       <button
         onClick={() => setEditingUser(user)}
-        className="ms-button ms-button-neutral ms-admin-action-btn"
+        className={`ms-button ms-button-neutral ms-admin-action-btn ${mobile ? 'ms-admin-action-btn-text' : ''}`}
         title="Edit user"
       >
-        ✎
+        {mobile ? 'Edit' : '✎'}
       </button>
       <button
         onClick={() => setResettingUser(user)}
-        className="ms-button ms-button-neutral ms-admin-action-btn"
+        className={`ms-button ms-button-neutral ms-admin-action-btn ${mobile ? 'ms-admin-action-btn-text' : ''}`}
         title="Reset password"
       >
-        ⟳
+        {mobile ? 'Reset' : '⟳'}
       </button>
       <button
         onClick={() => setDeletingUser({ id: user.id, username: user.username })}
-        className="ms-button ms-button-danger-solid ms-admin-action-btn"
+        className={`ms-button ms-button-danger-solid ms-admin-action-btn ${mobile ? 'ms-admin-action-btn-text' : ''}`}
         title="Delete user"
       >
-        ✕
+        {mobile ? 'Delete' : '✕'}
       </button>
     </div>
   );
@@ -292,7 +292,7 @@ export default function UserManagement() {
                 {renderAdminToggle(user)}
                 {renderActiveToggle(user)}
               </div>
-              {renderActions(user)}
+              {renderActions(user, true)}
             </article>
           ))}
         </div>
