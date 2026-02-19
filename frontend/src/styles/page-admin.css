@@ -115,6 +115,10 @@
   font-weight: 600;
 }
 
+.ms-admin-settings-save-button {
+  font-weight: 400;
+}
+
 .ms-admin-users {
   width: 100%;
 }
@@ -312,6 +316,10 @@ body[data-theme="dark"] .ms-admin-icon-button-soft,
 body[data-theme="dark"] .ms-admin-action-default {
   background: #333;
   color: #e5e7eb;
+}
+
+body[data-theme="dark"] .ms-admin-tab-active {
+  color: var(--ms-text-soft);
 }
 
 body[data-theme="dark"] .ms-admin-icon-button-muted:hover,

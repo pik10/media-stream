@@ -74,7 +74,11 @@ export default function AdminSettings() {
         {error && <div className="ms-admin-error ms-mb-12">{error}</div>}
         {success && <div className="ms-form-success ms-mb-12">{success}</div>}
 
-        <button onClick={saveSettings} disabled={saving} className="ms-button ms-button-primary ms-button-pad-md">
+        <button
+          onClick={saveSettings}
+          disabled={saving}
+          className="ms-button ms-button-primary ms-button-pad-md ms-admin-settings-save-button"
+        >
           {saving ? 'Saving...' : 'Save Settings'}
         </button>
       </div>
