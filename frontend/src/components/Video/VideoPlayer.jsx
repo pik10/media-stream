@@ -80,6 +80,8 @@ export default function VideoPlayer() {
             style={styles.video}
             controls
             autoPlay
+            playsInline
+            preload="metadata"
             onLoadedData={handleLoadedData}
             onError={handleError}
           >
