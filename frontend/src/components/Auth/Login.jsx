@@ -63,7 +63,6 @@ export default function Login() {
   // Clear error when user starts typing (but not immediately)
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
-    // Only clear error if it's been shown for at least 1 second
     if (error && Date.now() - errorTimestamp > 1000) {
       setError('');
     }
@@ -71,50 +70,49 @@ export default function Login() {
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    // Only clear error if it's been shown for at least 1 second
     if (error && Date.now() - errorTimestamp > 1000) {
       setError('');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Media Stream</h1>
-        <h2 style={styles.subtitle}>{isLogin ? 'Login' : 'Register'}</h2>
+    <div className="ms-auth-shell">
+      <div className="ms-form-card ms-auth-card">
+        <h1 className="ms-auth-title">Media Stream</h1>
+        <h2 className="ms-auth-subtitle">{isLogin ? 'Login' : 'Register'}</h2>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Username</label>
+        <form onSubmit={handleSubmit} className="ms-form ms-form-wide-gap">
+          <div className="ms-form-field ms-form-field-tight">
+            <label className="ms-form-label ms-auth-label">Username</label>
             <input
               type="text"
               value={username}
               onChange={handleUsernameChange}
-              style={styles.input}
+              className="ms-form-input ms-form-input-lg"
               required
               minLength={3}
               autoComplete="username"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
+          <div className="ms-form-field ms-form-field-tight">
+            <label className="ms-form-label ms-auth-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={handlePasswordChange}
-              style={styles.input}
+              className="ms-form-input ms-form-input-lg"
               required
               minLength={6}
-              autoComplete={isLogin ? "current-password" : "new-password"}
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
             />
           </div>
 
-          {error && <div style={styles.error}>{error}</div>}
+          {error && <div className="ms-form-error ms-form-error-strong">{error}</div>}
 
           <button
             type="submit"
-            style={styles.button}
+            className="ms-button ms-button-primary ms-form-submit-lg"
             disabled={loading}
           >
             {loading ? 'Please wait...' : isLogin ? 'Login' : 'Register'}
@@ -122,14 +120,14 @@ export default function Login() {
         </form>
 
         {allowRegistrations && (
-          <div style={styles.toggle}>
+          <div className="ms-auth-toggle">
             {isLogin ? "Don't have an account? " : 'Already have an account? '}
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
               }}
-              style={styles.toggleButton}
+              className="ms-auth-toggle-button"
             >
               {isLogin ? 'Register' : 'Login'}
             </button>
@@ -139,90 +137,3 @@ export default function Login() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    padding: '20px'
-  },
-  card: {
-    background: '#1a1a1a',
-    padding: '40px',
-    borderRadius: '12px',
-    width: '100%',
-    maxWidth: '400px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
-  },
-  title: {
-    fontSize: '28px',
-    marginBottom: '8px',
-    textAlign: 'center',
-    color: '#fff'
-  },
-  subtitle: {
-    fontSize: '20px',
-    marginBottom: '24px',
-    textAlign: 'center',
-    color: '#b0b0b0'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  label: {
-    fontSize: '14px',
-    color: '#b0b0b0'
-  },
-  input: {
-    padding: '12px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: '#0f0f0f',
-    color: '#e0e0e0',
-    fontSize: '16px'
-  },
-  button: {
-    padding: '12px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#3b82f6',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginTop: '8px'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '500',
-    border: '2px solid #ef4444',
-    animation: 'fadeIn 0.3s ease-in'
-  },
-  toggle: {
-    marginTop: '20px',
-    textAlign: 'center',
-    color: '#b0b0b0',
-    fontSize: '14px'
-  },
-  toggleButton: {
-    background: 'none',
-    border: 'none',
-    color: '#3b82f6',
-    cursor: 'pointer',
-    fontSize: '14px',
-    textDecoration: 'underline'
-  }
-};

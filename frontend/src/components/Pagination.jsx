@@ -41,27 +41,24 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   };
 
   return (
-    <div className="ms-pagination" style={styles.container}>
+    <div className="ms-pagination">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        style={styles.button}
+        className="ms-pagination-button"
       >
         ← Previous
       </button>
 
       {getPageNumbers().map((page, idx) =>
         page === '...' ? (
-          <span key={`ellipsis-${idx}`} style={styles.ellipsis}>...</span>
+          <span key={`ellipsis-${idx}`} className="ms-pagination-ellipsis">...</span>
         ) : (
           <button
             key={page}
             onClick={() => onPageChange(page)}
             disabled={page === currentPage}
-            style={{
-              ...styles.button,
-              ...(page === currentPage ? styles.activeButton : {})
-            }}
+            className={`ms-pagination-button ${page === currentPage ? 'ms-pagination-button-active' : ''}`}
           >
             {page}
           </button>
@@ -71,39 +68,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        style={styles.button}
+        className="ms-pagination-button"
       >
         Next →
       </button>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '8px',
-    margin: '30px 0',
-    flexWrap: 'wrap'
-  },
-  button: {
-    padding: '8px 16px',
-    fontSize: '14px',
-    border: '2px solid #333',
-    borderRadius: '6px',
-    backgroundColor: '#1a1a1a',
-    color: '#fff',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  activeButton: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6'
-  },
-  ellipsis: {
-    padding: '8px',
-    color: '#666'
-  }
-};

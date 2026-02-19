@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { admin } from '../../services/api';
-import { modalStyles } from '../../styles/modalStyles';
 
 export default function EditUserModal({ user, currentUserId, onClose, onUpdated }) {
   const [formData, setFormData] = useState({
@@ -31,62 +30,62 @@ export default function EditUserModal({ user, currentUserId, onClose, onUpdated 
   };
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>Edit User: {user.username}</h2>
+    <div className="ms-modal-overlay" onClick={onClose}>
+      <div className="ms-form-card ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
+        <h2 className="ms-form-title">Edit User: {user.username}</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="ms-form-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.field}>
-            <label style={styles.label}>Email</label>
+        <form onSubmit={handleSubmit} className="ms-form">
+          <div className="ms-form-field">
+            <label className="ms-form-label">Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              style={styles.input}
+              className="ms-form-input"
             />
           </div>
 
-          <div style={styles.checkboxField}>
-            <label style={styles.checkboxLabel}>
+          <div className="ms-form-checkbox-row">
+            <label className="ms-form-checkbox-label">
               <input
                 type="checkbox"
                 checked={formData.is_active}
                 disabled={disableActiveToggle}
                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 title={disableActiveToggle ? 'You cannot deactivate your own account' : ''}
-                style={styles.checkbox}
+                className="ms-form-checkbox"
               />
-              <span style={styles.checkboxText}>Active</span>
+              <span className="ms-form-checkbox-text">Active</span>
             </label>
           </div>
 
-          <div style={styles.checkboxField}>
-            <label style={styles.checkboxLabel}>
+          <div className="ms-form-checkbox-row">
+            <label className="ms-form-checkbox-label">
               <input
                 type="checkbox"
                 checked={formData.is_admin}
                 disabled={disableAdminToggle}
                 onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
                 title={disableAdminToggle ? 'You cannot remove your own admin privileges' : ''}
-                style={styles.checkbox}
+                className="ms-form-checkbox"
               />
-              <span style={styles.checkboxText}>Admin privileges</span>
+              <span className="ms-form-checkbox-text">Admin privileges</span>
             </label>
           </div>
 
           {isSelf && (
-            <div style={{ color: '#aaa', fontSize: '13px', marginTop: '-8px' }}>
+            <div className="ms-form-note">
               You cannot deactivate your own account or remove your own admin privileges.
             </div>
           )}
 
-          <div style={styles.buttons}>
-            <button type="button" onClick={onClose} style={styles.cancelButton}>
+          <div className="ms-form-actions">
+            <button type="button" onClick={onClose} className="ms-button ms-button-ghost ms-button-pad-md">
               Cancel
             </button>
-            <button type="submit" disabled={loading} style={styles.submitButton}>
+            <button type="submit" disabled={loading} className="ms-button ms-button-primary ms-button-pad-md">
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
@@ -95,6 +94,3 @@ export default function EditUserModal({ user, currentUserId, onClose, onUpdated 
     </div>
   );
 }
-
-// Use shared modal styles
-const styles = modalStyles;

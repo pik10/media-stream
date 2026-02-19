@@ -160,7 +160,7 @@ export default function BrowsePage() {
     return (
       <>
         <Header />
-        <div className="ms-page ms-page-wide" style={styles.container}>
+        <div className="ms-page ms-page-wide ms-page-tall">
           <PageLoading message="Loading..." />
         </div>
       </>
@@ -170,15 +170,18 @@ export default function BrowsePage() {
   return (
     <>
       <Header />
-      <div className="ms-page ms-page-wide" style={styles.container}>
-        <div style={styles.header}>
-          <div className="ms-page-toolbar ms-browse-toolbar" style={styles.topBar}>
-            <button onClick={() => navigate('/libraries')} style={styles.backButton}>
+      <div className="ms-page ms-page-wide ms-page-tall">
+        <div className="ms-page-header">
+          <div className="ms-page-toolbar ms-browse-toolbar">
+            <button
+              onClick={() => navigate('/libraries')}
+              className="ms-button ms-button-ghost ms-button-pad-md"
+            >
               ← Back to Libraries
             </button>
 
-            <div className="ms-browse-search-controls" style={styles.searchControls}>
-              <div className="ms-browse-search-wrap" style={styles.searchWrap}>
+            <div className="ms-browse-search-controls">
+              <div className="ms-browse-search-wrap">
                 <SearchBar
                   value={searchTerm}
                   onChange={handleSearch}
@@ -195,24 +198,27 @@ export default function BrowsePage() {
               />
             </div>
 
-            <button onClick={handleRefresh} style={styles.refreshButton}>
+            <button
+              onClick={handleRefresh}
+              className="ms-button ms-button-primary ms-button-pad-md"
+            >
               ↻ Refresh from S3
             </button>
           </div>
 
-          <div className="ms-breadcrumbs" style={styles.breadcrumbs}>
+          <div className="ms-breadcrumbs">
             <button
               onClick={() => handleBreadcrumbClick(-1)}
-              style={styles.breadcrumb}
+              className="ms-breadcrumb"
             >
               {library?.name || 'Library'}
             </button>
             {breadcrumbs.map((part, index) => (
               <span key={index}>
-                <span style={styles.breadcrumbSeparator}>/</span>
+                <span className="ms-breadcrumb-sep">/</span>
                 <button
                   onClick={() => handleBreadcrumbClick(index)}
-                  style={styles.breadcrumb}
+                  className="ms-breadcrumb"
                 >
                   {part}
                 </button>
@@ -221,20 +227,20 @@ export default function BrowsePage() {
           </div>
 
           {cacheInfo?.cachedAt && (
-            <div style={styles.cacheInfo}>
+            <div className="ms-info-line ms-info-line--small">
               Cached at {new Date(cacheInfo.cachedAt).toLocaleTimeString()}
             </div>
           )}
 
           {refreshStatus?.status && (
-            <div style={styles.refreshStatus}>
+            <div className="ms-info-line ms-info-line--small ms-info-line--status">
               {refreshStatus.message || `Refresh status: ${refreshStatus.status}`}
               {refreshStatus.status === 'completed' && ' (latest cache loaded)'}
             </div>
           )}
 
           {pagination && (
-            <div style={styles.paginationInfo}>
+            <div className="ms-info-line">
               Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-
               {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} of {pagination.total} items
             </div>
@@ -244,12 +250,12 @@ export default function BrowsePage() {
         <PageError message={error} />
 
         {!loading && items.length === 0 ? (
-          <div style={styles.empty}>
+          <div className="ms-empty-state ms-empty-state-compact">
             <p>No videos or folders found in this location.</p>
           </div>
         ) : (
           <>
-            <div className="ms-video-grid" style={styles.grid}>
+            <div className="ms-video-grid">
               {items.map((item, index) => (
                 item.type === 'folder' ? (
                   <button
@@ -257,13 +263,11 @@ export default function BrowsePage() {
                     aria-label={`Open folder ${item.name}`}
                     key={`${currentPrefix}/${item.name}`}
                     className="ms-folder-card"
-                    style={styles.card}
                     onClick={() => handleFolderClick(item.name)}
                   >
-                    <div style={styles.thumbnail}>
+                    <div className="ms-folder-thumb">
                       <svg
                         className="ms-folder-icon"
-                        style={styles.folderIcon}
                         viewBox="0 0 64 64"
                         aria-hidden="true"
                       >
@@ -272,8 +276,8 @@ export default function BrowsePage() {
                         <rect x="12" y="28" width="40" height="20" rx="4" fill="#fbbf24" />
                       </svg>
                     </div>
-                    <div style={styles.cardInfo}>
-                      <div className="ms-folder-title" style={styles.cardTitle}>{item.name}</div>
+                    <div className="ms-folder-info">
+                      <div className="ms-folder-title">{item.name}</div>
                     </div>
                   </button>
                 ) : (
@@ -300,141 +304,3 @@ export default function BrowsePage() {
     </>
   );
 }
-
-const styles = {
-  container: {
-    padding: '40px 20px',
-    maxWidth: '1200px',
-    margin: '0 auto'
-  },
-  header: {
-    marginBottom: '32px'
-  },
-  topBar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
-    gap: '16px',
-    flexWrap: 'wrap'
-  },
-  searchControls: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flex: '1 1 460px',
-    minWidth: '320px',
-    flexWrap: 'wrap'
-  },
-  searchWrap: {
-    flex: '1 1 320px',
-    minWidth: '220px',
-    maxWidth: '600px'
-  },
-  backButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: 'transparent',
-    color: '#b0b0b0',
-    fontSize: '14px',
-    cursor: 'pointer'
-  },
-  refreshButton: {
-    padding: '10px 20px',
-    fontSize: '14px',
-    backgroundColor: '#3b82f6',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: '500'
-  },
-  breadcrumbs: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '4px',
-    fontSize: '14px',
-    marginBottom: '6px'
-  },
-  breadcrumb: {
-    background: 'none',
-    border: 'none',
-    color: '#3b82f6',
-    cursor: 'pointer',
-    fontSize: '14px',
-    textDecoration: 'underline'
-  },
-  breadcrumbSeparator: {
-    color: '#6b7280',
-    margin: '0 4px'
-  },
-  cacheInfo: {
-    fontSize: '12px',
-    color: '#888',
-    marginTop: '12px',
-    textAlign: 'center'
-  },
-  refreshStatus: {
-    fontSize: '12px',
-    color: '#93c5fd',
-    marginTop: '8px',
-    textAlign: 'center'
-  },
-  paginationInfo: {
-    fontSize: '14px',
-    color: '#aaa',
-    marginTop: '8px',
-    textAlign: 'center'
-  },
-  empty: {
-    textAlign: 'center',
-    padding: '60px 20px',
-    color: '#b0b0b0'
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: '24px'
-  },
-  card: {
-    width: '100%',
-    padding: 0,
-    textAlign: 'left',
-    appearance: 'none',
-    background: '#1a1a1a',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    cursor: 'pointer',
-    border: '1px solid #333',
-    transition: 'transform 0.2s, border-color 0.2s'
-  },
-  thumbnail: {
-    aspectRatio: '16/9',
-    background: '#0f0f0f',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  folderIcon: {
-    width: '56px',
-    height: '56px'
-  },
-  videoIcon: {
-    fontSize: '48px'
-  },
-  cardInfo: {
-    padding: '12px'
-  },
-  cardTitle: {
-    fontSize: '14px',
-    color: '#e0e0e0',
-    marginBottom: '4px',
-    wordBreak: 'break-word'
-  },
-  cardSize: {
-    fontSize: '12px',
-    color: '#6b7280'
-  }
-};

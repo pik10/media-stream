@@ -5,25 +5,25 @@ export default function SettingsPage() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
-    <div style={styles.container}>
+    <div className="ms-settings-shell">
       <Header />
-      <main className="ms-page" style={styles.main}>
-        <div className="ms-content-narrow" style={styles.content}>
-          <h1 className="ms-page-title" style={styles.pageTitle}>Settings</h1>
+      <main className="ms-page ms-settings-main">
+        <div className="ms-content-narrow">
+          <h1 className="ms-page-title ms-settings-title">Settings</h1>
 
-          <div style={styles.userInfo}>
-            <h3 style={styles.sectionTitle}>Account Information</h3>
-            <div className="ms-info-row" style={styles.infoRow}>
-              <span style={styles.infoLabel}>Username:</span>
-              <span style={styles.infoValue}>{user.username}</span>
+          <div className="ms-settings-card">
+            <h3 className="ms-settings-section-title">Account Information</h3>
+            <div className="ms-info-row">
+              <span className="ms-info-label">Username:</span>
+              <span className="ms-info-value">{user.username}</span>
             </div>
-            <div className="ms-info-row" style={styles.infoRow}>
-              <span style={styles.infoLabel}>User ID:</span>
-              <span style={styles.infoValue}>{user.id}</span>
+            <div className="ms-info-row">
+              <span className="ms-info-label">User ID:</span>
+              <span className="ms-info-value">{user.id}</span>
             </div>
           </div>
 
-          <div style={styles.section}>
+          <div className="ms-settings-section">
             <ChangePassword />
           </div>
         </div>
@@ -31,55 +31,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#0f0f0f'
-  },
-  main: {
-    padding: '40px 20px'
-  },
-  content: {
-    maxWidth: '800px',
-    margin: '0 auto'
-  },
-  pageTitle: {
-    fontSize: '32px',
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: '32px'
-  },
-  userInfo: {
-    background: '#1a1a1a',
-    padding: '24px',
-    borderRadius: '12px',
-    marginBottom: '32px'
-  },
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: '16px'
-  },
-  infoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '8px 0',
-    borderBottom: '1px solid #333'
-  },
-  infoLabel: {
-    fontSize: '14px',
-    color: '#b0b0b0',
-    minWidth: '100px'
-  },
-  infoValue: {
-    fontSize: '14px',
-    color: '#e0e0e0',
-    fontWeight: '500'
-  },
-  section: {
-    marginBottom: '32px'
-  }
-};

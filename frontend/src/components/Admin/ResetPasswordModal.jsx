@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { admin } from '../../services/api';
-import { modalStyles } from '../../styles/modalStyles';
 
 export default function ResetPasswordModal({ user, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -52,21 +51,21 @@ export default function ResetPasswordModal({ user, onClose, onSuccess }) {
   const passwordTooShort = formData.password && formData.password.length < 6;
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>Reset Password: {user.username}</h2>
+    <div className="ms-modal-overlay" onClick={onClose}>
+      <div className="ms-form-card ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
+        <h2 className="ms-form-title">Reset Password: {user.username}</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="ms-form-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.field}>
-            <label style={styles.label}>New Password *</label>
-            <div style={styles.passwordContainer}>
+        <form onSubmit={handleSubmit} className="ms-form">
+          <div className="ms-form-field">
+            <label className="ms-form-label">New Password *</label>
+            <div className="ms-password-wrap">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                style={styles.input}
+                className="ms-form-input"
                 required
                 autoFocus
                 placeholder="Enter new password"
@@ -74,53 +73,53 @@ export default function ResetPasswordModal({ user, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={styles.eyeButton}
+                className="ms-password-toggle"
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? '◉' : '○'}
               </button>
             </div>
             {passwordTooShort && (
-              <div style={styles.hint}>⚠ Password must be at least 6 characters</div>
+              <div className="ms-form-hint-warning">⚠ Password must be at least 6 characters</div>
             )}
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Confirm Password *</label>
-            <div style={styles.passwordContainer}>
+          <div className="ms-form-field">
+            <label className="ms-form-label">Confirm Password *</label>
+            <div className="ms-password-wrap">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                style={styles.input}
+                className="ms-form-input"
                 required
                 placeholder="Confirm new password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={styles.eyeButton}
+                className="ms-password-toggle"
                 title={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 {showConfirmPassword ? '◉' : '○'}
               </button>
             </div>
             {formData.confirmPassword && !passwordsMatch && (
-              <div style={styles.hint}>⚠ Passwords do not match</div>
+              <div className="ms-form-hint-warning">⚠ Passwords do not match</div>
             )}
             {formData.confirmPassword && passwordsMatch && !passwordTooShort && (
-              <div style={styles.successHint}>✓ Passwords match</div>
+              <div className="ms-form-hint-success">✓ Passwords match</div>
             )}
           </div>
 
-          <div style={styles.buttons}>
-            <button type="button" onClick={onClose} style={styles.cancelButton}>
+          <div className="ms-form-actions">
+            <button type="button" onClick={onClose} className="ms-button ms-button-ghost ms-button-pad-md">
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !passwordsMatch || passwordTooShort}
-              style={styles.submitButton}
+              className="ms-button ms-button-primary ms-button-pad-md"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
@@ -130,39 +129,3 @@ export default function ResetPasswordModal({ user, onClose, onSuccess }) {
     </div>
   );
 }
-
-// Use shared modal styles with password-specific additions
-const styles = {
-  ...modalStyles,
-  // Password field specific styles
-  passwordContainer: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center'
-  },
-  input: {
-    ...modalStyles.input,
-    flex: 1,
-    paddingRight: '45px'
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: '10px',
-    background: 'none',
-    border: 'none',
-    color: '#aaa',
-    fontSize: '20px',
-    cursor: 'pointer',
-    padding: '5px'
-  },
-  hint: {
-    fontSize: '12px',
-    color: '#f59e0b',
-    marginTop: '4px'
-  },
-  successHint: {
-    fontSize: '12px',
-    color: '#10b981',
-    marginTop: '4px'
-  }
-};

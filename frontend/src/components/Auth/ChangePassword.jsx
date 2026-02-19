@@ -37,7 +37,6 @@ export default function ChangePassword() {
     try {
       await auth.changePassword(currentPassword, newPassword);
       setSuccess('Password changed successfully!');
-      // Clear form
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -49,51 +48,51 @@ export default function ChangePassword() {
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Change Password</h2>
+    <div className="ms-form-card ms-form-card-sm ms-form-card-centered">
+      <h2 className="ms-form-title">Change Password</h2>
 
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Current Password</label>
+      <form onSubmit={handleSubmit} className="ms-form ms-form-wide-gap">
+        <div className="ms-form-field ms-form-field-tight">
+          <label className="ms-form-label">Current Password</label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            style={styles.input}
+            className="ms-form-input ms-form-input-lg"
             required
           />
         </div>
 
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>New Password</label>
+        <div className="ms-form-field ms-form-field-tight">
+          <label className="ms-form-label">New Password</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            style={styles.input}
+            className="ms-form-input ms-form-input-lg"
             required
             minLength={6}
           />
         </div>
 
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Confirm New Password</label>
+        <div className="ms-form-field ms-form-field-tight">
+          <label className="ms-form-label">Confirm New Password</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            style={styles.input}
+            className="ms-form-input ms-form-input-lg"
             required
             minLength={6}
           />
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
-        {success && <div style={styles.success}>{success}</div>}
+        {error && <div className="ms-form-error">{error}</div>}
+        {success && <div className="ms-form-success">{success}</div>}
 
         <button
           type="submit"
-          style={styles.button}
+          className="ms-button ms-button-primary ms-form-submit-lg"
           disabled={loading}
         >
           {loading ? 'Changing Password...' : 'Change Password'}
@@ -102,66 +101,3 @@ export default function ChangePassword() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    background: '#1a1a1a',
-    padding: '30px',
-    borderRadius: '12px',
-    maxWidth: '500px',
-    margin: '0 auto'
-  },
-  title: {
-    fontSize: '24px',
-    marginBottom: '24px',
-    color: '#fff'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  label: {
-    fontSize: '14px',
-    color: '#b0b0b0',
-    fontWeight: '500'
-  },
-  input: {
-    padding: '12px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: '#0f0f0f',
-    color: '#e0e0e0',
-    fontSize: '16px'
-  },
-  button: {
-    padding: '12px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#3b82f6',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginTop: '8px'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    fontSize: '14px'
-  },
-  success: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#16a34a',
-    color: 'white',
-    fontSize: '14px'
-  }
-};

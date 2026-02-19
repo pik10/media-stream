@@ -24,8 +24,8 @@ export default function Performance() {
     }
   };
 
-  if (loading) return <div style={styles.loading}>Loading performance metrics...</div>;
-  if (error) return <div style={styles.error}>{error}</div>;
+  if (loading) return <div className="ms-admin-loading">Loading performance metrics...</div>;
+  if (error) return <div className="ms-admin-error">{error}</div>;
   if (!metrics) return null;
 
   const requestRows = metrics.requests || [];
@@ -41,356 +41,190 @@ export default function Performance() {
   const totalRequests = requestRows.reduce((sum, row) => sum + (row.count || 0), 0);
   const totalRequestErrors = requestRows.reduce((sum, row) => sum + (row.errors || 0), 0);
   const requestErrorRatePct = totalRequests ? Math.round((totalRequestErrors / totalRequests) * 10000) / 100 : 0;
+
+  const renderTable = (headers, rows, emptyText) => (
+    <div className="ms-admin-table-wrap">
+      <table className="ms-admin-table">
+        <thead>
+          <tr>
+            {headers.map((header) => (
+              <th key={header} className="ms-admin-th">{header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td className="ms-admin-td ms-admin-empty" colSpan={headers.length}>{emptyText}</td>
+            </tr>
+          ) : rows}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
-    <div style={styles.container}>
-      <div style={styles.topSummary}>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Uptime</div>
-          <div style={styles.summaryValue}>{formatDuration(metrics.uptimeSeconds || 0)}</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Cache Hit Rate</div>
-          <div style={styles.summaryValue}>{metrics.cache?.hitRatePct ?? 0}%</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Cache Hits / Misses</div>
-          <div style={styles.summaryValue}>{metrics.cache?.hits ?? 0} / {metrics.cache?.misses ?? 0}</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Forced Refreshes</div>
-          <div style={styles.summaryValue}>{metrics.cache?.forcedRefreshes ?? 0}</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Total Requests</div>
-          <div style={styles.summaryValue}>{totalRequests}</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Request Error Rate</div>
-          <div style={styles.summaryValue}>{requestErrorRatePct}%</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Refresh Queue</div>
-          <div style={styles.summaryValue}>{refreshQueue.queued}</div>
-        </div>
-        <div style={styles.summaryCard}>
-          <div style={styles.summaryLabel}>Queue Processor</div>
-          <div style={styles.summaryValue}>{refreshQueue.processing ? 'Running' : 'Idle'}</div>
-        </div>
+    <div>
+      <div className="ms-perf-summary-grid">
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Uptime</div><div className="ms-perf-summary-value">{formatDuration(metrics.uptimeSeconds || 0)}</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Cache Hit Rate</div><div className="ms-perf-summary-value">{metrics.cache?.hitRatePct ?? 0}%</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Cache Hits / Misses</div><div className="ms-perf-summary-value">{metrics.cache?.hits ?? 0} / {metrics.cache?.misses ?? 0}</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Forced Refreshes</div><div className="ms-perf-summary-value">{metrics.cache?.forcedRefreshes ?? 0}</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Total Requests</div><div className="ms-perf-summary-value">{totalRequests}</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Request Error Rate</div><div className="ms-perf-summary-value">{requestErrorRatePct}%</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Refresh Queue</div><div className="ms-perf-summary-value">{refreshQueue.queued}</div></div>
+        <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Queue Processor</div><div className="ms-perf-summary-value">{refreshQueue.processing ? 'Running' : 'Idle'}</div></div>
       </div>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Playback Health</h3>
-        <div style={styles.topSummary}>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Stream Starts</div>
-            <div style={styles.summaryValue}>{stream.started ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Active Streams</div>
-            <div style={styles.summaryValue}>{stream.active ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Server Failure Rate</div>
-            <div style={styles.summaryValue}>{stream.hardFailureRatePct ?? 0}%</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Hard Failures</div>
-            <div style={styles.summaryValue}>{stream.hardFailures ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Client Abort Rate</div>
-            <div style={styles.summaryValue}>{stream.clientAbortRatePct ?? 0}%</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Client Aborts</div>
-            <div style={styles.summaryValue}>{stream.clientAborted ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Early Aborts (&lt;2s)</div>
-            <div style={styles.summaryValue}>{stream.earlyClientAborted ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Upstream Errors</div>
-            <div style={styles.summaryValue}>{stream.upstreamErrors ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Avg Duration (ms)</div>
-            <div style={styles.summaryValue}>{stream.avgDurationMs ?? 0}</div>
-          </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">Playback Health</h3>
+        <div className="ms-perf-summary-grid">
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Stream Starts</div><div className="ms-perf-summary-value">{stream.started ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Active Streams</div><div className="ms-perf-summary-value">{stream.active ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Server Failure Rate</div><div className="ms-perf-summary-value">{stream.hardFailureRatePct ?? 0}%</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Hard Failures</div><div className="ms-perf-summary-value">{stream.hardFailures ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Client Abort Rate</div><div className="ms-perf-summary-value">{stream.clientAbortRatePct ?? 0}%</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Client Aborts</div><div className="ms-perf-summary-value">{stream.clientAborted ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Early Aborts (&lt;2s)</div><div className="ms-perf-summary-value">{stream.earlyClientAborted ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Upstream Errors</div><div className="ms-perf-summary-value">{stream.upstreamErrors ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Avg Duration (ms)</div><div className="ms-perf-summary-value">{stream.avgDurationMs ?? 0}</div></div>
         </div>
 
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>HTTP Status</th>
-                <th style={styles.th}>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {streamStatusRows.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={2}>No playback status metrics yet</td>
-                </tr>
-              ) : (
-                streamStatusRows.map((row) => (
-                  <tr key={row.statusCode}>
-                    <td style={styles.td}>{row.statusCode}</td>
-                    <td style={styles.td}>{row.count}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {renderTable(
+          ['HTTP Status', 'Count'],
+          streamStatusRows.map((row) => (
+            <tr key={row.statusCode} className="ms-admin-tr">
+              <td className="ms-admin-td">{row.statusCode}</td>
+              <td className="ms-admin-td">{row.count}</td>
+            </tr>
+          )),
+          'No playback status metrics yet'
+        )}
 
-        <div style={{ height: '12px' }} />
+        <div className="ms-gap-12" />
 
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Library</th>
-                <th style={styles.th}>Starts</th>
-                <th style={styles.th}>Completed</th>
-                <th style={styles.th}>Aborted</th>
-                <th style={styles.th}>Early Aborts (&lt;2s)</th>
-                <th style={styles.th}>Upstream Errors</th>
-                <th style={styles.th}>Invalid Range</th>
-                <th style={styles.th}>Not Found</th>
-                <th style={styles.th}>Other Errors</th>
-              </tr>
-            </thead>
-            <tbody>
-              {streamByLibrary.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={9}>No per-library playback metrics yet</td>
-                </tr>
-              ) : (
-                streamByLibrary.map((row) => (
-                  <tr key={row.libraryId}>
-                    <td style={styles.td}>{row.libraryId}</td>
-                    <td style={styles.td}>{row.started}</td>
-                    <td style={styles.td}>{row.completed}</td>
-                    <td style={styles.td}>{row.clientAborted}</td>
-                    <td style={styles.td}>{row.earlyClientAborted}</td>
-                    <td style={styles.td}>{row.upstreamErrors}</td>
-                    <td style={styles.td}>{row.invalidRange}</td>
-                    <td style={styles.td}>{row.notFound}</td>
-                    <td style={styles.td}>{row.otherErrors}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {renderTable(
+          ['Library', 'Starts', 'Completed', 'Aborted', 'Early Aborts (<2s)', 'Upstream Errors', 'Invalid Range', 'Not Found', 'Other Errors'],
+          streamByLibrary.map((row) => (
+            <tr key={row.libraryId} className="ms-admin-tr">
+              <td className="ms-admin-td">{row.libraryId}</td>
+              <td className="ms-admin-td">{row.started}</td>
+              <td className="ms-admin-td">{row.completed}</td>
+              <td className="ms-admin-td">{row.clientAborted}</td>
+              <td className="ms-admin-td">{row.earlyClientAborted}</td>
+              <td className="ms-admin-td">{row.upstreamErrors}</td>
+              <td className="ms-admin-td">{row.invalidRange}</td>
+              <td className="ms-admin-td">{row.notFound}</td>
+              <td className="ms-admin-td">{row.otherErrors}</td>
+            </tr>
+          )),
+          'No per-library playback metrics yet'
+        )}
       </section>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Refresh Jobs</h3>
-        <div style={styles.topSummary}>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Queued</div>
-            <div style={styles.summaryValue}>{refreshCounts.queued ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Running</div>
-            <div style={styles.summaryValue}>{refreshCounts.running ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Completed</div>
-            <div style={styles.summaryValue}>{refreshCounts.completed ?? 0}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryLabel}>Failed</div>
-            <div style={styles.summaryValue}>{refreshCounts.failed ?? 0}</div>
-          </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">Refresh Jobs</h3>
+        <div className="ms-perf-summary-grid">
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Queued</div><div className="ms-perf-summary-value">{refreshCounts.queued ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Running</div><div className="ms-perf-summary-value">{refreshCounts.running ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Completed</div><div className="ms-perf-summary-value">{refreshCounts.completed ?? 0}</div></div>
+          <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Failed</div><div className="ms-perf-summary-value">{refreshCounts.failed ?? 0}</div></div>
         </div>
 
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Job</th>
-                <th style={styles.th}>Library</th>
-                <th style={styles.th}>User</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Created</th>
-                <th style={styles.th}>Finished</th>
-              </tr>
-            </thead>
-            <tbody>
-              {refreshJobs.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={6}>No refresh jobs yet</td>
-                </tr>
-              ) : (
-                refreshJobs.map((job) => (
-                  <tr key={job.id}>
-                    <td style={styles.td}>#{job.id}</td>
-                    <td style={styles.td}>{job.libraryId}</td>
-                    <td style={styles.td}>{job.userId}</td>
-                    <td style={styles.td}>{job.status}</td>
-                    <td style={styles.td}>{formatDate(job.createdAt)}</td>
-                    <td style={styles.td}>{job.finishedAt ? formatDate(job.finishedAt) : '-'}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {renderTable(
+          ['Job', 'Library', 'User', 'Status', 'Created', 'Finished'],
+          refreshJobs.map((job) => (
+            <tr key={job.id} className="ms-admin-tr">
+              <td className="ms-admin-td">#{job.id}</td>
+              <td className="ms-admin-td">{job.libraryId}</td>
+              <td className="ms-admin-td">{job.userId}</td>
+              <td className="ms-admin-td">{job.status}</td>
+              <td className="ms-admin-td">{formatDate(job.createdAt)}</td>
+              <td className="ms-admin-td">{job.finishedAt ? formatDate(job.finishedAt) : '-'}</td>
+            </tr>
+          )),
+          'No refresh jobs yet'
+        )}
       </section>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Request Latency</h3>
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Endpoint</th>
-                <th style={styles.th}>Count</th>
-                <th style={styles.th}>Error %</th>
-                <th style={styles.th}>Avg (ms)</th>
-                <th style={styles.th}>P50</th>
-                <th style={styles.th}>P95</th>
-                <th style={styles.th}>P99</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requestRows.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={7}>No request metrics yet</td>
-                </tr>
-              ) : (
-                requestRows.map((row) => (
-                  <tr key={row.endpoint}>
-                    <td style={styles.td}>{row.endpoint}</td>
-                    <td style={styles.td}>{row.count}</td>
-                    <td style={styles.td}>{row.errorRatePct}</td>
-                    <td style={styles.td}>{row.avgMs}</td>
-                    <td style={styles.td}>{row.p50Ms}</td>
-                    <td style={styles.td}>{row.p95Ms}</td>
-                    <td style={styles.td}>{row.p99Ms}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">Request Latency</h3>
+        {renderTable(
+          ['Endpoint', 'Count', 'Error %', 'Avg (ms)', 'P50', 'P95', 'P99'],
+          requestRows.map((row) => (
+            <tr key={row.endpoint} className="ms-admin-tr">
+              <td className="ms-admin-td">{row.endpoint}</td>
+              <td className="ms-admin-td">{row.count}</td>
+              <td className="ms-admin-td">{row.errorRatePct}</td>
+              <td className="ms-admin-td">{row.avgMs}</td>
+              <td className="ms-admin-td">{row.p50Ms}</td>
+              <td className="ms-admin-td">{row.p95Ms}</td>
+              <td className="ms-admin-td">{row.p99Ms}</td>
+            </tr>
+          )),
+          'No request metrics yet'
+        )}
       </section>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>DB Query Timings</h3>
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Query</th>
-                <th style={styles.th}>Count</th>
-                <th style={styles.th}>Slow Count</th>
-                <th style={styles.th}>Avg (ms)</th>
-                <th style={styles.th}>P95</th>
-                <th style={styles.th}>P99</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dbRows.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={6}>No DB metrics yet</td>
-                </tr>
-              ) : (
-                dbRows.map((row) => (
-                  <tr key={row.query}>
-                    <td style={styles.td}>{row.query}</td>
-                    <td style={styles.td}>{row.count}</td>
-                    <td style={styles.td}>{row.slowCount}</td>
-                    <td style={styles.td}>{row.avgMs}</td>
-                    <td style={styles.td}>{row.p95Ms}</td>
-                    <td style={styles.td}>{row.p99Ms}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">DB Query Timings</h3>
+        {renderTable(
+          ['Query', 'Count', 'Slow Count', 'Avg (ms)', 'P95', 'P99'],
+          dbRows.map((row) => (
+            <tr key={row.query} className="ms-admin-tr">
+              <td className="ms-admin-td">{row.query}</td>
+              <td className="ms-admin-td">{row.count}</td>
+              <td className="ms-admin-td">{row.slowCount}</td>
+              <td className="ms-admin-td">{row.avgMs}</td>
+              <td className="ms-admin-td">{row.p95Ms}</td>
+              <td className="ms-admin-td">{row.p99Ms}</td>
+            </tr>
+          )),
+          'No DB metrics yet'
+        )}
       </section>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Cache By Library</h3>
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Library ID</th>
-                <th style={styles.th}>Hits</th>
-                <th style={styles.th}>Misses</th>
-                <th style={styles.th}>Forced Refreshes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cacheByLibrary.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={4}>No cache metrics yet</td>
-                </tr>
-              ) : (
-                cacheByLibrary.map((row) => (
-                  <tr key={row.libraryId}>
-                    <td style={styles.td}>{row.libraryId}</td>
-                    <td style={styles.td}>{row.hits}</td>
-                    <td style={styles.td}>{row.misses}</td>
-                    <td style={styles.td}>{row.forcedRefreshes}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">Cache By Library</h3>
+        {renderTable(
+          ['Library ID', 'Hits', 'Misses', 'Forced Refreshes'],
+          cacheByLibrary.map((row) => (
+            <tr key={row.libraryId} className="ms-admin-tr">
+              <td className="ms-admin-td">{row.libraryId}</td>
+              <td className="ms-admin-td">{row.hits}</td>
+              <td className="ms-admin-td">{row.misses}</td>
+              <td className="ms-admin-td">{row.forcedRefreshes}</td>
+            </tr>
+          )),
+          'No cache metrics yet'
+        )}
       </section>
 
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Library Health</h3>
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Library</th>
-                <th style={styles.th}>Owner</th>
-                <th style={styles.th}>Cached Videos</th>
-                <th style={styles.th}>Last Cached</th>
-                <th style={styles.th}>Last Refresh</th>
-                <th style={styles.th}>Refresh Error</th>
-                <th style={styles.th}>Home</th>
-              </tr>
-            </thead>
-            <tbody>
-              {libraryHealth.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={7}>No libraries found</td>
-                </tr>
-              ) : (
-                libraryHealth.map((library) => (
-                  <tr key={library.id}>
-                    <td style={styles.td}>#{library.id} {library.name}</td>
-                    <td style={styles.td}>{library.owner_username || '-'}</td>
-                    <td style={styles.td}>{library.cached_videos}</td>
-                    <td style={styles.td}>{library.last_cached_at ? formatDate(library.last_cached_at) : 'Never'}</td>
-                    <td style={styles.td}>
-                      {library.last_refresh_status}
-                      {library.last_refresh_at ? ` (${formatDate(library.last_refresh_at)})` : ''}
-                    </td>
-                    <td style={styles.td}>{library.last_refresh_error || '-'}</td>
-                    <td style={styles.td}>{library.show_on_home ? 'Yes' : 'No'}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <section className="ms-perf-section">
+        <h3 className="ms-perf-section-title">Library Health</h3>
+        {renderTable(
+          ['Library', 'Owner', 'Cached Videos', 'Last Cached', 'Last Refresh', 'Refresh Error', 'Home'],
+          libraryHealth.map((library) => (
+            <tr key={library.id} className="ms-admin-tr">
+              <td className="ms-admin-td">#{library.id} {library.name}</td>
+              <td className="ms-admin-td">{library.owner_username || '-'}</td>
+              <td className="ms-admin-td">{library.cached_videos}</td>
+              <td className="ms-admin-td">{library.last_cached_at ? formatDate(library.last_cached_at) : 'Never'}</td>
+              <td className="ms-admin-td">
+                {library.last_refresh_status}
+                {library.last_refresh_at ? ` (${formatDate(library.last_refresh_at)})` : ''}
+              </td>
+              <td className="ms-admin-td">{library.last_refresh_error || '-'}</td>
+              <td className="ms-admin-td">{library.show_on_home ? 'Yes' : 'No'}</td>
+            </tr>
+          )),
+          'No libraries found'
+        )}
       </section>
 
-      <div style={styles.footer}>
-        <div style={styles.timestamp}>Updated: {new Date(metrics.timestamp).toLocaleString()}</div>
-        <button onClick={fetchMetrics} style={styles.refreshButton}>↻ Refresh</button>
+      <div className="ms-perf-footer">
+        <div className="ms-perf-timestamp">Updated: {new Date(metrics.timestamp).toLocaleString()}</div>
+        <button onClick={fetchMetrics} className="ms-button ms-button-ghost ms-button-pad-md">↻ Refresh</button>
       </div>
     </div>
   );
@@ -413,44 +247,3 @@ function formatDate(value) {
     return '-';
   }
 }
-
-const styles = {
-  container: { width: '100%' },
-  loading: { textAlign: 'center', padding: '40px', color: '#aaa', fontSize: '18px' },
-  error: { padding: '12px', backgroundColor: '#dc2626', color: '#fff', borderRadius: '6px' },
-  topSummary: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: '16px',
-    marginBottom: '24px'
-  },
-  summaryCard: { backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '16px' },
-  summaryLabel: { color: '#aaa', fontSize: '13px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  summaryValue: { color: '#fff', fontSize: '24px', fontWeight: '700' },
-  section: { marginBottom: '24px' },
-  sectionTitle: { color: '#fff', fontSize: '18px', marginBottom: '12px' },
-  tableWrap: { overflowX: 'auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: {
-    padding: '12px',
-    textAlign: 'left',
-    borderBottom: '2px solid #333',
-    color: '#aaa',
-    fontWeight: '600',
-    fontSize: '13px',
-    textTransform: 'uppercase'
-  },
-  td: { padding: '12px', color: '#e0e0e0', borderBottom: '1px solid #2a2a2a', fontSize: '13px' },
-  emptyCell: { padding: '20px', color: '#888', textAlign: 'center' },
-  footer: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' },
-  timestamp: { color: '#888', fontSize: '13px' },
-  refreshButton: {
-    padding: '10px 18px',
-    fontSize: '14px',
-    backgroundColor: '#333',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer'
-  }
-};

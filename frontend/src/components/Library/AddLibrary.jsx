@@ -31,7 +31,6 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
     setTesting(true);
 
     try {
-      // Test connection without saving
       await libraries.testConnection(formData);
       alert('Connection successful! You can now click "Add Library" to save it.');
     } catch (err) {
@@ -61,141 +60,141 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        <h2 style={styles.title}>{isEditMode ? 'Edit' : 'Add'} S3 Library</h2>
+    <div className="ms-modal-overlay">
+      <div className="ms-form-card ms-modal">
+        <h2 className="ms-form-title">{isEditMode ? 'Edit' : 'Add'} S3 Library</h2>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Library Name</label>
+        <form onSubmit={handleSubmit} className="ms-form">
+          <div className="ms-form-field">
+            <label className="ms-form-label">Library Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              style={styles.input}
+              className="ms-form-input"
               placeholder="My Videos"
               required
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>S3 Endpoint</label>
+          <div className="ms-form-field">
+            <label className="ms-form-label">S3 Endpoint</label>
             <input
               type="url"
               name="endpoint"
               value={formData.endpoint}
               onChange={handleChange}
-              style={styles.input}
+              className="ms-form-input"
               placeholder="https://s3.amazonaws.com"
               required
             />
           </div>
 
-          <div style={styles.row}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Region</label>
+          <div className="ms-form-row">
+            <div className="ms-form-field">
+              <label className="ms-form-label">Region</label>
               <input
                 type="text"
                 name="region"
                 value={formData.region}
                 onChange={handleChange}
-                style={styles.input}
+                className="ms-form-input"
                 placeholder="us-east-1"
                 required
               />
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Bucket Name</label>
+            <div className="ms-form-field">
+              <label className="ms-form-label">Bucket Name</label>
               <input
                 type="text"
                 name="bucket"
                 value={formData.bucket}
                 onChange={handleChange}
-                style={styles.input}
+                className="ms-form-input"
                 placeholder="my-videos"
                 required
               />
             </div>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>
-              Access Key {isEditMode && <span style={styles.optionalText}>(leave blank to keep existing)</span>}
+          <div className="ms-form-field">
+            <label className="ms-form-label">
+              Access Key {isEditMode && <span className="ms-form-help">(leave blank to keep existing)</span>}
             </label>
             <input
               type="text"
               name="accessKey"
               value={formData.accessKey}
               onChange={handleChange}
-              style={styles.input}
+              className="ms-form-input"
               placeholder="AKIAIOSFODNN7EXAMPLE"
               required={!isEditMode}
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>
-              Secret Key {isEditMode && <span style={styles.optionalText}>(leave blank to keep existing)</span>}
+          <div className="ms-form-field">
+            <label className="ms-form-label">
+              Secret Key {isEditMode && <span className="ms-form-help">(leave blank to keep existing)</span>}
             </label>
             <input
               type="password"
               name="secretKey"
               value={formData.secretKey}
               onChange={handleChange}
-              style={styles.input}
+              className="ms-form-input"
               placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
               required={!isEditMode}
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Path Prefix (Optional)</label>
+          <div className="ms-form-field">
+            <label className="ms-form-label">Path Prefix (Optional)</label>
             <input
               type="text"
               name="pathPrefix"
               value={formData.pathPrefix}
               onChange={handleChange}
-              style={styles.input}
+              className="ms-form-input"
               placeholder="videos/"
             />
           </div>
 
-          <div style={styles.checkboxRow}>
-            <label style={styles.checkboxLabel}>
+          <div className="ms-form-checkbox-row">
+            <label className="ms-form-checkbox-label">
               <input
                 type="checkbox"
                 name="showOnHome"
                 checked={formData.showOnHome}
                 onChange={handleChange}
-                style={styles.checkbox}
+                className="ms-form-checkbox"
               />
-              <span style={styles.checkboxText}>Show this library on Home page</span>
+              <span className="ms-form-checkbox-text">Show this library on Home page</span>
             </label>
           </div>
 
-          {error && <div style={styles.error}>{error}</div>}
+          {error && <div className="ms-form-error">{error}</div>}
 
-          <div style={styles.buttonRow}>
+          <div className="ms-form-actions">
             <button
               type="button"
               onClick={onCancel}
-              style={styles.cancelButton}
+              className="ms-button ms-button-ghost ms-button-pad-md"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleTest}
-              style={styles.testButton}
+              className="ms-button ms-button-success ms-button-pad-md"
               disabled={testing}
             >
               {testing ? 'Testing...' : 'Test Connection'}
             </button>
             <button
               type="submit"
-              style={styles.submitButton}
+              className="ms-button ms-button-primary ms-button-pad-md ms-button-flex-1"
               disabled={loading}
             >
               {loading
@@ -209,126 +208,3 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
     </div>
   );
 }
-
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '20px',
-    zIndex: 1000
-  },
-  modal: {
-    background: '#1a1a1a',
-    padding: '30px',
-    borderRadius: '12px',
-    width: '100%',
-    maxWidth: '600px',
-    maxHeight: '90vh',
-    overflow: 'auto'
-  },
-  title: {
-    fontSize: '24px',
-    marginBottom: '24px',
-    color: '#fff'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    flex: 1
-  },
-  row: {
-    display: 'flex',
-    gap: '12px'
-  },
-  label: {
-    fontSize: '14px',
-    color: '#b0b0b0',
-    fontWeight: '500'
-  },
-  input: {
-    padding: '10px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: '#0f0f0f',
-    color: '#e0e0e0',
-    fontSize: '14px'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    fontSize: '14px'
-  },
-  buttonRow: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '8px'
-  },
-  cancelButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: 'transparent',
-    color: '#b0b0b0',
-    fontSize: '14px',
-    cursor: 'pointer'
-  },
-  testButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#059669',
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-  submitButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#3b82f6',
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    flex: 1
-  },
-  optionalText: {
-    fontSize: '12px',
-    color: '#6b7280',
-    fontWeight: '400'
-  },
-  checkboxRow: {
-    marginTop: '4px'
-  },
-  checkboxLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    cursor: 'pointer'
-  },
-  checkbox: {
-    width: '16px',
-    height: '16px',
-    cursor: 'pointer'
-  },
-  checkboxText: {
-    color: '#e0e0e0',
-    fontSize: '14px'
-  }
-};

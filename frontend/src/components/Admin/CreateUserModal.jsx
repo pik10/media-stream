@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { admin } from '../../services/api';
-import { modalStyles } from '../../styles/modalStyles';
 
 export default function CreateUserModal({ onClose, onCreated }) {
   const [formData, setFormData] = useState({
@@ -29,65 +28,65 @@ export default function CreateUserModal({ onClose, onCreated }) {
   };
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>Create New User</h2>
+    <div className="ms-modal-overlay" onClick={onClose}>
+      <div className="ms-form-card ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
+        <h2 className="ms-form-title">Create New User</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="ms-form-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.field}>
-            <label style={styles.label}>Username *</label>
+        <form onSubmit={handleSubmit} className="ms-form">
+          <div className="ms-form-field">
+            <label className="ms-form-label">Username *</label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              style={styles.input}
+              className="ms-form-input"
               required
               minLength={3}
               autoFocus
             />
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Password *</label>
+          <div className="ms-form-field">
+            <label className="ms-form-label">Password *</label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              style={styles.input}
+              className="ms-form-input"
               required
               minLength={6}
             />
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Email (optional)</label>
+          <div className="ms-form-field">
+            <label className="ms-form-label">Email (optional)</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              style={styles.input}
+              className="ms-form-input"
             />
           </div>
 
-          <div style={styles.checkboxField}>
-            <label style={styles.checkboxLabel}>
+          <div className="ms-form-checkbox-row">
+            <label className="ms-form-checkbox-label">
               <input
                 type="checkbox"
                 checked={formData.isAdmin}
                 onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
-                style={styles.checkbox}
+                className="ms-form-checkbox"
               />
-              <span style={styles.checkboxText}>Admin privileges</span>
+              <span className="ms-form-checkbox-text">Admin privileges</span>
             </label>
           </div>
 
-          <div style={styles.buttons}>
-            <button type="button" onClick={onClose} style={styles.cancelButton}>
+          <div className="ms-form-actions">
+            <button type="button" onClick={onClose} className="ms-button ms-button-ghost ms-button-pad-md">
               Cancel
             </button>
-            <button type="submit" disabled={loading} style={styles.submitButton}>
+            <button type="submit" disabled={loading} className="ms-button ms-button-primary ms-button-pad-md">
               {loading ? 'Creating...' : 'Create User'}
             </button>
           </div>
@@ -96,13 +95,3 @@ export default function CreateUserModal({ onClose, onCreated }) {
     </div>
   );
 }
-
-// Use shared modal styles with component-specific overrides
-const styles = {
-  ...modalStyles,
-  modal: {
-    ...modalStyles.modal,
-    maxHeight: '90vh',
-    overflowY: 'auto'
-  }
-};

@@ -113,8 +113,8 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div className="ms-page ms-page-wide" style={styles.container}>
-          <PageLoading message="Loading videos..." style={styles.loading} />
+        <div className="ms-page ms-page-wide ms-page-tall">
+          <PageLoading message="Loading videos..." />
         </div>
       </>
     );
@@ -124,7 +124,7 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div className="ms-page ms-page-wide" style={styles.container}>
+        <div className="ms-page ms-page-wide ms-page-tall">
           <PageError message={error} />
         </div>
       </>
@@ -138,17 +138,17 @@ export default function HomePage() {
     return (
       <>
         <Header />
-        <div className="ms-page ms-page-wide" style={styles.container}>
-          <div style={styles.empty}>
-            <h2 style={styles.emptyTitle}>No Videos Found</h2>
-            <p style={styles.emptyText}>
+        <div className="ms-page ms-page-wide ms-page-tall">
+          <div className="ms-empty-state">
+            <h2 className="ms-empty-title">No Videos Found</h2>
+            <p className="ms-empty-text">
               {hasNoLibraries && "You don't have any libraries yet. Add an S3 library to get started!"}
               {hasNoHomeLibraries && 'No libraries are currently enabled for Home. Edit a library and turn on "Show this library on Home page".'}
               {!hasNoLibraries && !hasNoHomeLibraries && 'No videos match your current search or sorting options.'}
             </p>
             <button
               onClick={() => navigate('/libraries')}
-              style={styles.addButton}
+              className="ms-button ms-button-primary ms-button-pad-lg"
             >
               Go to Libraries
             </button>
@@ -170,19 +170,19 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <div className="ms-page ms-page-wide" style={styles.container}>
-        <div className="ms-page-header" style={styles.header}>
-          <div style={styles.headerTop}>
-            <div style={styles.titleBlock}>
-              <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
-              <p style={styles.subtitle}>
+      <div className="ms-page ms-page-wide ms-page-tall">
+        <div className="ms-page-header">
+          <div className="ms-home-header-top">
+            <div className="ms-home-title-block">
+              <h1 className="ms-page-title">Your Videos</h1>
+              <p className="ms-home-subtitle">
                 {allVideos.length} video{allVideos.length !== 1 ? 's' : ''} across{' '}
                 {Object.keys(videosByLibrary).length} librar{Object.keys(videosByLibrary).length !== 1 ? 'ies' : 'y'}
               </p>
             </div>
 
-            <div style={styles.controlsRow}>
-              <div style={styles.searchWrap}>
+            <div className="ms-home-controls">
+              <div className="ms-home-search-wrap">
                 <SearchBar
                   value={searchTerm}
                   onChange={handleSearch}
@@ -191,31 +191,29 @@ export default function HomePage() {
                 />
               </div>
 
-              <div style={styles.sortWrap}>
-                <SortSelector
-                  sort={sortBy}
-                  order={sortOrder}
-                  onSortChange={handleSortChange}
-                  margin="0"
-                />
-              </div>
+              <SortSelector
+                sort={sortBy}
+                order={sortOrder}
+                onSortChange={handleSortChange}
+                margin="0"
+              />
             </div>
           </div>
         </div>
 
         {Object.entries(videosByLibrary).map(([libraryName, videos]) => (
-          <div key={libraryName} style={styles.section}>
-            <div className="ms-section-header" style={styles.sectionHeader}>
-              <h2 style={styles.sectionTitle}>{libraryName}</h2>
+          <div key={libraryName} className="ms-page-section">
+            <div className="ms-section-header">
+              <h2 className="ms-section-title">{libraryName}</h2>
               <button
                 onClick={() => handleBrowseLibrary(videos[0].libraryId)}
-                style={styles.browseButton}
+                className="ms-button ms-button-primary-outline ms-button-pad-md"
               >
                 Browse All →
               </button>
             </div>
 
-            <div className="ms-video-grid" style={styles.grid}>
+            <div className="ms-video-grid">
               {videos.slice(0, 12).map((video, index) => (
                 <LazyVideoCard
                   key={`${video.libraryId}-${video.key}`}
@@ -231,164 +229,3 @@ export default function HomePage() {
     </>
   );
 }
-
-const styles = {
-  container: {
-    padding: '40px 20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    minHeight: 'calc(100vh - 70px)'
-  },
-  header: {
-    marginBottom: '32px'
-  },
-  headerTop: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-    flexWrap: 'wrap'
-  },
-  titleBlock: {
-    flex: '0 0 auto'
-  },
-  title: {
-    fontSize: '32px',
-    color: '#fff',
-    marginBottom: '6px'
-  },
-  controlsRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flexWrap: 'wrap',
-    flex: '1 1 520px'
-  },
-  searchWrap: {
-    flex: '1 1 320px',
-    minWidth: '220px',
-    maxWidth: '600px'
-  },
-  sortWrap: {
-    flex: '0 0 auto'
-  },
-  subtitle: {
-    fontSize: '16px',
-    color: '#6b7280',
-    margin: 0
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '60px 20px',
-    color: '#b0b0b0',
-    fontSize: '18px'
-  },
-  empty: {
-    textAlign: 'center',
-    padding: '80px 20px',
-    maxWidth: '500px',
-    margin: '0 auto'
-  },
-  emptyTitle: {
-    fontSize: '28px',
-    color: '#fff',
-    marginBottom: '16px'
-  },
-  emptyText: {
-    fontSize: '16px',
-    color: '#6b7280',
-    marginBottom: '24px',
-    lineHeight: '1.6'
-  },
-  addButton: {
-    padding: '12px 24px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#3b82f6',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-  section: {
-    marginBottom: '40px'
-  },
-  sectionHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px'
-  },
-  sectionTitle: {
-    fontSize: '22px',
-    color: '#fff',
-    fontWeight: '600'
-  },
-  browseButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: '1px solid #3b82f6',
-    background: 'transparent',
-    color: '#3b82f6',
-    fontSize: '14px',
-    cursor: 'pointer',
-    fontWeight: '500'
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: '24px'
-  },
-  card: {
-    background: '#1a1a1a',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    cursor: 'pointer',
-    border: '1px solid #333',
-    transition: 'transform 0.2s, border-color 0.2s'
-  },
-  thumbnail: {
-    aspectRatio: '16/9',
-    background: '#0f0f0f',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative'
-  },
-  videoIcon: {
-    fontSize: '48px'
-  },
-  playIcon: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    fontSize: '32px',
-    color: 'rgba(255, 255, 255, 0.9)',
-    background: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: '50%',
-    width: '56px',
-    height: '56px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: '4px'
-  },
-  cardInfo: {
-    padding: '12px'
-  },
-  cardTitle: {
-    fontSize: '14px',
-    color: '#e0e0e0',
-    marginBottom: '4px',
-    wordBreak: 'break-word',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical'
-  },
-  cardSize: {
-    fontSize: '12px',
-    color: '#6b7280'
-  }
-};

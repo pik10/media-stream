@@ -82,26 +82,26 @@ export default function VideoPlayer() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <button onClick={() => navigate(-1)} style={styles.backButton}>
+      <div className="ms-player-page">
+        <div className="ms-player-header">
+          <button onClick={() => navigate(-1)} className="ms-button ms-button-ghost ms-button-pad-md">
             ← Back
           </button>
-          <div style={styles.videoTitle}>{displayTitle || videoTitle}</div>
+          <div className="ms-player-title">{displayTitle || videoTitle}</div>
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="ms-form-error ms-mb-20">{error}</div>}
 
-        <div style={styles.playerContainer}>
+        <div className="ms-player-wrap">
           {loading && (
-            <div style={styles.loading}>
+            <div className="ms-player-loading">
               <div>Loading video...</div>
             </div>
           )}
 
           <video
             ref={videoRef}
-            style={styles.video}
+            className="ms-player-video"
             controls
             autoPlay
             playsInline
@@ -115,105 +115,21 @@ export default function VideoPlayer() {
           </video>
         </div>
 
-        <div style={styles.info}>
-          <div style={styles.infoRow}>
-            <span style={styles.label}>Format:</span>
-            <span style={styles.value}>{videoFormat}</span>
+        <div className="ms-player-info">
+          <div className="ms-player-info-row">
+            <span className="ms-player-info-label">Format:</span>
+            <span className="ms-player-info-value">{videoFormat}</span>
           </div>
-          <div style={styles.infoRow}>
-            <span style={styles.label}>Resolution:</span>
-            <span style={styles.value}>{videoResolution || 'Loading...'}</span>
+          <div className="ms-player-info-row">
+            <span className="ms-player-info-label">Resolution:</span>
+            <span className="ms-player-info-value">{videoResolution || 'Loading...'}</span>
           </div>
-          <div style={styles.infoRow}>
-            <span style={styles.label}>Size:</span>
-            <span style={styles.value}>{formatBytes(videoSize)}</span>
+          <div className="ms-player-info-row">
+            <span className="ms-player-info-label">Size:</span>
+            <span className="ms-player-info-value">{formatBytes(videoSize)}</span>
           </div>
         </div>
       </div>
     </>
   );
 }
-
-const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '1400px',
-    margin: '0 auto'
-  },
-  header: {
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px'
-  },
-  backButton: {
-    padding: '8px 16px',
-    borderRadius: '6px',
-    border: '1px solid #333',
-    background: 'transparent',
-    color: '#b0b0b0',
-    fontSize: '14px',
-    cursor: 'pointer'
-  },
-  videoTitle: {
-    fontSize: '20px',
-    color: '#e0e0e0',
-    fontWeight: '500',
-    wordBreak: 'break-word'
-  },
-  error: {
-    padding: '12px',
-    borderRadius: '6px',
-    background: '#dc2626',
-    color: 'white',
-    marginBottom: '20px'
-  },
-  playerContainer: {
-    position: 'relative',
-    background: '#000',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    marginBottom: '24px'
-  },
-  loading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#000',
-    color: '#e0e0e0',
-    fontSize: '18px',
-    zIndex: 1
-  },
-  video: {
-    width: '100%',
-    height: 'auto',
-    maxHeight: '80vh',
-    display: 'block'
-  },
-  info: {
-    background: '#1a1a1a',
-    padding: '20px',
-    borderRadius: '12px',
-    border: '1px solid #333'
-  },
-  infoRow: {
-    display: 'flex',
-    gap: '12px',
-    marginBottom: '8px',
-    fontSize: '14px'
-  },
-  label: {
-    color: '#6b7280',
-    minWidth: '100px',
-    fontWeight: '500'
-  },
-  value: {
-    color: '#e0e0e0',
-    wordBreak: 'break-all'
-  }
-};
