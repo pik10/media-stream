@@ -3,6 +3,12 @@ import useLazyLoad from '../hooks/useLazyLoad';
 export default function LazyVideoCard({ video, onClick, index = 0 }) {
   const [ref, isVisible] = useLazyLoad();
 
+  const formatDisplayName = (name) => {
+    if (!name) return '';
+    const baseName = name.replace(/\.[^/.]+$/, '');
+    return baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  };
+
   const formatBytes = (bytes) => {
     if (!bytes) return '';
     const mb = bytes / (1024 * 1024);
@@ -27,7 +33,7 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
             <div style={styles.videoIcon}>🎬</div>
           </div>
           <div style={styles.cardInfo}>
-            <div style={styles.cardTitle}>{video.name}</div>
+            <div style={styles.cardTitle}>{formatDisplayName(video.name) || video.name}</div>
             {video.size && (
               <div style={styles.cardSize}>{formatBytes(video.size)}</div>
             )}
