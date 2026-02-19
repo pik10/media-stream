@@ -16,6 +16,16 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
     return `${(mb / 1024).toFixed(1)} GB`;
   };
 
+  const formatDate = (value) => {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString();
+  };
+
+  const displayDate = formatDate(video.lastModified || video.modifiedAt || video.updated_at);
+  const hasMeta = Boolean(video.size || displayDate);
+
   return (
     <div ref={ref} className="ms-video-card-wrap">
       {isVisible ? (
@@ -32,21 +42,23 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
               viewBox="0 0 64 64"
               aria-hidden="true"
             >
-              <rect x="8" y="14" width="48" height="36" rx="6" fill="#374151" />
-              <polygon points="27,24 27,40 41,32" fill="#f9fafb" />
-              <rect x="8" y="10" width="48" height="6" rx="3" fill="#4b5563" />
-              <rect x="8" y="48" width="48" height="6" rx="3" fill="#4b5563" />
+              <rect x="10" y="12" width="44" height="40" rx="8" fill="var(--ms-video-icon-body)" />
+              <polygon points="28,24 28,40 42,32" fill="var(--ms-video-icon-inner-play)" />
             </svg>
             <div className="ms-video-card-play">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <polygon points="8,5 8,19 19,12" fill="#fff" />
+                <polygon points="8,5 8,19 19,12" fill="currentColor" />
               </svg>
             </div>
           </div>
           <div className="ms-video-card-info">
             <div className="ms-video-card-title">{formatDisplayName(video.name) || video.name}</div>
-            {video.size && (
-              <div className="ms-video-card-size">{formatBytes(video.size)}</div>
+            {hasMeta && (
+              <div className="ms-video-card-meta">
+                {video.size && <span className="ms-video-card-size">{formatBytes(video.size)}</span>}
+                {video.size && displayDate && <span className="ms-video-card-dot">•</span>}
+                {displayDate && <span className="ms-video-card-date">{displayDate}</span>}
+              </div>
             )}
           </div>
         </button>

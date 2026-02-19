@@ -34,7 +34,7 @@
 .ms-video-card-thumb {
   position: relative;
   aspect-ratio: 16/9;
-  background: var(--ms-bg-muted);
+  background: var(--ms-video-thumb-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,8 +49,7 @@
   position: absolute;
   width: 56px;
   height: 56px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
+  color: var(--ms-thumb-play-icon);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,12 +101,12 @@
 
 .ms-video-card-skeleton-thumb {
   aspect-ratio: 16/9;
-  background: #222;
+  background: var(--ms-skeleton-block);
 }
 
 .ms-video-card-skeleton-text {
   height: 40px;
   margin: 12px;
   border-radius: 4px;
-  background: #222;
+  background: var(--ms-skeleton-block);
 }
