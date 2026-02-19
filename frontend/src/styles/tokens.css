@@ -13,6 +13,7 @@
   --ms-text-weak: #888;
   --ms-confirm-text: #ccc;
   --ms-text-on-accent: #fff;
+  --ms-primary-text: #fff;
   --ms-pill-muted-bg: #333;
   --ms-pill-muted-text: #aaa;
   --ms-action-neutral-bg: #e5e7eb;
@@ -65,6 +66,10 @@ body[data-theme="dark"] {
 
 body[data-theme="light"] {
   color-scheme: light;
+  --ms-primary: #8b93a1;
+  --ms-primary-hover: #6b7280;
+  --ms-primary-active: #4b5563;
+  --ms-primary-text: #ffffff;
   --ms-bg-page: #f5f7fb;
   --ms-bg-surface: #ffffff;
   --ms-bg-surface-2: #eef2f7;

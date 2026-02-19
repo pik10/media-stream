@@ -56,7 +56,7 @@
 
 .ms-button-primary {
   background: var(--ms-primary);
-  color: var(--ms-text-on-accent);
+  color: var(--ms-primary-text);
   border-color: var(--ms-primary);
 }
 
@@ -73,7 +73,7 @@
 .ms-button-ghost {
   background: transparent;
   border-color: var(--ms-border);
-  color: var(--ms-text-muted);
+  color: var(--ms-text);
 }
 
 .ms-button-ghost:hover {
@@ -99,7 +99,7 @@
 .ms-button-warning {
   background: transparent;
   border-color: var(--ms-warning-strong);
-  color: var(--ms-warning);
+  color: var(--ms-warning-strong);
 }
 
 .ms-button-pad-md {
