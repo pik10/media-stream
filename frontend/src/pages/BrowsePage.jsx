@@ -172,13 +172,13 @@ export default function BrowsePage() {
       <Header />
       <div className="ms-page ms-page-wide" style={styles.container}>
         <div style={styles.header}>
-          <div className="ms-page-toolbar" style={styles.topBar}>
+          <div className="ms-page-toolbar ms-browse-toolbar" style={styles.topBar}>
             <button onClick={() => navigate('/libraries')} style={styles.backButton}>
               ← Back to Libraries
             </button>
 
-            <div style={styles.searchControls}>
-              <div style={styles.searchWrap}>
+            <div className="ms-browse-search-controls" style={styles.searchControls}>
+              <div className="ms-browse-search-wrap" style={styles.searchWrap}>
                 <SearchBar
                   value={searchTerm}
                   onChange={handleSearch}

@@ -67,6 +67,23 @@ button:disabled {
     gap: 12px !important;
   }
 
+  .ms-page-toolbar.ms-browse-toolbar {
+    gap: 12px !important;
+  }
+
+  .ms-page-toolbar.ms-browse-toolbar .ms-browse-search-controls {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+  }
+
+  .ms-page-toolbar.ms-browse-toolbar .ms-browse-search-wrap {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
   .ms-section-header {
     align-items: flex-start !important;
     flex-direction: column !important;
@@ -149,6 +166,14 @@ button:disabled {
 
   .ms-page-toolbar .ms-sort-controls {
     margin: 0 !important;
+  }
+
+  .ms-page-toolbar.ms-browse-toolbar {
+    gap: 10px !important;
+  }
+
+  .ms-page-toolbar.ms-browse-toolbar .ms-browse-search-controls {
+    gap: 6px !important;
   }
 
   .ms-pagination {
