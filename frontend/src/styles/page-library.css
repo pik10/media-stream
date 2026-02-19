@@ -99,14 +99,3 @@
   border-color: var(--ms-primary);
   background: rgba(107, 114, 128, 0.08);
 }
-
-body[data-theme="dark"] .ms-library-edit-btn.ms-button-primary-outline {
-  color: var(--ms-menu-text);
-  border-color: #4b5563;
-}
-
-body[data-theme="dark"] .ms-library-edit-btn.ms-button-primary-outline:hover:not(:disabled) {
-  color: var(--ms-text);
-  border-color: #6b7280;
-  background: #2a2f36;
-}

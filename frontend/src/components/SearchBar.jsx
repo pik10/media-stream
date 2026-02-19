@@ -33,7 +33,7 @@ export default function SearchBar({ value, onChange, placeholder = 'Search video
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="ms-searchbar-input"
+        className="ms-input ms-input-md ms-searchbar-input"
       />
       <div className="ms-searchbar-actions">
         {inputValue && (

@@ -110,33 +110,33 @@
 
 .ms-header-theme-button {
   padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--ms-border);
-  background: transparent;
   color: var(--ms-text-muted);
   font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
 }
 
-.ms-header-theme-button:hover {
-  border-color: var(--ms-primary);
-  color: var(--ms-primary);
+body[data-theme="light"] .ms-button.ms-button-ghost.ms-header-theme-button:hover {
+  color: var(--ms-text-muted);
+}
+
+body[data-theme="dark"] .ms-button.ms-button-ghost.ms-header-theme-button:hover {
+  background: transparent;
+  border-color: #8b93a1;
+  color: var(--ms-text-muted);
 }
 
 .ms-header-logout-button {
   padding: 8px 16px;
-  border-radius: 6px;
-  border: 1px solid var(--ms-border);
-  background: transparent;
-  color: var(--ms-text-muted);
+  color: var(--ms-danger);
   font-size: 14px;
-  cursor: pointer;
   flex-shrink: 0;
-  transition: border-color 0.2s, color 0.2s;
 }
 
 .ms-header-logout-button:hover {
+  border-color: var(--ms-danger);
+  color: var(--ms-danger);
+}
+
+.ms-button.ms-button-ghost.ms-header-logout-button:hover {
   border-color: var(--ms-danger);
   color: var(--ms-danger);
 }

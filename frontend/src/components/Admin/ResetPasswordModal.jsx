@@ -52,7 +52,7 @@ export default function ResetPasswordModal({ user, onClose, onSuccess }) {
 
   return (
     <div className="ms-modal-overlay" onClick={onClose}>
-      <div className="ms-form-card ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
+      <div className="ms-form-card ms-surface ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
         <h2 className="ms-form-title">Reset Password: {user.username}</h2>
 
         {error && <div className="ms-form-error">{error}</div>}

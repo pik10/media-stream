@@ -102,6 +102,39 @@
   color: var(--ms-warning-strong);
 }
 
+.ms-button-neutral {
+  background: var(--ms-action-neutral-bg);
+  border-color: var(--ms-action-neutral-bg);
+  color: var(--ms-action-neutral-text);
+}
+
+.ms-button-neutral:hover {
+  background: var(--ms-action-neutral-hover);
+  border-color: var(--ms-action-neutral-hover);
+}
+
+.ms-button-neutral-soft {
+  background: var(--ms-action-neutral-hover);
+  border-color: var(--ms-action-neutral-hover);
+  color: var(--ms-action-neutral-text);
+}
+
+.ms-button-neutral-soft:hover {
+  filter: brightness(0.97);
+}
+
+.ms-button-warning-solid {
+  background: var(--ms-warning-strong);
+  border-color: var(--ms-warning-strong);
+  color: #111;
+}
+
+.ms-button-danger-solid {
+  background: var(--ms-danger);
+  border-color: var(--ms-danger);
+  color: var(--ms-text-on-accent);
+}
+
 .ms-button-pad-md {
   padding: 10px 20px;
 }
@@ -114,7 +147,7 @@
 .ms-button-primary-outline {
   background: transparent;
   border-color: var(--ms-primary);
-  color: var(--ms-primary);
+  color: var(--ms-outline-button-text);
 }
 
 .ms-button-primary-outline:hover {
@@ -123,4 +156,16 @@
 
 .ms-button-flex-1 {
   flex: 1;
+}
+
+.ms-input {
+  border: 2px solid var(--ms-border);
+  border-radius: var(--ms-radius-md);
+  background: var(--ms-bg-surface);
+  color: var(--ms-text);
+}
+
+.ms-input-md {
+  padding: 12px 16px;
+  font-size: 16px;
 }

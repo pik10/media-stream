@@ -156,7 +156,7 @@ export default function UserManagement() {
       {(user.is_locked || (user.failed_attempts || 0) > 0) && (
         <button
           onClick={() => handleUnlockUser(user.id)}
-          className="ms-admin-action-btn ms-admin-action-unlock"
+          className="ms-button ms-button-warning-solid ms-admin-action-btn"
           title="Clear lockout and failed attempts"
         >
           🔓
@@ -164,21 +164,21 @@ export default function UserManagement() {
       )}
       <button
         onClick={() => setEditingUser(user)}
-        className="ms-admin-action-btn ms-admin-action-default"
+        className="ms-button ms-button-neutral ms-admin-action-btn"
         title="Edit user"
       >
         ✎
       </button>
       <button
         onClick={() => setResettingUser(user)}
-        className="ms-admin-action-btn ms-admin-action-default"
+        className="ms-button ms-button-neutral ms-admin-action-btn"
         title="Reset password"
       >
         ⟳
       </button>
       <button
         onClick={() => setDeletingUser({ id: user.id, username: user.username })}
-        className="ms-admin-action-btn ms-admin-action-danger"
+        className="ms-button ms-button-danger-solid ms-admin-action-btn"
         title="Delete user"
       >
         ✕
@@ -196,11 +196,11 @@ export default function UserManagement() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="ms-admin-search-input"
+            className="ms-input ms-input-md ms-admin-search-input"
           />
           <button
             onClick={handleSearch}
-            className="ms-admin-icon-button ms-admin-icon-button-muted"
+            className="ms-button ms-button-neutral ms-admin-icon-button"
             title="Search"
           >
             🔍
@@ -211,7 +211,7 @@ export default function UserManagement() {
                 setSearchInput('');
                 setSearchQuery('');
               }}
-              className="ms-admin-icon-button ms-admin-icon-button-soft"
+              className="ms-button ms-button-neutral-soft ms-admin-icon-button"
               title="Clear search"
             >
               ✕
@@ -220,7 +220,7 @@ export default function UserManagement() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="ms-admin-create-button"
+          className="ms-button ms-button-primary ms-button-pad-md ms-admin-create-button"
         >
           + Create User
         </button>

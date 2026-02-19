@@ -48,7 +48,7 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="ms-form-card ms-form-card-sm ms-form-card-centered">
+    <div className="ms-form-card ms-surface ms-form-card-sm ms-form-card-centered">
       <h2 className="ms-form-title">Change Password</h2>
 
       <form onSubmit={handleSubmit} className="ms-form ms-form-wide-gap">

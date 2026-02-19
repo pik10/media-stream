@@ -92,10 +92,10 @@ export default function Header() {
         </nav>
 
         <div className="ms-header-actions">
-          <button onClick={handleToggleTheme} className="ms-header-theme-button">
+          <button onClick={handleToggleTheme} className="ms-button ms-button-ghost ms-header-theme-button">
             {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
           </button>
-          <button onClick={handleLogout} className="ms-header-logout-button">
+          <button onClick={handleLogout} className="ms-button ms-button-ghost ms-header-logout-button">
             Logout
           </button>
         </div>

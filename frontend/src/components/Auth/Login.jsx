@@ -77,7 +77,7 @@ export default function Login() {
 
   return (
     <div className="ms-auth-shell">
-      <div className="ms-form-card ms-auth-card">
+      <div className="ms-form-card ms-surface ms-auth-card">
         <h1 className="ms-auth-title">Media Stream</h1>
         <h2 className="ms-auth-subtitle">{isLogin ? 'Login' : 'Register'}</h2>
 

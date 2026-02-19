@@ -1,7 +1,4 @@
 .ms-form-card {
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-lg);
   padding: 30px;
 }
 

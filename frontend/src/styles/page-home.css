@@ -86,14 +86,3 @@
   color: var(--ms-text-subtle);
   line-height: 1.6;
 }
-
-body[data-theme="dark"] .ms-home-section-top .ms-button-primary-outline {
-  color: var(--ms-text-muted);
-  border-color: #4b5563;
-}
-
-body[data-theme="dark"] .ms-home-section-top .ms-button-primary-outline:hover {
-  color: var(--ms-text);
-  border-color: #6b7280;
-  background: #2a2f36;
-}

@@ -45,7 +45,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="ms-pagination-button"
+        className="ms-button ms-button-ghost ms-pagination-button"
       >
         ← Previous
       </button>
@@ -58,7 +58,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             key={page}
             onClick={() => onPageChange(page)}
             disabled={page === currentPage}
-            className={`ms-pagination-button ${page === currentPage ? 'ms-pagination-button-active' : ''}`}
+            className={`ms-button ms-pagination-button ${page === currentPage ? 'ms-button-primary' : 'ms-button-ghost'}`}
           >
             {page}
           </button>
@@ -68,7 +68,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="ms-pagination-button"
+        className="ms-button ms-button-ghost ms-pagination-button"
       >
         Next →
       </button>

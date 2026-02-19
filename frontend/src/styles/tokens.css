@@ -14,6 +14,7 @@
   --ms-confirm-text: #ccc;
   --ms-text-on-accent: #fff;
   --ms-primary-text: #fff;
+  --ms-outline-button-text: #b0b0b0;
   --ms-pill-muted-bg: #333;
   --ms-pill-muted-text: #aaa;
   --ms-action-neutral-bg: #e5e7eb;
@@ -70,6 +71,7 @@ body[data-theme="light"] {
   --ms-primary-hover: #6b7280;
   --ms-primary-active: #4b5563;
   --ms-primary-text: #ffffff;
+  --ms-outline-button-text: #6b7280;
   --ms-bg-page: #f5f7fb;
   --ms-bg-surface: #ffffff;
   --ms-bg-surface-2: #eef2f7;
