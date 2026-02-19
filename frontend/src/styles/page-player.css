@@ -1,0 +1,80 @@
+.ms-player-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.ms-player-header {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ms-player-title {
+  font-size: 20px;
+  color: var(--ms-text-soft);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.ms-player-wrap {
+  position: relative;
+  background: #000;
+  border-radius: var(--ms-radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.ms-mb-12 {
+  margin-bottom: 12px;
+}
+
+.ms-mb-20 {
+  margin-bottom: 20px;
+}
+
+.ms-player-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: var(--ms-text-soft);
+  font-size: 18px;
+}
+
+.ms-player-video {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  display: block;
+}
+
+.ms-player-info {
+  background: var(--ms-bg-surface);
+  padding: 20px;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid var(--ms-border);
+}
+
+.ms-player-info-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.ms-player-info-label {
+  color: var(--ms-text-subtle);
+  min-width: 100px;
+  font-weight: 500;
+}
+
+.ms-player-info-value {
+  color: var(--ms-text-soft);
+  word-break: break-all;
+}
+

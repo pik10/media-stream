@@ -1,0 +1,120 @@
+.ms-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.ms-page-wide {
+  max-width: 1400px;
+}
+
+.ms-page-tall {
+  min-height: calc(100vh - 70px);
+  min-height: calc(100dvh - 70px);
+}
+
+.ms-page-title {
+  margin: 0;
+  color: var(--ms-text);
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.ms-page-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.ms-content-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ms-page-header {
+  margin-bottom: 32px;
+}
+
+.ms-surface {
+  background: var(--ms-bg-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius-lg);
+}
+
+.ms-button {
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.ms-button-primary {
+  background: var(--ms-primary);
+  color: var(--ms-text);
+  border-color: var(--ms-primary);
+}
+
+.ms-button-primary:hover {
+  filter: brightness(1.05);
+}
+
+.ms-button-ghost {
+  background: transparent;
+  border-color: var(--ms-border);
+  color: var(--ms-text-muted);
+}
+
+.ms-button-ghost:hover {
+  border-color: var(--ms-primary);
+  color: var(--ms-primary);
+}
+
+.ms-button-danger {
+  background: transparent;
+  border-color: var(--ms-danger);
+  color: var(--ms-danger);
+}
+
+.ms-button-danger:hover {
+  background: rgba(220, 38, 38, 0.14);
+}
+
+.ms-button-success {
+  background: var(--ms-success-strong);
+  color: var(--ms-text);
+}
+
+.ms-button-warning {
+  background: transparent;
+  border-color: var(--ms-warning-strong);
+  color: var(--ms-warning);
+}
+
+.ms-button-pad-md {
+  padding: 10px 20px;
+}
+
+.ms-button-pad-lg {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.ms-button-primary-outline {
+  background: transparent;
+  border-color: var(--ms-primary);
+  color: var(--ms-primary);
+}
+
+.ms-button-primary-outline:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.ms-button-flex-1 {
+  flex: 1;
+}

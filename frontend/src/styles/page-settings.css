@@ -1,0 +1,52 @@
+/* Settings */
+.ms-settings-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--ms-bg-page);
+}
+
+.ms-settings-main {
+  padding: 40px 20px;
+}
+
+.ms-settings-card {
+  background: var(--ms-bg-surface);
+  padding: 24px;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid var(--ms-border);
+  margin-bottom: 32px;
+}
+
+.ms-settings-title {
+  margin-bottom: 32px;
+}
+
+.ms-settings-section {
+  margin-bottom: 32px;
+}
+
+.ms-settings-section-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.ms-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ms-border);
+}
+
+.ms-info-label {
+  min-width: 100px;
+  color: var(--ms-text-muted);
+  font-size: 14px;
+}
+
+.ms-info-value {
+  color: var(--ms-text-soft);
+  font-size: 14px;
+  font-weight: 500;
+}
+

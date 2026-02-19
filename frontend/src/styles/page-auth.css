@@ -1,0 +1,49 @@
+.ms-auth-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ms-auth-title {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 28px;
+  color: var(--ms-text);
+}
+
+.ms-auth-subtitle {
+  margin: 0 0 24px;
+  text-align: center;
+  color: var(--ms-text-muted);
+  font-size: 20px;
+}
+
+.ms-auth-toggle {
+  margin-top: 20px;
+  text-align: center;
+  color: var(--ms-text-muted);
+  font-size: 14px;
+}
+
+.ms-auth-toggle-button {
+  border: 0;
+  background: none;
+  color: var(--ms-primary);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.ms-auth-label {
+  font-weight: 400;
+}

@@ -1,0 +1,89 @@
+/* Home page */
+.ms-home-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ms-home-title-block {
+  flex: 0 0 auto;
+}
+
+.ms-home-subtitle {
+  margin: 6px 0 0;
+  color: var(--ms-text-subtle);
+  font-size: 16px;
+}
+
+.ms-home-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1 1 520px;
+}
+
+.ms-home-search-wrap {
+  flex: 1 1 320px;
+  min-width: 220px;
+  max-width: 600px;
+}
+
+.ms-page-section {
+  margin-bottom: 40px;
+}
+
+.ms-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.ms-section-title {
+  margin: 0;
+  font-size: 22px;
+  color: var(--ms-text);
+  font-weight: 600;
+}
+
+.ms-home-section-panel {
+  padding: 18px 18px 20px;
+}
+
+.ms-home-section-top {
+  margin-bottom: 16px;
+}
+
+.ms-home-section-count {
+  margin: 4px 0 0;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.ms-empty-state {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.ms-empty-state-compact {
+  max-width: none;
+  color: var(--ms-text-muted);
+  padding: 60px 20px;
+}
+
+.ms-empty-title {
+  margin: 0 0 16px;
+  color: var(--ms-text);
+  font-size: 28px;
+}
+
+.ms-empty-text {
+  margin: 0 0 24px;
+  color: var(--ms-text-subtle);
+  line-height: 1.6;
+}
+

@@ -34,97 +34,89 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
-      <div className="headerContainer">
+    <header className="ms-header">
+      <div className="ms-header-container">
         <button
           type="button"
-          className="brand"
+          className="ms-header-brand"
           aria-label="Go to home"
           onClick={() => handleNavClick('/')}
         >
-          <span className="brandIcon" aria-hidden="true">▶</span>
-          <span className="brandText">Media Stream</span>
+          <span className="ms-header-brand-icon" aria-hidden="true">▶</span>
+          <span className="ms-header-brand-text">Media Stream</span>
         </button>
 
         {/* Desktop Navigation */}
-        <nav className="nav">
+        <nav className="ms-header-nav">
           <button
             onClick={() => navigate('/')}
-            className={`navButton ${isActive('/') && location.pathname === '/' ? 'navButtonActive' : ''}`}
+            className={`ms-header-nav-button ${isActive('/') && location.pathname === '/' ? 'ms-header-nav-button-active' : ''}`}
           >
             Home
           </button>
           <button
             onClick={() => navigate('/libraries')}
-            className={`navButton ${isActive('/libraries') ? 'navButtonActive' : ''}`}
+            className={`ms-header-nav-button ${isActive('/libraries') ? 'ms-header-nav-button-active' : ''}`}
           >
             Libraries
           </button>
           <button
             onClick={() => navigate('/settings')}
-            className={`navButton ${isActive('/settings') ? 'navButtonActive' : ''}`}
+            className={`ms-header-nav-button ${isActive('/settings') ? 'ms-header-nav-button-active' : ''}`}
           >
             Settings
           </button>
           {isAdmin() && (
             <button
               onClick={() => navigate('/admin')}
-              className={`navButton ${isActive('/admin') ? 'navButtonActive' : ''}`}
-              style={{
-                color: isActive('/admin') ? '#fff' : '#3b82f6',
-                fontWeight: '600'
-              }}
+              className={`ms-header-nav-button ms-header-nav-button-admin ${isActive('/admin') ? 'ms-header-nav-button-active' : ''}`}
             >
               ⚡ Admin
             </button>
           )}
         </nav>
 
-        <button onClick={handleLogout} className="logoutButton">
+        <button onClick={handleLogout} className="ms-header-logout-button">
           Logout
         </button>
 
         {/* Mobile Hamburger Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="hamburger"
+          className="ms-header-hamburger"
           aria-label="Toggle menu"
         >
-          <div className="hamburgerLine"></div>
-          <div className="hamburgerLine"></div>
-          <div className="hamburgerLine"></div>
+          <div className="ms-header-hamburger-line"></div>
+          <div className="ms-header-hamburger-line"></div>
+          <div className="ms-header-hamburger-line"></div>
         </button>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="mobileMenu">
+        <div className="ms-header-mobile-menu">
           <button
             onClick={() => handleNavClick('/')}
-            className={`mobileNavButton ${isActive('/') && location.pathname === '/' ? 'mobileNavButtonActive' : ''}`}
+            className={`ms-header-mobile-nav-button ${isActive('/') && location.pathname === '/' ? 'ms-header-mobile-nav-button-active' : ''}`}
           >
             Home
           </button>
           <button
             onClick={() => handleNavClick('/libraries')}
-            className={`mobileNavButton ${isActive('/libraries') ? 'mobileNavButtonActive' : ''}`}
+            className={`ms-header-mobile-nav-button ${isActive('/libraries') ? 'ms-header-mobile-nav-button-active' : ''}`}
           >
             Libraries
           </button>
           <button
             onClick={() => handleNavClick('/settings')}
-            className={`mobileNavButton ${isActive('/settings') ? 'mobileNavButtonActive' : ''}`}
+            className={`ms-header-mobile-nav-button ${isActive('/settings') ? 'ms-header-mobile-nav-button-active' : ''}`}
           >
             Settings
           </button>
           {isAdmin() && (
             <button
               onClick={() => handleNavClick('/admin')}
-              className={`mobileNavButton ${isActive('/admin') ? 'mobileNavButtonActive' : ''}`}
-              style={{
-                color: isActive('/admin') ? '#fff' : '#3b82f6',
-                fontWeight: '600'
-              }}
+              className={`ms-header-mobile-nav-button ms-header-mobile-nav-button-admin ${isActive('/admin') ? 'ms-header-mobile-nav-button-active' : ''}`}
             >
               ⚡ Admin
             </button>
@@ -134,7 +126,7 @@ export default function Header() {
               handleLogout();
               setMobileMenuOpen(false);
             }}
-            className="mobileLogoutButton"
+            className="ms-header-mobile-logout-button"
           >
             Logout
           </button>

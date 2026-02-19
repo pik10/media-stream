@@ -1,0 +1,91 @@
+/* Library page */
+.ms-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.ms-library-card {
+  padding: 24px;
+}
+
+.ms-library-card-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.ms-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ms-status-label {
+  font-size: 13px;
+  color: var(--ms-text-subtle);
+}
+
+.ms-status-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.ms-status-ok {
+  color: var(--ms-success);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.ms-status-error {
+  color: var(--ms-danger-soft);
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.ms-status-checking {
+  color: var(--ms-warning);
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.ms-library-info {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ms-library-info-row {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.ms-library-info-label {
+  min-width: 80px;
+  color: var(--ms-text-subtle);
+}
+
+.ms-library-info-value {
+  color: var(--ms-text-soft);
+  word-break: break-all;
+}
+
+.ms-card-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ms-card-buttons .ms-button {
+  padding: 10px 14px;
+}
+
+.ms-library-browse-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
