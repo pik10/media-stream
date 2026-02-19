@@ -234,39 +234,39 @@ export default function HomePage() {
 
 const styles = {
   container: {
-    padding: '24px 20px 32px',
-    maxWidth: '1400px',
+    padding: '40px 20px',
+    maxWidth: '1200px',
     margin: '0 auto',
     minHeight: 'calc(100vh - 70px)'
   },
   header: {
-    marginBottom: '36px'
+    marginBottom: '32px'
   },
   headerTop: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '16px',
+    gap: '12px',
     flexWrap: 'wrap'
   },
   titleBlock: {
     flex: '0 0 auto'
   },
   title: {
-    fontSize: '36px',
+    fontSize: '32px',
     color: '#fff',
-    marginBottom: '2px'
+    marginBottom: '6px'
   },
   controlsRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
     flexWrap: 'wrap',
     flex: '1 1 520px'
   },
   searchWrap: {
-    flex: '1 1 280px',
-    minWidth: '200px',
-    maxWidth: '480px'
+    flex: '1 1 320px',
+    minWidth: '220px',
+    maxWidth: '600px'
   },
   sortWrap: {
     flex: '0 0 auto'
@@ -310,7 +310,7 @@ const styles = {
     cursor: 'pointer'
   },
   section: {
-    marginBottom: '48px'
+    marginBottom: '40px'
   },
   sectionHeader: {
     display: 'flex',
@@ -319,14 +319,14 @@ const styles = {
     marginBottom: '20px'
   },
   sectionTitle: {
-    fontSize: '24px',
+    fontSize: '22px',
     color: '#fff',
     fontWeight: '600'
   },
   browseButton: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     borderRadius: '6px',
-    border: '1px solid #333',
+    border: '1px solid #3b82f6',
     background: 'transparent',
     color: '#3b82f6',
     fontSize: '14px',
@@ -336,7 +336,7 @@ const styles = {
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: '20px'
+    gap: '24px'
   },
   card: {
     background: '#1a1a1a',

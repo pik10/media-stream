@@ -92,7 +92,30 @@ button:disabled {
 
   .ms-video-grid {
     gap: 14px !important;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  }
+
+  .ms-video-card-wrap {
+    min-height: 170px !important;
+  }
+
+  .ms-video-card-info {
+    padding: 10px !important;
+  }
+
+  .ms-video-card-play {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .ms-video-card-icon {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .ms-video-card-title,
+  .ms-folder-title {
+    font-size: 13px !important;
   }
 
   .ms-library-grid {
@@ -144,7 +167,36 @@ button:disabled {
 
   .ms-video-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
+    gap: 10px !important;
+  }
+
+  .ms-video-card-wrap {
+    min-height: 150px !important;
+  }
+
+  .ms-video-card-info {
+    padding: 8px !important;
+  }
+
+  .ms-video-card-title,
+  .ms-folder-title {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .ms-video-card-size {
+    font-size: 11px !important;
+  }
+
+  .ms-video-card-play {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .ms-video-card-icon,
+  .ms-folder-icon {
+    width: 36px !important;
+    height: 36px !important;
   }
 
   .ms-searchbar {
@@ -191,5 +243,16 @@ button:disabled {
 
   .ms-table-scroll {
     overflow-x: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .ms-video-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .ms-video-card-wrap {
+    min-height: 0 !important;
   }
 }

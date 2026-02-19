@@ -17,32 +17,47 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
   };
 
   return (
-    <div ref={ref} style={styles.wrapper}>
+    <div ref={ref} className="ms-video-card-wrap" style={styles.wrapper}>
       {isVisible ? (
         <button
           type="button"
           aria-label={`Play ${video.name}`}
+          className="ms-video-card"
           style={{
             ...styles.card,
             animation: `fadeIn 0.3s ease-out ${index * 0.02}s both`
           }}
           onClick={onClick}
         >
-          <div style={styles.thumbnail}>
-            <div style={styles.playIcon}>▶</div>
-            <div style={styles.videoIcon}>🎬</div>
+          <div className="ms-video-card-thumb" style={styles.thumbnail}>
+            <svg
+              className="ms-video-card-icon"
+              style={styles.videoIcon}
+              viewBox="0 0 64 64"
+              aria-hidden="true"
+            >
+              <rect x="8" y="14" width="48" height="36" rx="6" fill="#374151" />
+              <polygon points="27,24 27,40 41,32" fill="#f9fafb" />
+              <rect x="8" y="10" width="48" height="6" rx="3" fill="#4b5563" />
+              <rect x="8" y="48" width="48" height="6" rx="3" fill="#4b5563" />
+            </svg>
+            <div className="ms-video-card-play" style={styles.playIcon}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={styles.playSvg}>
+                <polygon points="8,5 8,19 19,12" fill="#fff" />
+              </svg>
+            </div>
           </div>
-          <div style={styles.cardInfo}>
-            <div style={styles.cardTitle}>{formatDisplayName(video.name) || video.name}</div>
+          <div className="ms-video-card-info" style={styles.cardInfo}>
+            <div className="ms-video-card-title" style={styles.cardTitle}>{formatDisplayName(video.name) || video.name}</div>
             {video.size && (
-              <div style={styles.cardSize}>{formatBytes(video.size)}</div>
+              <div className="ms-video-card-size" style={styles.cardSize}>{formatBytes(video.size)}</div>
             )}
           </div>
         </button>
       ) : (
-        <div style={styles.skeleton}>
-          <div style={styles.skeletonThumb}></div>
-          <div style={styles.skeletonText}></div>
+        <div className="ms-video-card-skeleton" style={styles.skeleton}>
+          <div className="ms-video-card-skeleton-thumb" style={styles.skeletonThumb}></div>
+          <div className="ms-video-card-skeleton-text" style={styles.skeletonText}></div>
         </div>
       )}
     </div>
@@ -51,7 +66,7 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
 
 const styles = {
   wrapper: {
-    minHeight: '200px'
+    minHeight: 'clamp(160px, 22vw, 200px)'
   },
   card: {
     backgroundColor: '#1a1a1a',
@@ -75,12 +90,22 @@ const styles = {
   },
   playIcon: {
     position: 'absolute',
-    fontSize: '48px',
-    opacity: 0.8,
-    color: '#fff'
+    width: '56px',
+    height: '56px',
+    borderRadius: '50%',
+    background: 'rgba(0, 0, 0, 0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.9
   },
   videoIcon: {
-    fontSize: '64px'
+    width: '64px',
+    height: '64px'
+  },
+  playSvg: {
+    width: '28px',
+    height: '28px'
   },
   cardInfo: {
     padding: '12px'

@@ -256,14 +256,24 @@ export default function BrowsePage() {
                     type="button"
                     aria-label={`Open folder ${item.name}`}
                     key={`${currentPrefix}/${item.name}`}
+                    className="ms-folder-card"
                     style={styles.card}
                     onClick={() => handleFolderClick(item.name)}
                   >
                     <div style={styles.thumbnail}>
-                      <div style={styles.folderIcon}>📁</div>
+                      <svg
+                        className="ms-folder-icon"
+                        style={styles.folderIcon}
+                        viewBox="0 0 64 64"
+                        aria-hidden="true"
+                      >
+                        <path d="M8 18a6 6 0 0 1 6-6h14l6 6h16a6 6 0 0 1 6 6v4H8v-10z" fill="#f59e0b" />
+                        <rect x="8" y="24" width="48" height="28" rx="6" fill="#d97706" />
+                        <rect x="12" y="28" width="40" height="20" rx="4" fill="#fbbf24" />
+                      </svg>
                     </div>
                     <div style={styles.cardInfo}>
-                      <div style={styles.cardTitle}>{item.name}</div>
+                      <div className="ms-folder-title" style={styles.cardTitle}>{item.name}</div>
                     </div>
                   </button>
                 ) : (
@@ -293,36 +303,36 @@ export default function BrowsePage() {
 
 const styles = {
   container: {
-    padding: '24px 20px 32px',
-    maxWidth: '1400px',
+    padding: '40px 20px',
+    maxWidth: '1200px',
     margin: '0 auto'
   },
   header: {
-    marginBottom: '20px'
+    marginBottom: '32px'
   },
   topBar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '10px',
-    gap: '12px',
+    marginBottom: '16px',
+    gap: '16px',
     flexWrap: 'wrap'
   },
   searchControls: {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
     flex: '1 1 460px',
-    minWidth: '300px',
+    minWidth: '320px',
     flexWrap: 'wrap'
   },
   searchWrap: {
-    flex: '1 1 280px',
-    minWidth: '200px',
-    maxWidth: '480px'
+    flex: '1 1 320px',
+    minWidth: '220px',
+    maxWidth: '600px'
   },
   backButton: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     borderRadius: '6px',
     border: '1px solid #333',
     background: 'transparent',
@@ -331,7 +341,7 @@ const styles = {
     cursor: 'pointer'
   },
   refreshButton: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     fontSize: '14px',
     backgroundColor: '#3b82f6',
     color: '#fff',
@@ -386,7 +396,7 @@ const styles = {
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: '20px'
+    gap: '24px'
   },
   card: {
     width: '100%',
@@ -408,7 +418,8 @@ const styles = {
     justifyContent: 'center'
   },
   folderIcon: {
-    fontSize: '48px'
+    width: '56px',
+    height: '56px'
   },
   videoIcon: {
     fontSize: '48px'
