@@ -1,4 +1,4 @@
-export default function SortSelector({ sort, order, onSortChange }) {
+export default function SortSelector({ sort, order, onSortChange, margin = '16px auto' }) {
   const handleSortChange = (e) => {
     onSortChange(e.target.value, order);
   };
@@ -15,7 +15,7 @@ export default function SortSelector({ sort, order, onSortChange }) {
   ];
 
   return (
-    <div className="ms-sort-controls" style={styles.container}>
+    <div className="ms-sort-controls" style={{ ...styles.container, margin }}>
       <label style={styles.label}>Sort by:</label>
 
       <select

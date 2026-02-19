@@ -61,7 +61,6 @@ const styles = {
   container: {
     position: 'relative',
     width: '100%',
-    maxWidth: '600px',
     margin: '20px auto'
   },
   input: {

@@ -172,29 +172,35 @@ export default function HomePage() {
       <Header />
       <div className="ms-page ms-page-wide" style={styles.container}>
         <div className="ms-page-header" style={styles.header}>
-          <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
+          <div style={styles.headerTop}>
+            <div style={styles.titleBlock}>
+              <h1 className="ms-page-title" style={styles.title}>Your Videos</h1>
+              <p style={styles.subtitle}>
+                {allVideos.length} video{allVideos.length !== 1 ? 's' : ''} across{' '}
+                {Object.keys(videosByLibrary).length} librar{Object.keys(videosByLibrary).length !== 1 ? 'ies' : 'y'}
+              </p>
+            </div>
 
-          <div style={styles.searchWrap}>
-            <SearchBar
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Search across all libraries..."
-              margin="0 auto"
-            />
+            <div style={styles.controlsRow}>
+              <div style={styles.searchWrap}>
+                <SearchBar
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  placeholder="Search across all libraries..."
+                  margin="0"
+                />
+              </div>
+
+              <div style={styles.sortWrap}>
+                <SortSelector
+                  sort={sortBy}
+                  order={sortOrder}
+                  onSortChange={handleSortChange}
+                  margin="0"
+                />
+              </div>
+            </div>
           </div>
-
-          <div style={styles.sortWrap}>
-            <SortSelector
-              sort={sortBy}
-              order={sortOrder}
-              onSortChange={handleSortChange}
-            />
-          </div>
-
-          <p style={styles.subtitle}>
-            {allVideos.length} video{allVideos.length !== 1 ? 's' : ''} across{' '}
-            {Object.keys(videosByLibrary).length} librar{Object.keys(videosByLibrary).length !== 1 ? 'ies' : 'y'}
-          </p>
         </div>
 
         {Object.entries(videosByLibrary).map(([libraryName, videos]) => (
@@ -228,31 +234,47 @@ export default function HomePage() {
 
 const styles = {
   container: {
-    padding: '40px 20px',
+    padding: '24px 20px 32px',
     maxWidth: '1400px',
     margin: '0 auto',
     minHeight: 'calc(100vh - 70px)'
   },
   header: {
-    marginBottom: '40px'
+    marginBottom: '36px'
+  },
+  headerTop: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '16px',
+    flexWrap: 'wrap'
+  },
+  titleBlock: {
+    flex: '0 0 auto'
   },
   title: {
     fontSize: '36px',
     color: '#fff',
-    marginBottom: '8px'
+    marginBottom: '2px'
+  },
+  controlsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    flexWrap: 'wrap',
+    flex: '1 1 520px'
   },
   searchWrap: {
-    width: '100%',
-    maxWidth: '600px',
-    minWidth: '280px',
-    margin: '0 auto'
+    flex: '1 1 280px',
+    minWidth: '200px',
+    maxWidth: '480px'
   },
   sortWrap: {
-    marginTop: '8px'
+    flex: '0 0 auto'
   },
   subtitle: {
     fontSize: '16px',
-    color: '#6b7280'
+    color: '#6b7280',
+    margin: 0
   },
   loading: {
     textAlign: 'center',

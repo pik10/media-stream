@@ -143,6 +143,14 @@ button:disabled {
     margin: 12px 0 !important;
   }
 
+  .ms-page-toolbar .ms-searchbar {
+    margin: 0 !important;
+  }
+
+  .ms-page-toolbar .ms-sort-controls {
+    margin: 0 !important;
+  }
+
   .ms-pagination {
     gap: 6px !important;
   }

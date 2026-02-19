@@ -177,6 +177,24 @@ export default function BrowsePage() {
               ← Back to Libraries
             </button>
 
+            <div style={styles.searchControls}>
+              <div style={styles.searchWrap}>
+                <SearchBar
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  placeholder="Search in this library..."
+                  margin="0"
+                />
+              </div>
+
+              <SortSelector
+                sort={sortBy}
+                order={sortOrder}
+                onSortChange={handleSortChange}
+                margin="0"
+              />
+            </div>
+
             <button onClick={handleRefresh} style={styles.refreshButton}>
               ↻ Refresh from S3
             </button>
@@ -201,18 +219,6 @@ export default function BrowsePage() {
               </span>
             ))}
           </div>
-
-          <SearchBar
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Search in this library..."
-          />
-
-          <SortSelector
-            sort={sortBy}
-            order={sortOrder}
-            onSortChange={handleSortChange}
-          />
 
           {cacheInfo?.cachedAt && (
             <div style={styles.cacheInfo}>
@@ -287,18 +293,33 @@ export default function BrowsePage() {
 
 const styles = {
   container: {
-    padding: '40px 20px',
+    padding: '24px 20px 32px',
     maxWidth: '1400px',
     margin: '0 auto'
   },
   header: {
-    marginBottom: '32px'
+    marginBottom: '20px'
   },
   topBar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '16px'
+    marginBottom: '10px',
+    gap: '12px',
+    flexWrap: 'wrap'
+  },
+  searchControls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    flex: '1 1 460px',
+    minWidth: '300px',
+    flexWrap: 'wrap'
+  },
+  searchWrap: {
+    flex: '1 1 280px',
+    minWidth: '200px',
+    maxWidth: '480px'
   },
   backButton: {
     padding: '8px 16px',
@@ -324,7 +345,8 @@ const styles = {
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: '4px',
-    fontSize: '14px'
+    fontSize: '14px',
+    marginBottom: '6px'
   },
   breadcrumb: {
     background: 'none',
