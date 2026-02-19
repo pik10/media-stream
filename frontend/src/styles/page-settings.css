@@ -42,10 +42,6 @@
   flex-wrap: wrap;
 }
 
-.ms-settings-main .ms-button {
-  font-weight: 400;
-}
-
 .ms-info-row {
   display: flex;
   align-items: center;

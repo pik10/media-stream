@@ -77,7 +77,7 @@ export default function AdminSettings() {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="ms-button ms-button-primary ms-button-pad-md ms-admin-settings-save-button"
+          className="ms-button ms-button-primary ms-button-pad-md"
         >
           {saving ? 'Saving...' : 'Save Settings'}
         </button>
