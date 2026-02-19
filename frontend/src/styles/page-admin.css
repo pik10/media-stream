@@ -163,9 +163,14 @@
 }
 
 .ms-admin-icon-button-soft {
-  background: var(--ms-action-neutral-bg);
+  background: var(--ms-action-neutral-hover);
   color: var(--ms-action-neutral-text);
-  opacity: 0.85;
+}
+
+.ms-admin-icon-button-muted:hover,
+.ms-admin-icon-button-soft:hover,
+.ms-admin-action-default:hover {
+  background: var(--ms-action-neutral-hover);
 }
 
 .ms-admin-create-button {
@@ -173,10 +178,18 @@
   border: 0;
   border-radius: var(--ms-radius-md);
   background: var(--ms-primary);
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
+}
+
+.ms-admin-create-button:hover {
+  background: var(--ms-primary-hover);
+}
+
+.ms-admin-create-button:active {
+  background: var(--ms-primary-active);
 }
 
 .ms-admin-table-wrap {
@@ -223,8 +236,7 @@
 .ms-admin-mobile-title,
 .ms-confirm-title,
 .ms-perf-section-title,
-.ms-perf-summary-value,
-.ms-admin-create-button {
+.ms-perf-summary-value {
   color: var(--ms-text);
 }
 
@@ -232,8 +244,7 @@
 .ms-admin-pill-success,
 .ms-admin-pill-danger,
 .ms-admin-action-danger,
-.ms-admin-error,
-.ms-admin-create-button {
+.ms-admin-error {
   color: var(--ms-text-on-accent);
 }
 
@@ -294,6 +305,19 @@
 .ms-admin-action-default {
   background: var(--ms-action-neutral-bg);
   color: var(--ms-action-neutral-text);
+}
+
+body[data-theme="dark"] .ms-admin-icon-button-muted,
+body[data-theme="dark"] .ms-admin-icon-button-soft,
+body[data-theme="dark"] .ms-admin-action-default {
+  background: #333;
+  color: #e5e7eb;
+}
+
+body[data-theme="dark"] .ms-admin-icon-button-muted:hover,
+body[data-theme="dark"] .ms-admin-icon-button-soft:hover,
+body[data-theme="dark"] .ms-admin-action-default:hover {
+  background: #3f3f46;
 }
 
 .ms-admin-action-danger {
@@ -372,7 +396,7 @@
 
 .ms-confirm-text {
   margin: 0 0 18px;
-  color: #ccc;
+  color: var(--ms-confirm-text);
   line-height: 1.4;
 }
 

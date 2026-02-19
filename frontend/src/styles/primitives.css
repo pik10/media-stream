@@ -61,7 +61,13 @@
 }
 
 .ms-button-primary:hover {
-  filter: brightness(1.05);
+  background: var(--ms-primary-hover);
+  border-color: var(--ms-primary-hover);
+}
+
+.ms-button-primary:active {
+  background: var(--ms-primary-active);
+  border-color: var(--ms-primary-active);
 }
 
 .ms-button-ghost {
@@ -112,7 +118,7 @@
 }
 
 .ms-button-primary-outline:hover {
-  background: rgba(15, 118, 110, 0.12);
+  background: var(--ms-menu-hover-bg);
 }
 
 .ms-button-flex-1 {

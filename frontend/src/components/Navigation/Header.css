@@ -1,6 +1,6 @@
 /* Header Styles */
 .ms-header {
-  background: var(--ms-bg-surface);
+  background: var(--ms-header-bg);
   border-bottom: 1px solid var(--ms-border);
   position: sticky;
   top: 0;
@@ -63,7 +63,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--ms-text-muted);
+  color: var(--ms-menu-text);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -72,7 +72,7 @@
 }
 
 .ms-header-nav-button:hover {
-  background: rgba(15, 118, 110, 0.1);
+  background: var(--ms-menu-hover-bg);
   color: var(--ms-text);
 }
 
@@ -89,17 +89,16 @@
 }
 
 .ms-header-nav-button-active {
-  background: var(--ms-primary);
-  color: var(--ms-text-on-accent);
+  background: var(--ms-menu-active-bg);
+  color: var(--ms-menu-active-text);
 }
 
 .ms-header-nav-button-admin {
-  color: var(--ms-primary);
-  font-weight: 600;
+  color: var(--ms-menu-text);
 }
 
 .ms-header-nav-button-admin.ms-header-nav-button-active {
-  color: var(--ms-text-on-accent);
+  color: var(--ms-menu-active-text);
 }
 
 .ms-header-actions {
@@ -165,7 +164,7 @@
 .ms-header-mobile-menu {
   display: none;
   flex-direction: column;
-  background: var(--ms-bg-surface);
+  background: var(--ms-header-bg);
   border-top: 1px solid var(--ms-border);
   padding: 8px;
 }
@@ -175,7 +174,7 @@
   text-align: left;
   border: none;
   background: transparent;
-  color: var(--ms-text-muted);
+  color: var(--ms-menu-text);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -184,21 +183,20 @@
 }
 
 .ms-header-mobile-nav-button:active {
-  background: rgba(15, 118, 110, 0.1);
+  background: var(--ms-menu-hover-bg);
 }
 
 .ms-header-mobile-nav-button-active {
-  background: var(--ms-primary);
-  color: var(--ms-text-on-accent);
+  background: var(--ms-menu-active-bg);
+  color: var(--ms-menu-active-text);
 }
 
 .ms-header-mobile-nav-button-admin {
-  color: var(--ms-primary);
-  font-weight: 600;
+  color: var(--ms-menu-text);
 }
 
 .ms-header-mobile-nav-button-admin.ms-header-mobile-nav-button-active {
-  color: var(--ms-text-on-accent);
+  color: var(--ms-menu-active-text);
 }
 
 .ms-header-mobile-theme-button {

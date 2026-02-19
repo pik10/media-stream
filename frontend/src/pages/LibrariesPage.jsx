@@ -95,7 +95,7 @@ export default function LibrariesPage() {
           <h1 className="ms-page-title">My Libraries</h1>
           <button
             onClick={() => setShowAddModal(true)}
-            className="ms-button ms-button-primary ms-button-pad-md"
+            className="ms-button ms-button-primary ms-button-pad-md ms-library-add-btn"
           >
             Add Library
           </button>
@@ -106,7 +106,7 @@ export default function LibrariesPage() {
             <p>No libraries yet. Add your first S3 library to get started!</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="ms-button ms-button-primary ms-button-pad-md"
+              className="ms-button ms-button-primary ms-button-pad-md ms-library-add-btn"
             >
               Add Library
             </button>
@@ -139,20 +139,20 @@ export default function LibrariesPage() {
                 <div className="ms-card-buttons">
                   <button
                     onClick={() => navigate(`/browse/${library.id}`)}
-                    className="ms-button ms-button-success ms-library-browse-btn"
+                    className="ms-button ms-button-primary ms-library-browse-btn"
                   >
                     Browse Videos
                   </button>
                   <button
                     onClick={() => checkLibraryConnection(library.id)}
-                    className="ms-button ms-button-warning"
+                    className="ms-button ms-button-warning ms-library-check-btn"
                     disabled={connectionStatus[library.id]?.state === 'checking'}
                   >
                     {connectionStatus[library.id]?.state === 'checking' ? 'Checking...' : 'Check Connection'}
                   </button>
                   <button
                     onClick={() => setEditingLibrary(library)}
-                    className="ms-button ms-button-primary-outline"
+                    className="ms-button ms-button-primary-outline ms-library-edit-btn"
                   >
                     Edit
                   </button>

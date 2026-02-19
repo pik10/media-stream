@@ -29,7 +29,7 @@ export default function CreateUserModal({ onClose, onCreated }) {
 
   return (
     <div className="ms-modal-overlay" onClick={onClose}>
-      <div className="ms-form-card ms-modal ms-modal-sm" onClick={(e) => e.stopPropagation()}>
+      <div className="ms-form-card ms-modal ms-modal-sm ms-create-user-modal" onClick={(e) => e.stopPropagation()}>
         <h2 className="ms-form-title">Create New User</h2>
 
         {error && <div className="ms-form-error">{error}</div>}

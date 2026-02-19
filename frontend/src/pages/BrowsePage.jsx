@@ -29,7 +29,6 @@ export default function BrowsePage() {
 
   const currentPrefix = searchParams.get('prefix') || '';
 
-  // Fetch library info once when component mounts
   useEffect(() => {
     const fetchLibrary = async () => {
       try {
@@ -123,7 +122,7 @@ export default function BrowsePage() {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -151,10 +150,12 @@ export default function BrowsePage() {
   const handleSortChange = (sort, order) => {
     setSortBy(sort);
     setSortOrder(order);
-    setCurrentPage(1); // Reset to first page on sort change
+    setCurrentPage(1);
   };
 
   const breadcrumbs = currentPrefix ? currentPrefix.split('/') : [];
+  const folders = items.filter((item) => item.type === 'folder');
+  const files = items.filter((item) => item.type !== 'folder');
 
   if (loading) {
     return (
@@ -172,16 +173,13 @@ export default function BrowsePage() {
       <Header />
       <div className="ms-page ms-page-wide ms-page-tall">
         <div className="ms-page-header">
-          <div className="ms-page-toolbar ms-browse-toolbar">
-            <button
-              onClick={() => navigate('/libraries')}
-              className="ms-button ms-button-ghost ms-button-pad-md"
-            >
-              ← Back to Libraries
-            </button>
+          <div className="ms-home-header-top">
+            <div className="ms-home-title-block">
+              <h1 className="ms-page-title">{library?.name || 'Library'}</h1>
+            </div>
 
-            <div className="ms-browse-search-controls">
-              <div className="ms-browse-search-wrap">
+            <div className="ms-home-controls">
+              <div className="ms-home-search-wrap">
                 <SearchBar
                   value={searchTerm}
                   onChange={handleSearch}
@@ -196,17 +194,19 @@ export default function BrowsePage() {
                 onSortChange={handleSortChange}
                 margin="0"
               />
-            </div>
 
-            <button
-              onClick={handleRefresh}
-              className="ms-button ms-button-primary ms-button-pad-md"
-            >
-              ↻ Refresh from S3
-            </button>
+              <div className="ms-browse-actions">
+                <button
+                  onClick={() => navigate('/libraries')}
+                  className="ms-button ms-button-ghost ms-button-pad-md"
+                >
+                  ← Back to Libraries
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="ms-breadcrumbs">
+          <div className="ms-breadcrumbs ms-browse-breadcrumbs">
             <button
               onClick={() => handleBreadcrumbClick(-1)}
               className="ms-breadcrumb"
@@ -226,70 +226,111 @@ export default function BrowsePage() {
             ))}
           </div>
 
-          {cacheInfo?.cachedAt && (
-            <div className="ms-info-line ms-info-line--small">
-              Cached at {new Date(cacheInfo.cachedAt).toLocaleTimeString()}
-            </div>
-          )}
+          <div className="ms-browse-meta-row">
+            {cacheInfo?.cachedAt && (
+              <div className="ms-browse-meta-text">
+                Cached at {new Date(cacheInfo.cachedAt).toLocaleTimeString()}
+              </div>
+            )}
 
-          {refreshStatus?.status && (
-            <div className="ms-info-line ms-info-line--small ms-info-line--status">
-              {refreshStatus.message || `Refresh status: ${refreshStatus.status}`}
-              {refreshStatus.status === 'completed' && ' (latest cache loaded)'}
-            </div>
-          )}
+            {refreshStatus?.status && (
+              <div className="ms-browse-meta-text ms-browse-meta-text-status">
+                {refreshStatus.message || `Refresh status: ${refreshStatus.status}`}
+                {refreshStatus.status === 'completed' && ' (latest cache loaded)'}
+              </div>
+            )}
 
-          {pagination && (
-            <div className="ms-info-line">
-              Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-
-              {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} of {pagination.total} items
-            </div>
-          )}
+            {pagination && (
+              <div className="ms-browse-meta-text">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-
+                {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} of {pagination.total}
+              </div>
+            )}
+          </div>
         </div>
 
         <PageError message={error} />
 
         {!loading && items.length === 0 ? (
-          <div className="ms-empty-state ms-empty-state-compact">
-            <p>No videos or folders found in this location.</p>
+          <div className="ms-empty-state ms-empty-state-compact ms-surface">
+            <h3 className="ms-empty-title">Nothing Here Yet</h3>
+            <p className="ms-empty-text">No videos or folders found in this location.</p>
           </div>
         ) : (
           <>
-            <div className="ms-video-grid">
-              {items.map((item, index) => (
-                item.type === 'folder' ? (
-                  <button
-                    type="button"
-                    aria-label={`Open folder ${item.name}`}
-                    key={`${currentPrefix}/${item.name}`}
-                    className="ms-folder-card"
-                    onClick={() => handleFolderClick(item.name)}
-                  >
-                    <div className="ms-folder-thumb">
-                      <svg
-                        className="ms-folder-icon"
-                        viewBox="0 0 64 64"
-                        aria-hidden="true"
+            {folders.length > 0 && (
+              <section className="ms-page-section">
+                <div className="ms-home-section-panel ms-surface">
+                  <div className="ms-section-header ms-home-section-top">
+                    <div>
+                      <h2 className="ms-section-title">Folders</h2>
+                      <p className="ms-home-section-count">
+                        {folders.length} folder{folders.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="ms-video-grid ms-browse-folder-grid">
+                    {folders.map((item) => (
+                      <button
+                        type="button"
+                        aria-label={`Open folder ${item.name}`}
+                        key={`${currentPrefix}/${item.name}`}
+                        className="ms-folder-card"
+                        onClick={() => handleFolderClick(item.name)}
                       >
-                        <path d="M8 18a6 6 0 0 1 6-6h14l6 6h16a6 6 0 0 1 6 6v4H8v-10z" fill="#f59e0b" />
-                        <rect x="8" y="24" width="48" height="28" rx="6" fill="#d97706" />
-                        <rect x="12" y="28" width="40" height="20" rx="4" fill="#fbbf24" />
-                      </svg>
-                    </div>
-                    <div className="ms-folder-info">
-                      <div className="ms-folder-title">{item.name}</div>
-                    </div>
-                  </button>
-                ) : (
-                  <LazyVideoCard
-                    key={item.key}
-                    video={item}
-                    index={index}
-                    onClick={() => handleVideoClick(item)}
-                  />
-                )
-              ))}
-            </div>
+                        <div className="ms-folder-thumb">
+                          <svg
+                            className="ms-folder-icon"
+                            viewBox="0 0 64 64"
+                            aria-hidden="true"
+                          >
+                            <path d="M8 18a6 6 0 0 1 6-6h14l6 6h16a6 6 0 0 1 6 6v4H8v-10z" fill="#f59e0b" />
+                            <rect x="8" y="24" width="48" height="28" rx="6" fill="#d97706" />
+                            <rect x="12" y="28" width="40" height="20" rx="4" fill="#fbbf24" />
+                          </svg>
+                        </div>
+                        <div className="ms-folder-info">
+                          <div className="ms-folder-title">{item.name}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {files.length > 0 && (
+              <section className="ms-page-section">
+                <div className="ms-home-section-panel ms-surface">
+                  <div className="ms-section-header ms-home-section-top ms-browse-video-header">
+                    <button
+                      type="button"
+                      onClick={handleRefresh}
+                      className="ms-button ms-button-primary-outline ms-button-pad-md"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                  <div className="ms-video-grid">
+                    {files.map((item, index) => (
+                      <LazyVideoCard
+                        key={item.key}
+                        video={item}
+                        index={index}
+                        onClick={() => handleVideoClick(item)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {folders.length === 0 && files.length === 0 && (
+              <div className="ms-empty-state ms-empty-state-compact ms-surface">
+                <h3 className="ms-empty-title">No Results</h3>
+                <p className="ms-empty-text">Try a different search or clear filters.</p>
+              </div>
+            )}
 
             {pagination && pagination.totalPages > 1 && (
               <Pagination

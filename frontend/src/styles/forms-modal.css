@@ -145,3 +145,18 @@
   overflow: auto;
   max-width: 600px;
 }
+
+.ms-library-modal .ms-form-title,
+.ms-library-modal .ms-form-label,
+.ms-library-modal .ms-form-checkbox-text,
+.ms-library-modal .ms-button {
+  font-weight: 400;
+}
+
+.ms-create-user-modal .ms-button {
+  font-weight: 400;
+}
+
+.ms-edit-user-modal .ms-button {
+  font-weight: 400;
+}

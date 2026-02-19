@@ -89,3 +89,43 @@
   min-width: 120px;
 }
 
+.ms-library-check-btn.ms-button-warning {
+  color: var(--ms-text-muted);
+  border-color: var(--ms-border);
+}
+
+.ms-library-check-btn.ms-button-warning:hover:not(:disabled) {
+  color: var(--ms-text);
+  border-color: var(--ms-primary);
+  background: rgba(107, 114, 128, 0.08);
+}
+
+body[data-theme="dark"] .ms-library-browse-btn.ms-button-primary,
+body[data-theme="dark"] .ms-library-add-btn.ms-button-primary {
+  font-weight: 500;
+}
+
+body[data-theme="dark"] .ms-library-edit-btn.ms-button-primary-outline {
+  color: var(--ms-menu-text);
+  border-color: #4b5563;
+}
+
+body[data-theme="dark"] .ms-library-edit-btn.ms-button-primary-outline:hover:not(:disabled) {
+  color: var(--ms-text);
+  border-color: #6b7280;
+  background: #2a2f36;
+}
+
+body[data-theme="light"] .ms-library-browse-btn.ms-button-primary,
+body[data-theme="light"] .ms-library-add-btn.ms-button-primary {
+  background: #e5e7eb;
+  border-color: #e5e7eb;
+  color: var(--ms-menu-text);
+}
+
+body[data-theme="light"] .ms-library-browse-btn.ms-button-primary:hover,
+body[data-theme="light"] .ms-library-add-btn.ms-button-primary:hover {
+  background: #d1d5db;
+  border-color: #d1d5db;
+  color: var(--ms-menu-text);
+}

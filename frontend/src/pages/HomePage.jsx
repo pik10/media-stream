@@ -203,25 +203,32 @@ export default function HomePage() {
 
         {Object.entries(videosByLibrary).map(([libraryName, videos]) => (
           <div key={libraryName} className="ms-page-section">
-            <div className="ms-section-header">
-              <h2 className="ms-section-title">{libraryName}</h2>
-              <button
-                onClick={() => handleBrowseLibrary(videos[0].libraryId)}
-                className="ms-button ms-button-primary-outline ms-button-pad-md"
-              >
-                Browse All →
-              </button>
-            </div>
+            <div className="ms-home-section-panel ms-surface">
+              <div className="ms-section-header ms-home-section-top">
+                <div>
+                  <h2 className="ms-section-title">{libraryName}</h2>
+                  <p className="ms-home-section-count">
+                    {videos.length} video{videos.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleBrowseLibrary(videos[0].libraryId)}
+                  className="ms-button ms-button-primary-outline ms-button-pad-md"
+                >
+                  Browse All →
+                </button>
+              </div>
 
-            <div className="ms-video-grid">
-              {videos.slice(0, 12).map((video, index) => (
-                <LazyVideoCard
-                  key={`${video.libraryId}-${video.key}`}
-                  video={video}
-                  index={index}
-                  onClick={() => handleVideoClick(video)}
-                />
-              ))}
+              <div className="ms-video-grid">
+                {videos.slice(0, 12).map((video, index) => (
+                  <LazyVideoCard
+                    key={`${video.libraryId}-${video.key}`}
+                    video={video}
+                    index={index}
+                    onClick={() => handleVideoClick(video)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         ))}

@@ -61,7 +61,7 @@ export default function AddLibrary({ library, onLibraryAdded, onCancel }) {
 
   return (
     <div className="ms-modal-overlay">
-      <div className="ms-form-card ms-modal">
+      <div className="ms-form-card ms-modal ms-library-modal">
         <h2 className="ms-form-title">{isEditMode ? 'Edit' : 'Add'} S3 Library</h2>
 
         <form onSubmit={handleSubmit} className="ms-form">
