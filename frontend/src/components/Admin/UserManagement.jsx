@@ -119,6 +119,73 @@ export default function UserManagement() {
     return 'None';
   };
 
+  const renderAdminToggle = (user) => {
+    const isSelf = Number(user.id) === currentUserId;
+    const disableAdminToggle = isSelf && user.is_admin;
+
+    return (
+      <button
+        onClick={() => handleToggleAdmin(user.id, user.is_admin)}
+        disabled={disableAdminToggle}
+        title={disableAdminToggle ? 'You cannot remove your own admin privileges' : ''}
+        className={`ms-admin-pill ${user.is_admin ? 'ms-admin-pill-primary' : 'ms-admin-pill-muted'} ${disableAdminToggle ? 'ms-admin-pill-disabled' : ''}`}
+      >
+        {user.is_admin ? '✓ Admin' : 'User'}
+      </button>
+    );
+  };
+
+  const renderActiveToggle = (user) => {
+    const isSelf = Number(user.id) === currentUserId;
+    const disableActiveToggle = isSelf && user.is_active;
+
+    return (
+      <button
+        onClick={() => handleToggleActive(user.id, user.is_active)}
+        disabled={disableActiveToggle}
+        title={disableActiveToggle ? 'You cannot deactivate your own account' : ''}
+        className={`ms-admin-pill ${user.is_active ? 'ms-admin-pill-success' : 'ms-admin-pill-danger'} ${disableActiveToggle ? 'ms-admin-pill-disabled' : ''}`}
+      >
+        {user.is_active ? 'Active' : 'Inactive'}
+      </button>
+    );
+  };
+
+  const renderActions = (user) => (
+    <div className="ms-table-actions ms-admin-actions">
+      {(user.is_locked || (user.failed_attempts || 0) > 0) && (
+        <button
+          onClick={() => handleUnlockUser(user.id)}
+          className="ms-admin-action-btn ms-admin-action-unlock"
+          title="Clear lockout and failed attempts"
+        >
+          🔓
+        </button>
+      )}
+      <button
+        onClick={() => setEditingUser(user)}
+        className="ms-admin-action-btn ms-admin-action-default"
+        title="Edit user"
+      >
+        ✎
+      </button>
+      <button
+        onClick={() => setResettingUser(user)}
+        className="ms-admin-action-btn ms-admin-action-default"
+        title="Reset password"
+      >
+        ⟳
+      </button>
+      <button
+        onClick={() => setDeletingUser({ id: user.id, username: user.username })}
+        className="ms-admin-action-btn ms-admin-action-danger"
+        title="Delete user"
+      >
+        ✕
+      </button>
+    </div>
+  );
+
   return (
     <div className="ms-admin-users">
       <div className="ms-admin-users-header">
@@ -163,106 +230,72 @@ export default function UserManagement() {
 
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
-      <div className="ms-table-scroll ms-admin-table-wrap">
-        <table className="ms-admin-table">
-          <thead>
-            <tr>
-              <th className="ms-admin-th">Username</th>
-              <th className="ms-admin-th">Email</th>
-              <th className="ms-admin-th">Libraries</th>
-              <th className="ms-admin-th">Login Count</th>
-              <th className="ms-admin-th">Admin</th>
-              <th className="ms-admin-th">Status</th>
-              <th className="ms-admin-th">Lockout</th>
-              <th className="ms-admin-th">Created</th>
-              <th className="ms-admin-th">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id} className="ms-admin-tr">
-                <td className="ms-admin-td">{user.username}</td>
-                <td className="ms-admin-td">{user.email || '-'}</td>
-                <td className="ms-admin-td">{user.library_count}</td>
-                <td className="ms-admin-td">{user.login_count || 0}</td>
-                <td className="ms-admin-td">
-                  {(() => {
-                    const isSelf = Number(user.id) === currentUserId;
-                    const disableAdminToggle = isSelf && user.is_admin;
-                    return (
-                      <button
-                        onClick={() => handleToggleAdmin(user.id, user.is_admin)}
-                        disabled={disableAdminToggle}
-                        title={disableAdminToggle ? 'You cannot remove your own admin privileges' : ''}
-                        className={`ms-admin-pill ${user.is_admin ? 'ms-admin-pill-primary' : 'ms-admin-pill-muted'} ${disableAdminToggle ? 'ms-admin-pill-disabled' : ''}`}
-                      >
-                        {user.is_admin ? '✓ Admin' : 'User'}
-                      </button>
-                    );
-                  })()}
-                </td>
-                <td className="ms-admin-td">
-                  {(() => {
-                    const isSelf = Number(user.id) === currentUserId;
-                    const disableActiveToggle = isSelf && user.is_active;
-                    return (
-                      <button
-                        onClick={() => handleToggleActive(user.id, user.is_active)}
-                        disabled={disableActiveToggle}
-                        title={disableActiveToggle ? 'You cannot deactivate your own account' : ''}
-                        className={`ms-admin-pill ${user.is_active ? 'ms-admin-pill-success' : 'ms-admin-pill-danger'} ${disableActiveToggle ? 'ms-admin-pill-disabled' : ''}`}
-                      >
-                        {user.is_active ? 'Active' : 'Inactive'}
-                      </button>
-                    );
-                  })()}
-                </td>
-                <td className="ms-admin-td">
-                  <span className={user.is_locked ? 'ms-admin-lockout-warning' : 'ms-admin-lockout-text'}>
-                    {formatLockoutStatus(user)}
-                  </span>
-                </td>
-                <td className="ms-admin-td">
-                  {new Date(user.created_at).toLocaleDateString()}
-                </td>
-                <td className="ms-admin-td">
-                  <div className="ms-table-actions ms-admin-actions">
-                    {(user.is_locked || (user.failed_attempts || 0) > 0) && (
-                      <button
-                        onClick={() => handleUnlockUser(user.id)}
-                        className="ms-admin-action-btn ms-admin-action-unlock"
-                        title="Clear lockout and failed attempts"
-                      >
-                        🔓
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setEditingUser(user)}
-                      className="ms-admin-action-btn ms-admin-action-default"
-                      title="Edit user"
-                    >
-                      ✎
-                    </button>
-                    <button
-                      onClick={() => setResettingUser(user)}
-                      className="ms-admin-action-btn ms-admin-action-default"
-                      title="Reset password"
-                    >
-                      ⟳
-                    </button>
-                    <button
-                      onClick={() => setDeletingUser({ id: user.id, username: user.username })}
-                      className="ms-admin-action-btn ms-admin-action-danger"
-                      title="Delete user"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </td>
+      <div className="ms-desktop-only">
+        <div className="ms-table-scroll ms-admin-table-wrap">
+          <table className="ms-admin-table">
+            <thead>
+              <tr>
+                <th className="ms-admin-th">Username</th>
+                <th className="ms-admin-th">Email</th>
+                <th className="ms-admin-th">Libraries</th>
+                <th className="ms-admin-th">Login Count</th>
+                <th className="ms-admin-th">Admin</th>
+                <th className="ms-admin-th">Status</th>
+                <th className="ms-admin-th">Lockout</th>
+                <th className="ms-admin-th">Created</th>
+                <th className="ms-admin-th">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id} className="ms-admin-tr">
+                  <td className="ms-admin-td">{user.username}</td>
+                  <td className="ms-admin-td">{user.email || '-'}</td>
+                  <td className="ms-admin-td">{user.library_count}</td>
+                  <td className="ms-admin-td">{user.login_count || 0}</td>
+                  <td className="ms-admin-td">{renderAdminToggle(user)}</td>
+                  <td className="ms-admin-td">{renderActiveToggle(user)}</td>
+                  <td className="ms-admin-td">
+                    <span className={user.is_locked ? 'ms-admin-lockout-warning' : 'ms-admin-lockout-text'}>
+                      {formatLockoutStatus(user)}
+                    </span>
+                  </td>
+                  <td className="ms-admin-td">{new Date(user.created_at).toLocaleDateString()}</td>
+                  <td className="ms-admin-td">{renderActions(user)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="ms-mobile-only">
+        <div className="ms-admin-mobile-list">
+          {users.map((user) => (
+            <article key={user.id} className="ms-admin-mobile-card">
+              <h4 className="ms-admin-mobile-title">{user.username}</h4>
+              <div className="ms-admin-mobile-kv">
+                <span className="ms-admin-mobile-key">Email</span>
+                <span className="ms-admin-mobile-value">{user.email || '-'}</span>
+                <span className="ms-admin-mobile-key">Libraries</span>
+                <span className="ms-admin-mobile-value">{user.library_count}</span>
+                <span className="ms-admin-mobile-key">Logins</span>
+                <span className="ms-admin-mobile-value">{user.login_count || 0}</span>
+                <span className="ms-admin-mobile-key">Lockout</span>
+                <span className={`ms-admin-mobile-value ${user.is_locked ? 'ms-admin-lockout-warning' : 'ms-admin-lockout-text'}`}>
+                  {formatLockoutStatus(user)}
+                </span>
+                <span className="ms-admin-mobile-key">Created</span>
+                <span className="ms-admin-mobile-value">{new Date(user.created_at).toLocaleDateString()}</span>
+              </div>
+              <div className="ms-admin-mobile-actions">
+                {renderAdminToggle(user)}
+                {renderActiveToggle(user)}
+              </div>
+              {renderActions(user)}
+            </article>
+          ))}
+        </div>
       </div>
 
       {users.length === 0 && !loading && (

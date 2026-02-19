@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { admin } from '../../services/api';
 
 export default function Performance() {
@@ -42,26 +42,68 @@ export default function Performance() {
   const totalRequestErrors = requestRows.reduce((sum, row) => sum + (row.errors || 0), 0);
   const requestErrorRatePct = totalRequests ? Math.round((totalRequestErrors / totalRequests) * 10000) / 100 : 0;
 
-  const renderTable = (headers, rows, emptyText) => (
-    <div className="ms-admin-table-wrap">
-      <table className="ms-admin-table">
-        <thead>
-          <tr>
-            {headers.map((header) => (
-              <th key={header} className="ms-admin-th">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
+  const renderDataSet = ({ columns, rows, rowKey, emptyText, cardTitle }) => {
+    const renderValue = (column, row) => {
+      if (column.render) return column.render(row);
+      const value = row[column.key];
+      return value === undefined || value === null || value === '' ? '-' : value;
+    };
+
+    return (
+      <>
+        <div className="ms-desktop-only">
+          <div className="ms-admin-table-wrap">
+            <table className="ms-admin-table">
+              <thead>
+                <tr>
+                  {columns.map((column) => (
+                    <th key={column.label} className="ms-admin-th">{column.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td className="ms-admin-td ms-admin-empty" colSpan={columns.length}>{emptyText}</td>
+                  </tr>
+                ) : (
+                  rows.map((row) => (
+                    <tr key={rowKey(row)} className="ms-admin-tr">
+                      {columns.map((column) => (
+                        <td key={column.label} className="ms-admin-td">{renderValue(column, row)}</td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="ms-mobile-only">
           {rows.length === 0 ? (
-            <tr>
-              <td className="ms-admin-td ms-admin-empty" colSpan={headers.length}>{emptyText}</td>
-            </tr>
-          ) : rows}
-        </tbody>
-      </table>
-    </div>
-  );
+            <div className="ms-admin-empty">{emptyText}</div>
+          ) : (
+            <div className="ms-admin-mobile-list">
+              {rows.map((row) => (
+                <article key={rowKey(row)} className="ms-admin-mobile-card">
+                  <h4 className="ms-admin-mobile-title">{cardTitle(row)}</h4>
+                  <div className="ms-admin-mobile-kv">
+                    {columns.map((column) => (
+                      <Fragment key={column.label}>
+                        <span className="ms-admin-mobile-key">{column.label}</span>
+                        <span className="ms-admin-mobile-value">{renderValue(column, row)}</span>
+                      </Fragment>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
 
   return (
     <div>
@@ -90,36 +132,36 @@ export default function Performance() {
           <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Avg Duration (ms)</div><div className="ms-perf-summary-value">{stream.avgDurationMs ?? 0}</div></div>
         </div>
 
-        {renderTable(
-          ['HTTP Status', 'Count'],
-          streamStatusRows.map((row) => (
-            <tr key={row.statusCode} className="ms-admin-tr">
-              <td className="ms-admin-td">{row.statusCode}</td>
-              <td className="ms-admin-td">{row.count}</td>
-            </tr>
-          )),
-          'No playback status metrics yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'HTTP Status', key: 'statusCode' },
+            { label: 'Count', key: 'count' }
+          ],
+          rows: streamStatusRows,
+          rowKey: (row) => row.statusCode,
+          emptyText: 'No playback status metrics yet',
+          cardTitle: (row) => `HTTP ${row.statusCode}`
+        })}
 
         <div className="ms-gap-12" />
 
-        {renderTable(
-          ['Library', 'Starts', 'Completed', 'Aborted', 'Early Aborts (<2s)', 'Upstream Errors', 'Invalid Range', 'Not Found', 'Other Errors'],
-          streamByLibrary.map((row) => (
-            <tr key={row.libraryId} className="ms-admin-tr">
-              <td className="ms-admin-td">{row.libraryId}</td>
-              <td className="ms-admin-td">{row.started}</td>
-              <td className="ms-admin-td">{row.completed}</td>
-              <td className="ms-admin-td">{row.clientAborted}</td>
-              <td className="ms-admin-td">{row.earlyClientAborted}</td>
-              <td className="ms-admin-td">{row.upstreamErrors}</td>
-              <td className="ms-admin-td">{row.invalidRange}</td>
-              <td className="ms-admin-td">{row.notFound}</td>
-              <td className="ms-admin-td">{row.otherErrors}</td>
-            </tr>
-          )),
-          'No per-library playback metrics yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Library', key: 'libraryId' },
+            { label: 'Starts', key: 'started' },
+            { label: 'Completed', key: 'completed' },
+            { label: 'Aborted', key: 'clientAborted' },
+            { label: 'Early Aborts (<2s)', key: 'earlyClientAborted' },
+            { label: 'Upstream Errors', key: 'upstreamErrors' },
+            { label: 'Invalid Range', key: 'invalidRange' },
+            { label: 'Not Found', key: 'notFound' },
+            { label: 'Other Errors', key: 'otherErrors' }
+          ],
+          rows: streamByLibrary,
+          rowKey: (row) => row.libraryId,
+          emptyText: 'No per-library playback metrics yet',
+          cardTitle: (row) => `Library ${row.libraryId}`
+        })}
       </section>
 
       <section className="ms-perf-section">
@@ -131,95 +173,95 @@ export default function Performance() {
           <div className="ms-perf-summary-card"><div className="ms-perf-summary-label">Failed</div><div className="ms-perf-summary-value">{refreshCounts.failed ?? 0}</div></div>
         </div>
 
-        {renderTable(
-          ['Job', 'Library', 'User', 'Status', 'Created', 'Finished'],
-          refreshJobs.map((job) => (
-            <tr key={job.id} className="ms-admin-tr">
-              <td className="ms-admin-td">#{job.id}</td>
-              <td className="ms-admin-td">{job.libraryId}</td>
-              <td className="ms-admin-td">{job.userId}</td>
-              <td className="ms-admin-td">{job.status}</td>
-              <td className="ms-admin-td">{formatDate(job.createdAt)}</td>
-              <td className="ms-admin-td">{job.finishedAt ? formatDate(job.finishedAt) : '-'}</td>
-            </tr>
-          )),
-          'No refresh jobs yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Job', render: (row) => `#${row.id}` },
+            { label: 'Library', key: 'libraryId' },
+            { label: 'User', key: 'userId' },
+            { label: 'Status', key: 'status' },
+            { label: 'Created', render: (row) => formatDate(row.createdAt) },
+            { label: 'Finished', render: (row) => row.finishedAt ? formatDate(row.finishedAt) : '-' }
+          ],
+          rows: refreshJobs,
+          rowKey: (row) => row.id,
+          emptyText: 'No refresh jobs yet',
+          cardTitle: (row) => `Job #${row.id}`
+        })}
       </section>
 
       <section className="ms-perf-section">
         <h3 className="ms-perf-section-title">Request Latency</h3>
-        {renderTable(
-          ['Endpoint', 'Count', 'Error %', 'Avg (ms)', 'P50', 'P95', 'P99'],
-          requestRows.map((row) => (
-            <tr key={row.endpoint} className="ms-admin-tr">
-              <td className="ms-admin-td">{row.endpoint}</td>
-              <td className="ms-admin-td">{row.count}</td>
-              <td className="ms-admin-td">{row.errorRatePct}</td>
-              <td className="ms-admin-td">{row.avgMs}</td>
-              <td className="ms-admin-td">{row.p50Ms}</td>
-              <td className="ms-admin-td">{row.p95Ms}</td>
-              <td className="ms-admin-td">{row.p99Ms}</td>
-            </tr>
-          )),
-          'No request metrics yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Endpoint', key: 'endpoint' },
+            { label: 'Count', key: 'count' },
+            { label: 'Error %', key: 'errorRatePct' },
+            { label: 'Avg (ms)', key: 'avgMs' },
+            { label: 'P50', key: 'p50Ms' },
+            { label: 'P95', key: 'p95Ms' },
+            { label: 'P99', key: 'p99Ms' }
+          ],
+          rows: requestRows,
+          rowKey: (row) => row.endpoint,
+          emptyText: 'No request metrics yet',
+          cardTitle: (row) => row.endpoint
+        })}
       </section>
 
       <section className="ms-perf-section">
         <h3 className="ms-perf-section-title">DB Query Timings</h3>
-        {renderTable(
-          ['Query', 'Count', 'Slow Count', 'Avg (ms)', 'P95', 'P99'],
-          dbRows.map((row) => (
-            <tr key={row.query} className="ms-admin-tr">
-              <td className="ms-admin-td">{row.query}</td>
-              <td className="ms-admin-td">{row.count}</td>
-              <td className="ms-admin-td">{row.slowCount}</td>
-              <td className="ms-admin-td">{row.avgMs}</td>
-              <td className="ms-admin-td">{row.p95Ms}</td>
-              <td className="ms-admin-td">{row.p99Ms}</td>
-            </tr>
-          )),
-          'No DB metrics yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Query', key: 'query' },
+            { label: 'Count', key: 'count' },
+            { label: 'Slow Count', key: 'slowCount' },
+            { label: 'Avg (ms)', key: 'avgMs' },
+            { label: 'P95', key: 'p95Ms' },
+            { label: 'P99', key: 'p99Ms' }
+          ],
+          rows: dbRows,
+          rowKey: (row) => row.query,
+          emptyText: 'No DB metrics yet',
+          cardTitle: (row) => row.query
+        })}
       </section>
 
       <section className="ms-perf-section">
         <h3 className="ms-perf-section-title">Cache By Library</h3>
-        {renderTable(
-          ['Library ID', 'Hits', 'Misses', 'Forced Refreshes'],
-          cacheByLibrary.map((row) => (
-            <tr key={row.libraryId} className="ms-admin-tr">
-              <td className="ms-admin-td">{row.libraryId}</td>
-              <td className="ms-admin-td">{row.hits}</td>
-              <td className="ms-admin-td">{row.misses}</td>
-              <td className="ms-admin-td">{row.forcedRefreshes}</td>
-            </tr>
-          )),
-          'No cache metrics yet'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Library ID', key: 'libraryId' },
+            { label: 'Hits', key: 'hits' },
+            { label: 'Misses', key: 'misses' },
+            { label: 'Forced Refreshes', key: 'forcedRefreshes' }
+          ],
+          rows: cacheByLibrary,
+          rowKey: (row) => row.libraryId,
+          emptyText: 'No cache metrics yet',
+          cardTitle: (row) => `Library ${row.libraryId}`
+        })}
       </section>
 
       <section className="ms-perf-section">
         <h3 className="ms-perf-section-title">Library Health</h3>
-        {renderTable(
-          ['Library', 'Owner', 'Cached Videos', 'Last Cached', 'Last Refresh', 'Refresh Error', 'Home'],
-          libraryHealth.map((library) => (
-            <tr key={library.id} className="ms-admin-tr">
-              <td className="ms-admin-td">#{library.id} {library.name}</td>
-              <td className="ms-admin-td">{library.owner_username || '-'}</td>
-              <td className="ms-admin-td">{library.cached_videos}</td>
-              <td className="ms-admin-td">{library.last_cached_at ? formatDate(library.last_cached_at) : 'Never'}</td>
-              <td className="ms-admin-td">
-                {library.last_refresh_status}
-                {library.last_refresh_at ? ` (${formatDate(library.last_refresh_at)})` : ''}
-              </td>
-              <td className="ms-admin-td">{library.last_refresh_error || '-'}</td>
-              <td className="ms-admin-td">{library.show_on_home ? 'Yes' : 'No'}</td>
-            </tr>
-          )),
-          'No libraries found'
-        )}
+        {renderDataSet({
+          columns: [
+            { label: 'Library', render: (row) => `#${row.id} ${row.name}` },
+            { label: 'Owner', render: (row) => row.owner_username || '-' },
+            { label: 'Cached Videos', key: 'cached_videos' },
+            { label: 'Last Cached', render: (row) => row.last_cached_at ? formatDate(row.last_cached_at) : 'Never' },
+            {
+              label: 'Last Refresh',
+              render: (row) => `${row.last_refresh_status}${row.last_refresh_at ? ` (${formatDate(row.last_refresh_at)})` : ''}`
+            },
+            { label: 'Refresh Error', render: (row) => row.last_refresh_error || '-' },
+            { label: 'Home', render: (row) => row.show_on_home ? 'Yes' : 'No' }
+          ],
+          rows: libraryHealth,
+          rowKey: (row) => row.id,
+          emptyText: 'No libraries found',
+          cardTitle: (row) => `#${row.id} ${row.name}`
+        })}
       </section>
 
       <div className="ms-perf-footer">
