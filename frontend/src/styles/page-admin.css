@@ -158,11 +158,14 @@
 }
 
 .ms-admin-icon-button-muted {
-  background: #333;
+  background: var(--ms-action-neutral-bg);
+  color: var(--ms-action-neutral-text);
 }
 
 .ms-admin-icon-button-soft {
-  background: #555;
+  background: var(--ms-action-neutral-bg);
+  color: var(--ms-action-neutral-text);
+  opacity: 0.85;
 }
 
 .ms-admin-create-button {
@@ -216,17 +219,22 @@
 .ms-admin-pill-primary,
 .ms-admin-pill-success,
 .ms-admin-pill-danger,
-.ms-admin-action-default,
-.ms-admin-action-danger,
-.ms-admin-error,
 .ms-admin-card-title,
 .ms-admin-mobile-title,
 .ms-confirm-title,
 .ms-perf-section-title,
 .ms-perf-summary-value,
-.ms-admin-icon-button,
 .ms-admin-create-button {
   color: var(--ms-text);
+}
+
+.ms-admin-pill-primary,
+.ms-admin-pill-success,
+.ms-admin-pill-danger,
+.ms-admin-action-danger,
+.ms-admin-error,
+.ms-admin-create-button {
+  color: var(--ms-text-on-accent);
 }
 
 .ms-admin-pill-primary {
@@ -235,8 +243,8 @@
 }
 
 .ms-admin-pill-muted {
-  background: #333;
-  color: var(--ms-text-dim);
+  background: var(--ms-pill-muted-bg);
+  color: var(--ms-pill-muted-text);
 }
 
 .ms-admin-pill-success {
@@ -284,7 +292,8 @@
 }
 
 .ms-admin-action-default {
-  background: #333;
+  background: var(--ms-action-neutral-bg);
+  color: var(--ms-action-neutral-text);
 }
 
 .ms-admin-action-danger {

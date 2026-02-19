@@ -34,13 +34,13 @@
   height: 34px;
   border-radius: 8px;
   background: var(--ms-primary);
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 0 1px rgba(15, 118, 110, 0.35);
 }
 
 .ms-header-brand-text {
@@ -72,15 +72,17 @@
 }
 
 .ms-header-nav-button:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(15, 118, 110, 0.1);
   color: var(--ms-text);
 }
 
 .ms-header-brand:focus-visible,
 .ms-header-nav-button:focus-visible,
+.ms-header-theme-button:focus-visible,
 .ms-header-logout-button:focus-visible,
 .ms-header-hamburger:focus-visible,
 .ms-header-mobile-nav-button:focus-visible,
+.ms-header-mobile-theme-button:focus-visible,
 .ms-header-mobile-logout-button:focus-visible {
   outline: 2px solid var(--ms-primary);
   outline-offset: 2px;
@@ -88,7 +90,7 @@
 
 .ms-header-nav-button-active {
   background: var(--ms-primary);
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
 }
 
 .ms-header-nav-button-admin {
@@ -97,7 +99,30 @@
 }
 
 .ms-header-nav-button-admin.ms-header-nav-button-active {
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
+}
+
+.ms-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ms-header-theme-button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--ms-border);
+  background: transparent;
+  color: var(--ms-text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.ms-header-theme-button:hover {
+  border-color: var(--ms-primary);
+  color: var(--ms-primary);
 }
 
 .ms-header-logout-button {
@@ -159,12 +184,12 @@
 }
 
 .ms-header-mobile-nav-button:active {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(15, 118, 110, 0.1);
 }
 
 .ms-header-mobile-nav-button-active {
   background: var(--ms-primary);
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
 }
 
 .ms-header-mobile-nav-button-admin {
@@ -173,7 +198,13 @@
 }
 
 .ms-header-mobile-nav-button-admin.ms-header-mobile-nav-button-active {
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
+}
+
+.ms-header-mobile-theme-button {
+  border-top: 1px solid var(--ms-border);
+  margin-top: 8px;
+  padding-top: 16px;
 }
 
 .ms-header-mobile-logout-button {
@@ -194,6 +225,10 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .ms-header-nav {
+    display: none;
+  }
+
+  .ms-header-theme-button {
     display: none;
   }
 

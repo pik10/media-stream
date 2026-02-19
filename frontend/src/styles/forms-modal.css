@@ -76,7 +76,7 @@
 .ms-form-success {
   padding: 12px;
   border-radius: var(--ms-radius-sm);
-  color: var(--ms-text);
+  color: var(--ms-text-on-accent);
   font-size: 14px;
 }
 

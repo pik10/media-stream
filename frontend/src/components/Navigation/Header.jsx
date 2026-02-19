@@ -6,6 +6,14 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try {
+      if (document.body.dataset.theme === 'light') return 'light';
+      return localStorage.getItem('ms-theme') === 'light' ? 'light' : 'dark';
+    } catch (e) {
+      return 'dark';
+    }
+  });
 
   // Check if user is admin
   const isAdmin = () => {
@@ -31,6 +39,13 @@ export default function Header() {
   const handleNavClick = (path) => {
     navigate(path);
     setMobileMenuOpen(false);
+  };
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    document.body.dataset.theme = nextTheme;
+    localStorage.setItem('ms-theme', nextTheme);
   };
 
   return (
@@ -76,9 +91,14 @@ export default function Header() {
           )}
         </nav>
 
-        <button onClick={handleLogout} className="ms-header-logout-button">
-          Logout
-        </button>
+        <div className="ms-header-actions">
+          <button onClick={handleToggleTheme} className="ms-header-theme-button">
+            {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+          </button>
+          <button onClick={handleLogout} className="ms-header-logout-button">
+            Logout
+          </button>
+        </div>
 
         {/* Mobile Hamburger Button */}
         <button
@@ -121,6 +141,12 @@ export default function Header() {
               ⚡ Admin
             </button>
           )}
+          <button
+            onClick={handleToggleTheme}
+            className="ms-header-mobile-nav-button ms-header-mobile-theme-button"
+          >
+            {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          </button>
           <button
             onClick={() => {
               handleLogout();
