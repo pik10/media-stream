@@ -98,18 +98,19 @@ router.get('/:libraryId', async (req, res) => {
       ? `${library.path_prefix}/${prefix}`.replace(/\/+/g, '/').replace(/^\//, '')
       : prefix;
 
-    // Get videos from cache
+    // Get all matching videos from cache, then paginate folder-view items below.
     const result = await getCachedVideos(libraryId, {
       s3Client,
       bucket: library.bucket,
       pathPrefix: library.path_prefix || '',
       prefix: fullPrefix,
       search,
-      page: pageNum,
+      page: 1,
       limit: limitNum,
       sort: sortBy,
       order: sortOrder,
-      forceRefresh
+      forceRefresh,
+      paginate: false
     });
 
     // Process for folder structure
@@ -128,19 +129,23 @@ router.get('/:libraryId', async (req, res) => {
       items = [...folders, ...files];
     }
 
+    const totalItems = items.length;
+    const offset = (pageNum - 1) * limitNum;
+    const paginatedItems = items.slice(offset, offset + limitNum);
+
     res.json({
       libraryId,
       prefix,
       search,
       sort: sortBy,
       order: sortOrder,
-      items,
+      items: paginatedItems,
       pagination: {
         page: pageNum,
         limit: limitNum,
-        total: result.total,
-        totalPages: Math.ceil(result.total / limitNum),
-        hasMore: pageNum * limitNum < result.total
+        total: totalItems,
+        totalPages: Math.ceil(totalItems / limitNum),
+        hasMore: pageNum * limitNum < totalItems
       },
       cache: {
         cached: result.cached,

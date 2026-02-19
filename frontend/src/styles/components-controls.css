@@ -92,6 +92,14 @@
   font-size: 14px;
 }
 
+.ms-pagination-button.ms-button-primary {
+  color: #fff;
+}
+
+.ms-pagination-button.ms-button-primary:disabled {
+  opacity: 1;
+}
+
 .ms-pagination-ellipsis {
   padding: 8px;
   color: var(--ms-text-faint);

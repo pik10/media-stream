@@ -8,6 +8,8 @@ import SortSelector from '../components/SortSelector';
 import PageLoading from '../components/UI/PageLoading';
 import PageError from '../components/UI/PageError';
 
+const VIDEOS_PER_LIBRARY = 10;
+
 export default function HomePage() {
   const [allVideos, setAllVideos] = useState([]);
   const [librarySummary, setLibrarySummary] = useState({
@@ -51,7 +53,7 @@ export default function HomePage() {
         try {
           const videoResponse = await videos.list(library.id, {
             search,
-            limit: 12,
+            limit: VIDEOS_PER_LIBRARY,
             page: 1,
             sort,
             order
@@ -220,7 +222,7 @@ export default function HomePage() {
               </div>
 
               <div className="ms-video-grid">
-                {videos.slice(0, 12).map((video, index) => (
+                {videos.slice(0, VIDEOS_PER_LIBRARY).map((video, index) => (
                   <LazyVideoCard
                     key={`${video.libraryId}-${video.key}`}
                     video={video}

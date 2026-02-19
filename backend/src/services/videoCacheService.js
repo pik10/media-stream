@@ -115,7 +115,7 @@ export async function refreshLibraryCache(libraryId, options = {}) {
 /**
  * Get cached videos with search, pagination, and sorting
  * @param {number} libraryId
- * @param {Object} options - { s3Client, bucket, pathPrefix, prefix, search, page, limit, sort, order, forceRefresh }
+ * @param {Object} options - { s3Client, bucket, pathPrefix, prefix, search, page, limit, sort, order, forceRefresh, paginate }
  * @returns {Promise<Object>} { videos: Array, total: number, cached: boolean, cachedAt: string }
  */
 export async function getCachedVideos(libraryId, options = {}) {
@@ -129,7 +129,8 @@ export async function getCachedVideos(libraryId, options = {}) {
     limit = 50,
     sort = 'date',
     order = 'desc',
-    forceRefresh = false
+    forceRefresh = false,
+    paginate = true
   } = options;
 
   // Check cache freshness
@@ -193,16 +194,23 @@ export async function getCachedVideos(libraryId, options = {}) {
       allFilteredVideos.reverse();
     }
 
-    const offset = (page - 1) * limit;
-    videos = allFilteredVideos.slice(offset, offset + limit);
+    if (paginate) {
+      const offset = (page - 1) * limit;
+      videos = allFilteredVideos.slice(offset, offset + limit);
+    } else {
+      videos = allFilteredVideos;
+    }
   } else {
     const sortColumn = {
       'size': 'size',
       'date': 'last_modified'
     }[sort] || 'last_modified';
 
-    sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ? OFFSET ?`;
-    params.push(limit, (page - 1) * limit);
+    sql += ` ORDER BY ${sortColumn} ${sortOrder}`;
+    if (paginate) {
+      sql += ' LIMIT ? OFFSET ?';
+      params.push(limit, (page - 1) * limit);
+    }
 
     videos = measureDbQuery('video_cache.list_filtered', () =>
       db.prepare(sql).all(...params)

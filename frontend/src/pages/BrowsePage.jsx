@@ -24,7 +24,7 @@ export default function BrowsePage() {
   const [refreshStatus, setRefreshStatus] = useState(null);
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 10;
   const refreshPollTimeoutRef = useRef(null);
 
   const currentPrefix = searchParams.get('prefix') || '';
@@ -81,6 +81,12 @@ export default function BrowsePage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (pagination && pagination.totalPages > 0 && currentPage > pagination.totalPages) {
+      setCurrentPage(1);
+    }
+  }, [pagination, currentPage]);
+
   const pollRefreshStatus = async () => {
     try {
       const response = await videos.refreshStatus(libraryId);
@@ -101,6 +107,7 @@ export default function BrowsePage() {
 
   const handleFolderClick = (folderName) => {
     const newPrefix = currentPrefix ? `${currentPrefix}/${folderName}` : folderName;
+    setCurrentPage(1);
     setSearchParams({ prefix: newPrefix });
   };
 
@@ -111,6 +118,7 @@ export default function BrowsePage() {
   };
 
   const handleBreadcrumbClick = (index) => {
+    setCurrentPage(1);
     if (index === -1) {
       setSearchParams({});
     } else {
