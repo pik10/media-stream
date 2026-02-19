@@ -114,14 +114,10 @@
   font-size: 13px;
 }
 
-body[data-theme="light"] .ms-button.ms-button-ghost.ms-header-theme-button:hover {
-  color: var(--ms-text-muted);
-}
-
-body[data-theme="dark"] .ms-button.ms-button-ghost.ms-header-theme-button:hover {
-  background: transparent;
-  border-color: #8b93a1;
-  color: var(--ms-text-muted);
+.ms-button.ms-button-ghost.ms-header-theme-button:hover {
+  background: var(--ms-theme-toggle-hover-bg);
+  border-color: var(--ms-theme-toggle-hover-border);
+  color: var(--ms-theme-toggle-hover-text);
 }
 
 .ms-header-logout-button {

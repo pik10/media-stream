@@ -15,6 +15,9 @@
   --ms-text-on-accent: #fff;
   --ms-primary-text: #fff;
   --ms-outline-button-text: #b0b0b0;
+  --ms-theme-toggle-hover-bg: transparent;
+  --ms-theme-toggle-hover-border: var(--ms-primary);
+  --ms-theme-toggle-hover-text: var(--ms-text-muted);
   --ms-pill-muted-bg: #333;
   --ms-pill-muted-text: #aaa;
   --ms-action-neutral-bg: #e5e7eb;
@@ -63,6 +66,7 @@ body[data-theme="dark"] {
   --ms-action-neutral-hover: #3b4450;
   --ms-menu-hover-bg: #232a33;
   --ms-menu-active-bg: #374151;
+  --ms-theme-toggle-hover-border: #8b93a1;
 }
 
 body[data-theme="light"] {
