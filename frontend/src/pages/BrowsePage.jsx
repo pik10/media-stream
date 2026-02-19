@@ -24,7 +24,7 @@ export default function BrowsePage() {
   const [refreshStatus, setRefreshStatus] = useState(null);
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const ITEMS_PER_PAGE = 50;
+  const ITEMS_PER_PAGE = 20;
   const refreshPollTimeoutRef = useRef(null);
 
   const currentPrefix = searchParams.get('prefix') || '';
