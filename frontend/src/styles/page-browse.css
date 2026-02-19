@@ -19,7 +19,8 @@
   margin-bottom: 10px;
 }
 
-.ms-browse-meta-row {
+.ms-browse-meta-row,
+.ms-browse-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -32,12 +33,6 @@
 
 .ms-browse-meta-text-status {
   color: var(--ms-info);
-}
-
-.ms-browse-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .ms-browse-video-header {
@@ -129,4 +124,3 @@
   margin: 0;
   word-break: break-word;
 }
-

@@ -43,14 +43,21 @@
   padding: 12px;
   border-radius: var(--ms-radius-sm);
   background: var(--ms-danger);
-  color: var(--ms-text);
 }
 
 .ms-admin-card {
+  padding: 24px;
+}
+
+.ms-admin-card,
+.ms-admin-table-wrap,
+.ms-admin-mobile-card,
+.ms-perf-summary-card,
+.ms-refresh-panel,
+.ms-confirm-modal {
   background: var(--ms-bg-surface);
   border: 1px solid var(--ms-border);
   border-radius: var(--ms-radius-md);
-  padding: 24px;
 }
 
 .ms-admin-card-medium {
@@ -70,9 +77,17 @@
   line-height: 1.5;
 }
 
-.ms-admin-toggle-row {
+.ms-admin-toggle-row,
+.ms-admin-users-header,
+.ms-admin-search,
+.ms-password-wrap,
+.ms-perf-footer,
+.ms-stat-card {
   display: flex;
   align-items: center;
+}
+
+.ms-admin-toggle-row {
   gap: 10px;
   cursor: pointer;
   margin-bottom: 16px;
@@ -113,17 +128,13 @@
 }
 
 .ms-admin-users-header {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 20px;
   gap: 10px;
 }
 
 .ms-admin-search {
   flex: 1;
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
 
@@ -167,9 +178,6 @@
 
 .ms-admin-table-wrap {
   overflow-x: auto;
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
 }
 
 .ms-admin-table {
@@ -205,9 +213,24 @@
   cursor: pointer;
 }
 
+.ms-admin-pill-primary,
+.ms-admin-pill-success,
+.ms-admin-pill-danger,
+.ms-admin-action-default,
+.ms-admin-action-danger,
+.ms-admin-error,
+.ms-admin-card-title,
+.ms-admin-mobile-title,
+.ms-confirm-title,
+.ms-perf-section-title,
+.ms-perf-summary-value,
+.ms-admin-icon-button,
+.ms-admin-create-button {
+  color: var(--ms-text);
+}
+
 .ms-admin-pill-primary {
   background: var(--ms-primary);
-  color: var(--ms-text);
   font-weight: 600;
 }
 
@@ -218,13 +241,11 @@
 
 .ms-admin-pill-success {
   background: var(--ms-success);
-  color: var(--ms-text);
   font-weight: 600;
 }
 
 .ms-admin-pill-danger {
   background: var(--ms-danger-strong);
-  color: var(--ms-text);
   font-weight: 600;
 }
 
@@ -264,12 +285,10 @@
 
 .ms-admin-action-default {
   background: #333;
-  color: var(--ms-text);
 }
 
 .ms-admin-action-danger {
   background: var(--ms-danger);
-  color: var(--ms-text);
 }
 
 .ms-admin-empty {
@@ -286,15 +305,11 @@
 }
 
 .ms-admin-mobile-card {
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
   padding: 14px;
 }
 
 .ms-admin-mobile-title {
   margin: 0 0 10px;
-  color: var(--ms-text);
   font-size: 16px;
 }
 
@@ -338,14 +353,11 @@
   width: 90%;
   max-width: 420px;
   padding: 20px;
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
   border-radius: 10px;
 }
 
 .ms-confirm-title {
   margin: 0 0 12px;
-  color: var(--ms-text);
   font-size: 20px;
 }
 
@@ -367,8 +379,6 @@
 
 .ms-password-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .ms-password-wrap .ms-form-input {
@@ -412,9 +422,6 @@
 }
 
 .ms-perf-summary-card {
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
   padding: 16px;
 }
 
@@ -427,7 +434,6 @@
 }
 
 .ms-perf-summary-value {
-  color: var(--ms-text);
   font-size: 24px;
   font-weight: 700;
 }
@@ -438,14 +444,11 @@
 
 .ms-perf-section-title {
   margin: 0 0 12px;
-  color: var(--ms-text);
   font-size: 18px;
 }
 
 .ms-perf-footer {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
   gap: 12px;
 }
 
@@ -466,13 +469,8 @@
 }
 
 .ms-stat-card {
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
   border-left: 4px solid var(--ms-primary);
-  border-radius: var(--ms-radius-md);
   padding: 24px;
-  display: flex;
-  align-items: center;
   gap: 20px;
 }
 
@@ -494,13 +492,8 @@
 }
 
 .ms-refresh-panel {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 20px;
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
 }
 
 .ms-refresh-info {
@@ -508,4 +501,3 @@
   color: var(--ms-text-dim);
   font-size: 14px;
 }
-

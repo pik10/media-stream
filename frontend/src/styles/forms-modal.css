@@ -72,12 +72,16 @@
   font-weight: 400;
 }
 
-.ms-form-error {
+.ms-form-error,
+.ms-form-success {
   padding: 12px;
   border-radius: var(--ms-radius-sm);
-  background: var(--ms-danger);
   color: var(--ms-text);
   font-size: 14px;
+}
+
+.ms-form-error {
+  background: var(--ms-danger);
 }
 
 .ms-form-error-strong {
@@ -87,11 +91,7 @@
 }
 
 .ms-form-success {
-  padding: 12px;
-  border-radius: var(--ms-radius-sm);
   background: var(--ms-success-alt);
-  color: var(--ms-text);
-  font-size: 14px;
 }
 
 .ms-form-actions {
