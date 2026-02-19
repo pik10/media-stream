@@ -17,7 +17,7 @@
   --ms-outline-button-text: #b0b0b0;
   --ms-theme-toggle-hover-bg: transparent;
   --ms-theme-toggle-hover-border: var(--ms-primary);
-  --ms-theme-toggle-hover-text: var(--ms-text-muted);
+  --ms-theme-toggle-hover-text: currentColor;
   --ms-pill-muted-bg: #333;
   --ms-pill-muted-text: #aaa;
   --ms-action-neutral-bg: #e5e7eb;
