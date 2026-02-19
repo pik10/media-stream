@@ -1,17 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { videos } from '../../services/api';
 import Header from '../Navigation/Header';
 
 export default function VideoPlayer() {
   const { libraryId, videoKey } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const videoRef = useRef(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [streamUrl, setStreamUrl] = useState('');
+  const [videoResolution, setVideoResolution] = useState('');
 
   const decodedKey = decodeURIComponent(videoKey);
+  const videoSize = location.state?.videoSize ?? null;
+  const fileName = decodedKey.split('/').pop() || decodedKey;
+  const extension = fileName.includes('.') ? fileName.split('.').pop() : '';
+  const videoTitle = extension ? fileName.slice(0, -(extension.length + 1)) : fileName;
+  const displayTitle = videoTitle.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const videoFormat = extension ? extension.toUpperCase() : 'Unknown';
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +53,22 @@ export default function VideoPlayer() {
     }
   }, [streamUrl]);
 
+  const formatBytes = (bytes) => {
+    if (!bytes) return 'Unknown';
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1024) return `${mb.toFixed(1)} MB`;
+    return `${(mb / 1024).toFixed(1)} GB`;
+  };
+
+  const handleLoadedMetadata = () => {
+    const element = videoRef.current;
+    if (element?.videoWidth && element?.videoHeight) {
+      setVideoResolution(`${element.videoWidth}x${element.videoHeight}`);
+    } else {
+      setVideoResolution('Unknown');
+    }
+  };
+
   const handleLoadedData = () => {
     setLoading(false);
   };
@@ -63,7 +87,7 @@ export default function VideoPlayer() {
           <button onClick={() => navigate(-1)} style={styles.backButton}>
             ← Back
           </button>
-          <div style={styles.videoTitle}>{decodedKey.split('/').pop()}</div>
+          <div style={styles.videoTitle}>{displayTitle || videoTitle}</div>
         </div>
 
         {error && <div style={styles.error}>{error}</div>}
@@ -82,6 +106,7 @@ export default function VideoPlayer() {
             autoPlay
             playsInline
             preload="metadata"
+            onLoadedMetadata={handleLoadedMetadata}
             onLoadedData={handleLoadedData}
             onError={handleError}
           >
@@ -92,12 +117,16 @@ export default function VideoPlayer() {
 
         <div style={styles.info}>
           <div style={styles.infoRow}>
-            <span style={styles.label}>Video Path:</span>
-            <span style={styles.value}>{decodedKey}</span>
+            <span style={styles.label}>Format:</span>
+            <span style={styles.value}>{videoFormat}</span>
           </div>
           <div style={styles.infoRow}>
-            <span style={styles.label}>Library ID:</span>
-            <span style={styles.value}>{libraryId}</span>
+            <span style={styles.label}>Resolution:</span>
+            <span style={styles.value}>{videoResolution || 'Loading...'}</span>
+          </div>
+          <div style={styles.infoRow}>
+            <span style={styles.label}>Size:</span>
+            <span style={styles.value}>{formatBytes(videoSize)}</span>
           </div>
         </div>
       </div>

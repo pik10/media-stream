@@ -105,8 +105,10 @@ export default function BrowsePage() {
     setSearchParams({ prefix: newPrefix });
   };
 
-  const handleVideoClick = (videoKey) => {
-    navigate(`/play/${libraryId}/${encodeURIComponent(videoKey)}`);
+  const handleVideoClick = (video) => {
+    navigate(`/play/${libraryId}/${encodeURIComponent(video.key)}`, {
+      state: { videoSize: video.size ?? null }
+    });
   };
 
   const handleBreadcrumbClick = (index) => {
@@ -263,7 +265,7 @@ export default function BrowsePage() {
                     key={item.key}
                     video={item}
                     index={index}
-                    onClick={() => handleVideoClick(item.key)}
+                    onClick={() => handleVideoClick(item)}
                   />
                 )
               ))}
