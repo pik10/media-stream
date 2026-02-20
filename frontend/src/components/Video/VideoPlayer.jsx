@@ -161,12 +161,6 @@ export default function VideoPlayer() {
             <span className="ms-player-info-label">Format:</span>
             <span className="ms-player-info-value">{videoFormat}</span>
           </div>
-          {videoMetadata?.year && (
-            <div className="ms-player-info-row">
-              <span className="ms-player-info-label">Year:</span>
-              <span className="ms-player-info-value">{videoMetadata.year}</span>
-            </div>
-          )}
           {videoMetadata?.imdbRating && (
             <div className="ms-player-info-row">
               <span className="ms-player-info-label">{ratingLabel}:</span>
