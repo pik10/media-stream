@@ -77,7 +77,7 @@ export default function VideoDetailsPage() {
       <Header />
       <div className="ms-player-page">
         <div
-          className={`ms-player-header ${videoMetadata?.backdropUrl ? 'ms-player-header-backdrop' : ''}`}
+          className={`ms-player-header ${videoMetadata?.backdropUrl ? 'ms-player-header-backdrop ms-video-details-hero' : ''}`}
           style={videoMetadata?.backdropUrl ? { backgroundImage: `url(${videoMetadata.backdropUrl})` } : undefined}
         >
           <button onClick={() => navigate(-1)} className="ms-button ms-button-ghost ms-button-pad-md">

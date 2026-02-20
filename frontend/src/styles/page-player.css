@@ -28,6 +28,20 @@
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.42));
 }
 
+.ms-video-details-hero {
+  width: 100%;
+  min-height: 340px;
+  padding: 24px;
+  align-content: flex-end;
+  background-position: center 20%;
+}
+
+.ms-video-details-hero::before {
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0.7) 58%, rgba(2, 6, 23, 0.95) 100%),
+    linear-gradient(90deg, rgba(2, 6, 23, 0.7) 0%, rgba(2, 6, 23, 0.35) 50%, rgba(2, 6, 23, 0.7) 100%);
+}
+
 .ms-player-header-backdrop > * {
   position: relative;
   z-index: 1;
@@ -260,6 +274,12 @@
 }
 
 @media (max-width: 768px) {
+  .ms-video-details-hero {
+    min-height: 240px;
+    padding: 16px;
+    background-position: center;
+  }
+
   .ms-video-detail-play-image {
     height: 420px;
   }

@@ -225,7 +225,7 @@ export default function HomePage() {
                 </button>
               </div>
 
-              <div className="ms-video-grid">
+              <div className="ms-video-grid ms-home-video-grid">
                 {videos.slice(0, VIDEOS_PER_LIBRARY).map((video, index) => (
                   <LazyVideoCard
                     key={`${video.libraryId}-${video.key}`}
