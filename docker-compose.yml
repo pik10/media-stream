@@ -12,6 +12,14 @@ services:
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - FRONTEND_URL=${FRONTEND_URL}
       - STREAM_TOKEN_EXPIRY=${STREAM_TOKEN_EXPIRY}
+      - METADATA_PROVIDER=${METADATA_PROVIDER}
+      - OMDB_API_KEY=${OMDB_API_KEY}
+      - OMDB_API_BASE=${OMDB_API_BASE}
+      - OMDB_REQUEST_TIMEOUT_MS=${OMDB_REQUEST_TIMEOUT_MS}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - TMDB_API_BASE=${TMDB_API_BASE}
+      - TMDB_IMAGE_BASE=${TMDB_IMAGE_BASE}
+      - TMDB_REQUEST_TIMEOUT_MS=${TMDB_REQUEST_TIMEOUT_MS}
     volumes:
       # Persist database - mount data directory instead of file
       - ./data:/app/data
