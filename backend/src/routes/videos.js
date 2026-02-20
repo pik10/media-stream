@@ -46,7 +46,16 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
         name: relativePath,
         key: video.key,
         size: video.size,
-        lastModified: video.last_modified
+        lastModified: video.last_modified,
+        metadata: {
+          title: video.meta_title || null,
+          year: video.meta_year || null,
+          plot: video.meta_plot || null,
+          posterUrl: video.meta_poster_url || null,
+          imdbRating: video.meta_imdb_rating || null,
+          source: video.meta_source || null,
+          fetchedAt: video.meta_fetched_at || null
+        }
       });
     }
   }

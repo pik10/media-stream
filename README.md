@@ -26,6 +26,7 @@ A secure, full-stack web application for streaming videos from S3-compatible sto
 - **Large File Support** - Stream videos of any size without memory issues
 - **Multiple Formats** - MP4, MKV, WebM, AVI, MOV, and more
 - **S3 Compatibility** - Works with AWS S3, MinIO, Garage, and other S3-compatible storage
+- **Optional Movie Metadata** - Pulls title/year/poster/plot/IMDb rating from OMDb when configured
 
 ### 📚 Library Management
 - **Multi-Library Support** - Connect to multiple S3 buckets
@@ -89,6 +90,9 @@ See **[DOCKER_QUICK_START.md](DOCKER_QUICK_START.md)** for detailed Docker deplo
    STREAM_TOKEN_EXPIRY=5m
    S3_RETRY_ATTEMPTS=3
    S3_RETRY_BASE_DELAY_MS=120
+   OMDB_API_KEY=your-omdb-api-key-optional
+   OMDB_API_BASE=https://www.omdbapi.com/
+   OMDB_REQUEST_TIMEOUT_MS=5000
    ```
 
 3. **Start backend**

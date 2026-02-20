@@ -113,7 +113,10 @@ export default function BrowsePage() {
 
   const handleVideoClick = (video) => {
     navigate(`/play/${libraryId}/${encodeURIComponent(video.key)}`, {
-      state: { videoSize: video.size ?? null }
+      state: {
+        videoSize: video.size ?? null,
+        metadata: video.metadata ?? null
+      }
     });
   };
 

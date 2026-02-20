@@ -60,6 +60,25 @@
   border: 1px solid var(--ms-border);
 }
 
+.ms-player-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ms-player-poster {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--ms-radius-md);
+}
+
+.ms-player-plot {
+  color: var(--ms-text-soft);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
 .ms-player-info-row {
   display: flex;
   gap: 12px;
@@ -78,3 +97,13 @@
   word-break: break-all;
 }
 
+@media (max-width: 768px) {
+  .ms-player-meta {
+    flex-direction: column;
+  }
+
+  .ms-player-poster {
+    width: 160px;
+    height: 240px;
+  }
+}

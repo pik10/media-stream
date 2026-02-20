@@ -15,11 +15,13 @@ export default function VideoPlayer() {
 
   const decodedKey = decodeURIComponent(videoKey);
   const videoSize = location.state?.videoSize ?? null;
+  const videoMetadata = location.state?.metadata ?? null;
   const fileName = decodedKey.split('/').pop() || decodedKey;
   const extension = fileName.includes('.') ? fileName.split('.').pop() : '';
   const videoTitle = extension ? fileName.slice(0, -(extension.length + 1)) : fileName;
   const displayTitle = videoTitle.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   const videoFormat = extension ? extension.toUpperCase() : 'Unknown';
+  const resolvedTitle = videoMetadata?.title || displayTitle || videoTitle;
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +89,7 @@ export default function VideoPlayer() {
           <button onClick={() => navigate(-1)} className="ms-button ms-button-ghost ms-button-pad-md">
             ← Back
           </button>
-          <div className="ms-player-title">{displayTitle || videoTitle}</div>
+          <div className="ms-player-title">{resolvedTitle}</div>
         </div>
 
         {error && <div className="ms-form-error ms-mb-20">{error}</div>}
@@ -116,10 +118,39 @@ export default function VideoPlayer() {
         </div>
 
         <div className="ms-player-info">
+          {(videoMetadata?.posterUrl || videoMetadata?.plot) && (
+            <div className="ms-player-meta">
+              {videoMetadata?.posterUrl && (
+                <img
+                  src={videoMetadata.posterUrl}
+                  alt={`${resolvedTitle} poster`}
+                  className="ms-player-poster"
+                  loading="lazy"
+                />
+              )}
+              {videoMetadata?.plot && (
+                <div className="ms-player-plot">
+                  {videoMetadata.plot}
+                </div>
+              )}
+            </div>
+          )}
           <div className="ms-player-info-row">
             <span className="ms-player-info-label">Format:</span>
             <span className="ms-player-info-value">{videoFormat}</span>
           </div>
+          {videoMetadata?.year && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Year:</span>
+              <span className="ms-player-info-value">{videoMetadata.year}</span>
+            </div>
+          )}
+          {videoMetadata?.imdbRating && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">IMDb:</span>
+              <span className="ms-player-info-value">{videoMetadata.imdbRating}</span>
+            </div>
+          )}
           <div className="ms-player-info-row">
             <span className="ms-player-info-label">Resolution:</span>
             <span className="ms-player-info-value">{videoResolution || 'Loading...'}</span>

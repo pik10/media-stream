@@ -57,6 +57,13 @@ const schema = `
     key TEXT NOT NULL,
     size INTEGER,
     last_modified DATETIME,
+    meta_title TEXT,
+    meta_year INTEGER,
+    meta_plot TEXT,
+    meta_poster_url TEXT,
+    meta_imdb_rating REAL,
+    meta_source TEXT,
+    meta_fetched_at DATETIME,
     cached_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE,
     UNIQUE(library_id, key)
@@ -116,6 +123,38 @@ try {
   if (!libraryColumns.includes('show_on_home')) {
     db.exec('ALTER TABLE libraries ADD COLUMN show_on_home BOOLEAN DEFAULT 1');
     console.log('Added libraries.show_on_home column');
+  }
+
+  // Add video_cache metadata columns if missing
+  const videoCacheTableInfo = db.pragma('table_info(video_cache)');
+  const videoCacheColumns = videoCacheTableInfo.map(col => col.name);
+  if (!videoCacheColumns.includes('meta_title')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_title TEXT');
+    console.log('Added video_cache.meta_title column');
+  }
+  if (!videoCacheColumns.includes('meta_year')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_year INTEGER');
+    console.log('Added video_cache.meta_year column');
+  }
+  if (!videoCacheColumns.includes('meta_plot')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_plot TEXT');
+    console.log('Added video_cache.meta_plot column');
+  }
+  if (!videoCacheColumns.includes('meta_poster_url')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_poster_url TEXT');
+    console.log('Added video_cache.meta_poster_url column');
+  }
+  if (!videoCacheColumns.includes('meta_imdb_rating')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_imdb_rating REAL');
+    console.log('Added video_cache.meta_imdb_rating column');
+  }
+  if (!videoCacheColumns.includes('meta_source')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_source TEXT');
+    console.log('Added video_cache.meta_source column');
+  }
+  if (!videoCacheColumns.includes('meta_fetched_at')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_fetched_at DATETIME');
+    console.log('Added video_cache.meta_fetched_at column');
   }
 
   // Create user_activity table

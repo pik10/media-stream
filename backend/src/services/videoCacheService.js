@@ -1,6 +1,7 @@
 import db from '../config/database.js';
 import { listObjects, isVideoFile } from './s3Service.js';
 import { measureDbQuery, recordCacheHit, recordCacheMiss } from './metricsService.js';
+import { lookupMetadataForVideoKey } from './metadataService.js';
 
 /**
  * Video Cache Service
@@ -66,13 +67,31 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
 
   // Filter to video files only using existing s3Service.isVideoFile()
   const videos = objects.filter(obj => isVideoFile(obj.Key));
+  const metadataByKey = new Map();
+
+  for (const video of videos) {
+    metadataByKey.set(video.Key, await lookupMetadataForVideoKey(video.Key));
+  }
 
   console.log(`Found ${videos.length} videos in S3 for library ${libraryId}`);
 
   // Update cache with transaction
   const insert = db.prepare(`
-    INSERT OR REPLACE INTO video_cache (library_id, key, size, last_modified, cached_at)
-    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+    INSERT OR REPLACE INTO video_cache (
+      library_id,
+      key,
+      size,
+      last_modified,
+      meta_title,
+      meta_year,
+      meta_plot,
+      meta_poster_url,
+      meta_imdb_rating,
+      meta_source,
+      meta_fetched_at,
+      cached_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
   `);
 
   const transaction = db.transaction((videos) => {
@@ -81,7 +100,20 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
 
     // Insert new entries
     for (const video of videos) {
-      insert.run(libraryId, video.Key, video.Size, video.LastModified.toISOString());
+      const metadata = metadataByKey.get(video.Key) || null;
+      insert.run(
+        libraryId,
+        video.Key,
+        video.Size,
+        video.LastModified.toISOString(),
+        metadata?.title || null,
+        metadata?.year || null,
+        metadata?.plot || null,
+        metadata?.posterUrl || null,
+        metadata?.imdbRating || null,
+        metadata?.source || null,
+        metadata ? new Date().toISOString() : null
+      );
     }
   });
 
