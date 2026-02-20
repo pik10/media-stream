@@ -115,7 +115,8 @@ export default function BrowsePage() {
     navigate(`/play/${libraryId}/${encodeURIComponent(video.key)}`, {
       state: {
         videoSize: video.size ?? null,
-        metadata: video.metadata ?? null
+        metadata: video.metadata ?? null,
+        videoAddedAt: video.lastModified ?? video.modifiedAt ?? video.updated_at ?? null
       }
     });
   };

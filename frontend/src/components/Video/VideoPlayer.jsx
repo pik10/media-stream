@@ -15,6 +15,7 @@ export default function VideoPlayer() {
 
   const decodedKey = decodeURIComponent(videoKey);
   const videoSize = location.state?.videoSize ?? null;
+  const videoAddedAt = location.state?.videoAddedAt ?? null;
   const videoMetadata = location.state?.metadata ?? null;
   const fileName = decodedKey.split('/').pop() || decodedKey;
   const extension = fileName.includes('.') ? fileName.split('.').pop() : '';
@@ -184,6 +185,12 @@ export default function VideoPlayer() {
             <div className="ms-player-info-row">
               <span className="ms-player-info-label">Runtime:</span>
               <span className="ms-player-info-value">{videoMetadata.runtimeMinutes} min</span>
+            </div>
+          )}
+          {videoAddedAt && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Added:</span>
+              <span className="ms-player-info-value">{formatReleaseDate(videoAddedAt)}</span>
             </div>
           )}
           {videoMetadata?.certification && (
