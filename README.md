@@ -6,6 +6,8 @@ A secure, full-stack web application for streaming videos from S3-compatible sto
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue)](https://www.docker.com/)
 
+![Media Stream](docs/images/media-stream1.jpg)
+
 ## ✨ Features
 
 ### 🔐 Security First
