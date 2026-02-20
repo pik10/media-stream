@@ -33,11 +33,43 @@
   z-index: 1;
 }
 
+.ms-player-header-backdrop .ms-player-title {
+  color: #f9fafb;
+}
+
+.ms-player-header-backdrop .ms-player-tagline {
+  color: #e5e7eb;
+}
+
+.ms-player-header-backdrop .ms-player-genre-chip {
+  color: #f3f4f6;
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(17, 24, 39, 0.58);
+}
+
+.ms-player-header-backdrop .ms-button-ghost {
+  color: #f9fafb;
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(17, 24, 39, 0.35);
+}
+
+.ms-player-header-backdrop .ms-button-ghost:hover {
+  border-color: #f9fafb;
+  background: rgba(17, 24, 39, 0.55);
+}
+
 .ms-player-title {
   font-size: 20px;
   color: var(--ms-text-soft);
   font-weight: 500;
   word-break: break-word;
+}
+
+.ms-player-tagline {
+  width: 100%;
+  color: var(--ms-text-subtle);
+  font-size: 14px;
+  font-style: italic;
 }
 
 .ms-player-genres {

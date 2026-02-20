@@ -34,6 +34,7 @@ export default function VideoPlayer() {
     return new Intl.NumberFormat().format(count);
   };
   const genres = Array.isArray(videoMetadata?.genres) ? videoMetadata.genres : [];
+  const cast = Array.isArray(videoMetadata?.cast) ? videoMetadata.cast : [];
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +106,9 @@ export default function VideoPlayer() {
             ← Back
           </button>
           <div className="ms-player-title">{resolvedTitle}</div>
+          {videoMetadata?.tagline && (
+            <div className="ms-player-tagline">"{videoMetadata.tagline}"</div>
+          )}
           {genres.length > 0 && (
             <div className="ms-player-genres">
               {genres.slice(0, 4).map((genre) => (
@@ -180,6 +184,24 @@ export default function VideoPlayer() {
             <div className="ms-player-info-row">
               <span className="ms-player-info-label">Runtime:</span>
               <span className="ms-player-info-value">{videoMetadata.runtimeMinutes} min</span>
+            </div>
+          )}
+          {videoMetadata?.certification && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Certification:</span>
+              <span className="ms-player-info-value">{videoMetadata.certification}</span>
+            </div>
+          )}
+          {videoMetadata?.director && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Director:</span>
+              <span className="ms-player-info-value">{videoMetadata.director}</span>
+            </div>
+          )}
+          {cast.length > 0 && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Cast:</span>
+              <span className="ms-player-info-value">{cast.slice(0, 5).join(', ')}</span>
             </div>
           )}
           <div className="ms-player-info-row">

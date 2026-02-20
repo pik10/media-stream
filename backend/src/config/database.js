@@ -67,6 +67,10 @@ const schema = `
     meta_release_date TEXT,
     meta_runtime_minutes INTEGER,
     meta_genres_json TEXT,
+    meta_cast_json TEXT,
+    meta_director TEXT,
+    meta_certification TEXT,
+    meta_tagline TEXT,
     meta_source TEXT,
     meta_fetched_at DATETIME,
     cached_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -172,6 +176,22 @@ try {
   if (!videoCacheColumns.includes('meta_genres_json')) {
     db.exec('ALTER TABLE video_cache ADD COLUMN meta_genres_json TEXT');
     console.log('Added video_cache.meta_genres_json column');
+  }
+  if (!videoCacheColumns.includes('meta_cast_json')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_cast_json TEXT');
+    console.log('Added video_cache.meta_cast_json column');
+  }
+  if (!videoCacheColumns.includes('meta_director')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_director TEXT');
+    console.log('Added video_cache.meta_director column');
+  }
+  if (!videoCacheColumns.includes('meta_certification')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_certification TEXT');
+    console.log('Added video_cache.meta_certification column');
+  }
+  if (!videoCacheColumns.includes('meta_tagline')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_tagline TEXT');
+    console.log('Added video_cache.meta_tagline column');
   }
   if (!videoCacheColumns.includes('meta_source')) {
     db.exec('ALTER TABLE video_cache ADD COLUMN meta_source TEXT');

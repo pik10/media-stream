@@ -7,6 +7,18 @@ function normalizeWhitespace(value) {
   return `${value || ''}`.replace(/\s+/g, ' ').trim();
 }
 
+function parseDateToIsoDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString().slice(0, 10);
+}
+
+function parseDelimitedList(value) {
+  if (!value || value === 'N/A') return [];
+  return value.split(',').map((entry) => normalizeWhitespace(entry)).filter(Boolean);
+}
+
 function stripNoiseFromName(fileName) {
   let cleaned = fileName
     .replace(/\.[^/.]+$/, '')
@@ -59,12 +71,15 @@ function mapOmdbResult(result) {
   const voteCount = parseInt(`${result.imdbVotes || ''}`.replace(/,/g, ''), 10);
   const posterUrl = result.Poster && result.Poster !== 'N/A' ? result.Poster : null;
   const plot = result.Plot && result.Plot !== 'N/A' ? result.Plot : null;
-  const releaseDate = result.Released && result.Released !== 'N/A'
-    ? new Date(result.Released).toISOString().slice(0, 10)
+  const releaseDate = parseDateToIsoDate(result.Released);
+  const genres = parseDelimitedList(result.Genre);
+  const cast = parseDelimitedList(result.Actors);
+  const director = result.Director && result.Director !== 'N/A'
+    ? normalizeWhitespace(result.Director)
     : null;
-  const genres = result.Genre && result.Genre !== 'N/A'
-    ? result.Genre.split(',').map((g) => normalizeWhitespace(g)).filter(Boolean)
-    : [];
+  const certification = result.Rated && result.Rated !== 'N/A'
+    ? normalizeWhitespace(result.Rated)
+    : null;
 
   return {
     title: result.Title || null,
@@ -76,9 +91,29 @@ function mapOmdbResult(result) {
     releaseDate,
     runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
     genres,
+    cast,
+    director,
+    certification,
+    tagline: null,
     backdropUrl: null,
     source: 'omdb'
   };
+}
+
+function getTmdbCertification(releaseDatesPayload) {
+  const results = Array.isArray(releaseDatesPayload?.results) ? releaseDatesPayload.results : [];
+  const usEntry = results.find((entry) => entry?.iso_3166_1 === 'US');
+  const preferredEntries = usEntry ? [usEntry, ...results.filter((entry) => entry !== usEntry)] : results;
+
+  for (const entry of preferredEntries) {
+    const releases = Array.isArray(entry?.release_dates) ? entry.release_dates : [];
+    const match = releases.find((item) => normalizeWhitespace(item?.certification));
+    if (match?.certification) {
+      return normalizeWhitespace(match.certification);
+    }
+  }
+
+  return null;
 }
 
 function mapTmdbResult(result) {
@@ -94,6 +129,15 @@ function mapTmdbResult(result) {
   const genres = Array.isArray(result.genres)
     ? result.genres.map((genre) => normalizeWhitespace(genre?.name)).filter(Boolean)
     : [];
+  const cast = Array.isArray(result?.credits?.cast)
+    ? result.credits.cast.map((member) => normalizeWhitespace(member?.name)).filter(Boolean).slice(0, 5)
+    : [];
+  const directorCrew = Array.isArray(result?.credits?.crew)
+    ? result.credits.crew.find((member) => normalizeWhitespace(member?.job) === 'Director')
+    : null;
+  const director = normalizeWhitespace(directorCrew?.name) || null;
+  const certification = getTmdbCertification(result.release_dates);
+  const tagline = normalizeWhitespace(result.tagline) || null;
 
   return {
     title: result.title || null,
@@ -105,6 +149,10 @@ function mapTmdbResult(result) {
     releaseDate,
     runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
     genres,
+    cast,
+    director,
+    certification,
+    tagline,
     backdropUrl: result.backdrop_path ? `${tmdbImageBase}${result.backdrop_path}` : null,
     source: 'tmdb'
   };
@@ -149,6 +197,7 @@ async function fetchFromTmdb(parsed) {
 
   const detailsUrl = new URL(`/3/movie/${firstResult.id}`, tmdbApiBase);
   detailsUrl.searchParams.set('api_key', process.env.TMDB_API_KEY);
+  detailsUrl.searchParams.set('append_to_response', 'credits,release_dates');
   const details = await fetchJsonWithTimeout(detailsUrl.toString(), tmdbRequestTimeoutMs);
   return mapTmdbResult(details);
 }

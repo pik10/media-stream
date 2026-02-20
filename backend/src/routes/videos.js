@@ -58,6 +58,10 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
           releaseDate: video.meta_release_date || null,
           runtimeMinutes: video.meta_runtime_minutes || null,
           genres: parseGenres(video.meta_genres_json),
+          cast: parseList(video.meta_cast_json),
+          director: video.meta_director || null,
+          certification: video.meta_certification || null,
+          tagline: video.meta_tagline || null,
           source: video.meta_source || null,
           fetchedAt: video.meta_fetched_at || null
         }
@@ -77,7 +81,7 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
   return items;
 }
 
-function parseGenres(value) {
+function parseList(value) {
   if (!value) return [];
   try {
     const parsed = JSON.parse(value);
@@ -85,6 +89,10 @@ function parseGenres(value) {
   } catch {
     return [];
   }
+}
+
+function parseGenres(value) {
+  return parseList(value);
 }
 
 /**

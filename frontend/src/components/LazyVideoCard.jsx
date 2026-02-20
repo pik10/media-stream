@@ -27,16 +27,15 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
   const displayDate = formatDate(video.lastModified || video.modifiedAt || video.updated_at);
   const hasMeta = Boolean(video.size || displayDate);
   const displayTitle = metadata?.title || formatDisplayName(video.name) || video.name;
+  const displayYear = metadata?.releaseDate ? new Date(metadata.releaseDate).getFullYear() : metadata?.year;
   const ratingLabel = metadata?.source === 'tmdb' ? 'TMDB' : 'IMDb';
   const formatVoteCount = (count) => {
     if (!count) return '';
-    return `${new Intl.NumberFormat().format(count)} votes`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
+    return `${count}`;
   };
-  const subtitleParts = [
-    metadata?.year,
-    metadata?.imdbRating ? `${ratingLabel} ${metadata.imdbRating}` : null,
-    metadata?.voteCount ? formatVoteCount(metadata.voteCount) : null
-  ].filter(Boolean);
+  const genres = Array.isArray(metadata?.genres) ? metadata.genres : [];
+  const runtime = metadata?.runtimeMinutes ? `${metadata.runtimeMinutes} min` : null;
 
   return (
     <div ref={ref} className="ms-video-card-wrap">
@@ -66,6 +65,21 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
                 <polygon points="28,24 28,40 42,32" fill="var(--ms-video-icon-inner-play)" />
               </svg>
             )}
+            {metadata?.certification && (
+              <div className="ms-video-card-badge ms-video-card-badge-left">
+                {metadata.certification}
+              </div>
+            )}
+            {metadata?.imdbRating && (
+              <div className="ms-video-card-badge ms-video-card-badge-right">
+                {ratingLabel} {metadata.imdbRating}
+                {metadata?.voteCount ? ` • ${formatVoteCount(metadata.voteCount)}` : ''}
+              </div>
+            )}
+            <div className="ms-video-card-overlay">
+              <div className="ms-video-card-overlay-title">{displayTitle}</div>
+              {displayYear && <div className="ms-video-card-overlay-subtitle">{displayYear}</div>}
+            </div>
             <div className="ms-video-card-play">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <polygon points="8,5 8,19 19,12" fill="currentColor" />
@@ -73,9 +87,10 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
             </div>
           </div>
           <div className="ms-video-card-info">
-            <div className="ms-video-card-title">{displayTitle}</div>
-            {subtitleParts.length > 0 && (
-              <div className="ms-video-card-subtitle">{subtitleParts.join(' • ')}</div>
+            {(runtime || genres.length > 0) && (
+              <div className="ms-video-card-subtitle">
+                {[runtime, ...genres.slice(0, 2)].filter(Boolean).join(' • ')}
+              </div>
             )}
             {hasMeta && (
               <div className="ms-video-card-meta">

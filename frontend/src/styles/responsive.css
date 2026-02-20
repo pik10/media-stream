@@ -44,12 +44,12 @@
   }
 
   .ms-video-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 14px;
   }
 
   .ms-video-card-wrap {
-    min-height: 170px;
+    min-height: 190px;
   }
 
   .ms-video-card-info,
@@ -172,6 +172,32 @@
   .ms-folder-title {
     font-size: 12px;
     line-height: 1.25;
+  }
+
+  .ms-video-card-badge {
+    top: 6px;
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .ms-video-card-badge-left {
+    left: 6px;
+  }
+
+  .ms-video-card-badge-right {
+    right: 6px;
+  }
+
+  .ms-video-card-overlay {
+    padding: 26px 8px 8px;
+  }
+
+  .ms-video-card-overlay-title {
+    font-size: 12px;
+  }
+
+  .ms-video-card-overlay-subtitle {
+    font-size: 11px;
   }
 
   .ms-video-card-size {
