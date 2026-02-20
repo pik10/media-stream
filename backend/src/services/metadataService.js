@@ -55,8 +55,16 @@ function mapOmdbResult(result) {
 
   const year = parseInt(result.Year, 10);
   const imdbRating = parseFloat(result.imdbRating);
+  const runtime = parseInt(`${result.Runtime || ''}`.replace(/[^\d]/g, ''), 10);
+  const voteCount = parseInt(`${result.imdbVotes || ''}`.replace(/,/g, ''), 10);
   const posterUrl = result.Poster && result.Poster !== 'N/A' ? result.Poster : null;
   const plot = result.Plot && result.Plot !== 'N/A' ? result.Plot : null;
+  const releaseDate = result.Released && result.Released !== 'N/A'
+    ? new Date(result.Released).toISOString().slice(0, 10)
+    : null;
+  const genres = result.Genre && result.Genre !== 'N/A'
+    ? result.Genre.split(',').map((g) => normalizeWhitespace(g)).filter(Boolean)
+    : [];
 
   return {
     title: result.Title || null,
@@ -64,6 +72,11 @@ function mapOmdbResult(result) {
     plot,
     posterUrl,
     imdbRating: Number.isNaN(imdbRating) ? null : imdbRating,
+    voteCount: Number.isNaN(voteCount) ? null : voteCount,
+    releaseDate,
+    runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
+    genres,
+    backdropUrl: null,
     source: 'omdb'
   };
 }
@@ -75,6 +88,12 @@ function mapTmdbResult(result) {
   const yearMatch = `${result.release_date || ''}`.match(/^\d{4}/);
   const year = yearMatch ? parseInt(yearMatch[0], 10) : null;
   const rating = Number(result.vote_average);
+  const releaseDate = result.release_date || null;
+  const runtime = Number(result.runtime);
+  const voteCount = Number(result.vote_count);
+  const genres = Array.isArray(result.genres)
+    ? result.genres.map((genre) => normalizeWhitespace(genre?.name)).filter(Boolean)
+    : [];
 
   return {
     title: result.title || null,
@@ -82,6 +101,11 @@ function mapTmdbResult(result) {
     plot: result.overview || null,
     posterUrl: result.poster_path ? `${tmdbImageBase}${result.poster_path}` : null,
     imdbRating: Number.isNaN(rating) ? null : Number(rating.toFixed(1)),
+    voteCount: Number.isNaN(voteCount) ? null : voteCount,
+    releaseDate,
+    runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
+    genres,
+    backdropUrl: result.backdrop_path ? `${tmdbImageBase}${result.backdrop_path}` : null,
     source: 'tmdb'
   };
 }
@@ -121,7 +145,12 @@ async function fetchFromTmdb(parsed) {
 
   const data = await fetchJsonWithTimeout(url.toString(), tmdbRequestTimeoutMs);
   const firstResult = Array.isArray(data?.results) ? data.results[0] : null;
-  return mapTmdbResult(firstResult);
+  if (!firstResult?.id) return null;
+
+  const detailsUrl = new URL(`/3/movie/${firstResult.id}`, tmdbApiBase);
+  detailsUrl.searchParams.set('api_key', process.env.TMDB_API_KEY);
+  const details = await fetchJsonWithTimeout(detailsUrl.toString(), tmdbRequestTimeoutMs);
+  return mapTmdbResult(details);
 }
 
 export async function lookupMetadataForVideoKey(videoKey) {

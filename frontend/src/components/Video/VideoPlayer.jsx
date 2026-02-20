@@ -23,6 +23,17 @@ export default function VideoPlayer() {
   const videoFormat = extension ? extension.toUpperCase() : 'Unknown';
   const resolvedTitle = videoMetadata?.title || displayTitle || videoTitle;
   const ratingLabel = videoMetadata?.source === 'tmdb' ? 'TMDB' : 'IMDb';
+  const formatReleaseDate = (value) => {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return d.toLocaleDateString();
+  };
+  const formatVoteCount = (count) => {
+    if (!count) return '';
+    return new Intl.NumberFormat().format(count);
+  };
+  const genres = Array.isArray(videoMetadata?.genres) ? videoMetadata.genres : [];
 
   useEffect(() => {
     let cancelled = false;
@@ -86,11 +97,21 @@ export default function VideoPlayer() {
     <>
       <Header />
       <div className="ms-player-page">
-        <div className="ms-player-header">
+        <div
+          className={`ms-player-header ${videoMetadata?.backdropUrl ? 'ms-player-header-backdrop' : ''}`}
+          style={videoMetadata?.backdropUrl ? { backgroundImage: `url(${videoMetadata.backdropUrl})` } : undefined}
+        >
           <button onClick={() => navigate(-1)} className="ms-button ms-button-ghost ms-button-pad-md">
             ← Back
           </button>
           <div className="ms-player-title">{resolvedTitle}</div>
+          {genres.length > 0 && (
+            <div className="ms-player-genres">
+              {genres.slice(0, 4).map((genre) => (
+                <span key={genre} className="ms-player-genre-chip">{genre}</span>
+              ))}
+            </div>
+          )}
         </div>
 
         {error && <div className="ms-form-error ms-mb-20">{error}</div>}
@@ -149,7 +170,22 @@ export default function VideoPlayer() {
           {videoMetadata?.imdbRating && (
             <div className="ms-player-info-row">
               <span className="ms-player-info-label">{ratingLabel}:</span>
-              <span className="ms-player-info-value">{videoMetadata.imdbRating}</span>
+              <span className="ms-player-info-value">
+                {videoMetadata.imdbRating}
+                {videoMetadata?.voteCount ? ` (${formatVoteCount(videoMetadata.voteCount)} votes)` : ''}
+              </span>
+            </div>
+          )}
+          {videoMetadata?.releaseDate && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Release Date:</span>
+              <span className="ms-player-info-value">{formatReleaseDate(videoMetadata.releaseDate)}</span>
+            </div>
+          )}
+          {videoMetadata?.runtimeMinutes && (
+            <div className="ms-player-info-row">
+              <span className="ms-player-info-label">Runtime:</span>
+              <span className="ms-player-info-value">{videoMetadata.runtimeMinutes} min</span>
             </div>
           )}
           <div className="ms-player-info-row">

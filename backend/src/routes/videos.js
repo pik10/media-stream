@@ -52,7 +52,12 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
           year: video.meta_year || null,
           plot: video.meta_plot || null,
           posterUrl: video.meta_poster_url || null,
+          backdropUrl: video.meta_backdrop_url || null,
           imdbRating: video.meta_imdb_rating || null,
+          voteCount: video.meta_vote_count || null,
+          releaseDate: video.meta_release_date || null,
+          runtimeMinutes: video.meta_runtime_minutes || null,
+          genres: parseGenres(video.meta_genres_json),
           source: video.meta_source || null,
           fetchedAt: video.meta_fetched_at || null
         }
@@ -70,6 +75,16 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
   });
 
   return items;
+}
+
+function parseGenres(value) {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 /**

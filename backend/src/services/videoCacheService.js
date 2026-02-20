@@ -86,12 +86,17 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
       meta_year,
       meta_plot,
       meta_poster_url,
+      meta_backdrop_url,
       meta_imdb_rating,
+      meta_vote_count,
+      meta_release_date,
+      meta_runtime_minutes,
+      meta_genres_json,
       meta_source,
       meta_fetched_at,
       cached_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
   `);
 
   const transaction = db.transaction((videos) => {
@@ -110,7 +115,12 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
         metadata?.year || null,
         metadata?.plot || null,
         metadata?.posterUrl || null,
+        metadata?.backdropUrl || null,
         metadata?.imdbRating || null,
+        metadata?.voteCount || null,
+        metadata?.releaseDate || null,
+        metadata?.runtimeMinutes || null,
+        metadata?.genres ? JSON.stringify(metadata.genres) : null,
         metadata?.source || null,
         metadata ? new Date().toISOString() : null
       );

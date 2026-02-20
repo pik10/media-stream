@@ -61,7 +61,12 @@ const schema = `
     meta_year INTEGER,
     meta_plot TEXT,
     meta_poster_url TEXT,
+    meta_backdrop_url TEXT,
     meta_imdb_rating REAL,
+    meta_vote_count INTEGER,
+    meta_release_date TEXT,
+    meta_runtime_minutes INTEGER,
+    meta_genres_json TEXT,
     meta_source TEXT,
     meta_fetched_at DATETIME,
     cached_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -144,9 +149,29 @@ try {
     db.exec('ALTER TABLE video_cache ADD COLUMN meta_poster_url TEXT');
     console.log('Added video_cache.meta_poster_url column');
   }
+  if (!videoCacheColumns.includes('meta_backdrop_url')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_backdrop_url TEXT');
+    console.log('Added video_cache.meta_backdrop_url column');
+  }
   if (!videoCacheColumns.includes('meta_imdb_rating')) {
     db.exec('ALTER TABLE video_cache ADD COLUMN meta_imdb_rating REAL');
     console.log('Added video_cache.meta_imdb_rating column');
+  }
+  if (!videoCacheColumns.includes('meta_vote_count')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_vote_count INTEGER');
+    console.log('Added video_cache.meta_vote_count column');
+  }
+  if (!videoCacheColumns.includes('meta_release_date')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_release_date TEXT');
+    console.log('Added video_cache.meta_release_date column');
+  }
+  if (!videoCacheColumns.includes('meta_runtime_minutes')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_runtime_minutes INTEGER');
+    console.log('Added video_cache.meta_runtime_minutes column');
+  }
+  if (!videoCacheColumns.includes('meta_genres_json')) {
+    db.exec('ALTER TABLE video_cache ADD COLUMN meta_genres_json TEXT');
+    console.log('Added video_cache.meta_genres_json column');
   }
   if (!videoCacheColumns.includes('meta_source')) {
     db.exec('ALTER TABLE video_cache ADD COLUMN meta_source TEXT');
