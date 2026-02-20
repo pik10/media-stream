@@ -27,7 +27,8 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
   const displayDate = formatDate(video.lastModified || video.modifiedAt || video.updated_at);
   const hasMeta = Boolean(video.size || displayDate);
   const displayTitle = metadata?.title || formatDisplayName(video.name) || video.name;
-  const subtitleParts = [metadata?.year, metadata?.imdbRating ? `IMDb ${metadata.imdbRating}` : null].filter(Boolean);
+  const ratingLabel = metadata?.source === 'tmdb' ? 'TMDB' : 'IMDb';
+  const subtitleParts = [metadata?.year, metadata?.imdbRating ? `${ratingLabel} ${metadata.imdbRating}` : null].filter(Boolean);
 
   return (
     <div ref={ref} className="ms-video-card-wrap">

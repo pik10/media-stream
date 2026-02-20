@@ -22,6 +22,7 @@ export default function VideoPlayer() {
   const displayTitle = videoTitle.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   const videoFormat = extension ? extension.toUpperCase() : 'Unknown';
   const resolvedTitle = videoMetadata?.title || displayTitle || videoTitle;
+  const ratingLabel = videoMetadata?.source === 'tmdb' ? 'TMDB' : 'IMDb';
 
   useEffect(() => {
     let cancelled = false;
@@ -147,7 +148,7 @@ export default function VideoPlayer() {
           )}
           {videoMetadata?.imdbRating && (
             <div className="ms-player-info-row">
-              <span className="ms-player-info-label">IMDb:</span>
+              <span className="ms-player-info-label">{ratingLabel}:</span>
               <span className="ms-player-info-value">{videoMetadata.imdbRating}</span>
             </div>
           )}
