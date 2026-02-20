@@ -125,7 +125,7 @@ async function refreshCache(libraryId, s3Client, bucket, pathPrefix = '') {
         metadata?.releaseDate || null,
         metadata?.runtimeMinutes || null,
         metadata?.genres ? JSON.stringify(metadata.genres) : null,
-        metadata?.cast ? JSON.stringify(metadata.cast) : null,
+        (metadata?.castPeople || metadata?.cast) ? JSON.stringify(metadata.castPeople || metadata.cast) : null,
         metadata?.director || null,
         metadata?.certification || null,
         metadata?.tagline || null,

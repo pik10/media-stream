@@ -123,6 +123,57 @@
   display: block;
 }
 
+.ms-video-detail-play-card {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 0 24px;
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--ms-bg-surface);
+  position: relative;
+  padding: 0;
+}
+
+.ms-video-detail-play-image {
+  width: 100%;
+  height: 560px;
+  object-fit: cover;
+  display: block;
+}
+
+.ms-video-detail-play-fallback {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  color: var(--ms-text-soft);
+  padding: 20px;
+  text-align: center;
+}
+
+.ms-video-detail-play-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f9fafb;
+  font-weight: 600;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.82));
+}
+
+.ms-video-detail-play-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.4);
+}
+
 .ms-player-info {
   background: var(--ms-bg-surface);
   padding: 20px;
@@ -167,7 +218,52 @@
   word-break: break-all;
 }
 
+.ms-player-cast-block {
+  margin-bottom: 12px;
+}
+
+.ms-player-cast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ms-player-cast-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.ms-player-cast-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid var(--ms-border);
+  background: var(--ms-bg-card);
+}
+
+.ms-player-cast-avatar-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--ms-text-soft);
+  font-weight: 600;
+}
+
+.ms-player-cast-name {
+  color: var(--ms-text-soft);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
 @media (max-width: 768px) {
+  .ms-video-detail-play-image {
+    height: 420px;
+  }
+
   .ms-player-meta {
     flex-direction: column;
   }

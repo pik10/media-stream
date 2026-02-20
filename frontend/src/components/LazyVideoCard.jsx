@@ -26,7 +26,7 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
       {isVisible ? (
         <button
           type="button"
-          aria-label={`Play ${video.name}`}
+          aria-label={`Open details for ${video.name}`}
           className="ms-video-card"
           style={{ animation: `fadeIn 0.3s ease-out ${index * 0.02}s both` }}
           onClick={onClick}

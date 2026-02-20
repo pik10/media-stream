@@ -93,7 +93,7 @@ export default function HomePage() {
   };
 
   const handleVideoClick = (video) => {
-    navigate(`/play/${video.libraryId}/${encodeURIComponent(video.key)}`, {
+    navigate(`/video/${video.libraryId}/${encodeURIComponent(video.key)}`, {
       state: {
         videoSize: video.size ?? null,
         metadata: video.metadata ?? null,

@@ -74,6 +74,7 @@ function mapOmdbResult(result) {
   const releaseDate = parseDateToIsoDate(result.Released);
   const genres = parseDelimitedList(result.Genre);
   const cast = parseDelimitedList(result.Actors);
+  const castPeople = cast.map((name) => ({ name, profileUrl: null }));
   const director = result.Director && result.Director !== 'N/A'
     ? normalizeWhitespace(result.Director)
     : null;
@@ -92,6 +93,7 @@ function mapOmdbResult(result) {
     runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
     genres,
     cast,
+    castPeople,
     director,
     certification,
     tagline: null,
@@ -118,6 +120,7 @@ function getTmdbCertification(releaseDatesPayload) {
 
 function mapTmdbResult(result) {
   const tmdbImageBase = process.env.TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p/w500';
+  const tmdbCastImageBase = process.env.TMDB_CAST_IMAGE_BASE || 'https://image.tmdb.org/t/p/w185';
   if (!result) return null;
 
   const yearMatch = `${result.release_date || ''}`.match(/^\d{4}/);
@@ -129,9 +132,20 @@ function mapTmdbResult(result) {
   const genres = Array.isArray(result.genres)
     ? result.genres.map((genre) => normalizeWhitespace(genre?.name)).filter(Boolean)
     : [];
-  const cast = Array.isArray(result?.credits?.cast)
-    ? result.credits.cast.map((member) => normalizeWhitespace(member?.name)).filter(Boolean).slice(0, 5)
+  const castPeople = Array.isArray(result?.credits?.cast)
+    ? result.credits.cast
+      .map((member) => {
+        const name = normalizeWhitespace(member?.name);
+        if (!name) return null;
+        return {
+          name,
+          profileUrl: member?.profile_path ? `${tmdbCastImageBase}${member.profile_path}` : null
+        };
+      })
+      .filter(Boolean)
+      .slice(0, 8)
     : [];
+  const cast = castPeople.map((member) => member.name);
   const directorCrew = Array.isArray(result?.credits?.crew)
     ? result.credits.crew.find((member) => normalizeWhitespace(member?.job) === 'Director')
     : null;
@@ -150,6 +164,7 @@ function mapTmdbResult(result) {
     runtimeMinutes: Number.isNaN(runtime) ? null : runtime,
     genres,
     cast,
+    castPeople,
     director,
     certification,
     tagline,

@@ -40,6 +40,8 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
       const folderName = relativePath.substring(0, slashIndex);
       folders.add(folderName);
     } else if (slashIndex === -1) {
+      const castData = parseCast(video.meta_cast_json);
+
       // This is a file in the current directory
       items.push({
         type: 'file',
@@ -58,7 +60,8 @@ function processItemsForFolderView(cachedVideos, fullPrefix, requestedPrefix) {
           releaseDate: video.meta_release_date || null,
           runtimeMinutes: video.meta_runtime_minutes || null,
           genres: parseGenres(video.meta_genres_json),
-          cast: parseList(video.meta_cast_json),
+          cast: castData.cast,
+          castPeople: castData.castPeople,
           director: video.meta_director || null,
           certification: video.meta_certification || null,
           tagline: video.meta_tagline || null,
@@ -89,6 +92,37 @@ function parseList(value) {
   } catch {
     return [];
   }
+}
+
+function parseCast(value) {
+  const parsed = parseList(value);
+  if (parsed.length === 0) {
+    return { cast: [], castPeople: [] };
+  }
+
+  const castPeople = parsed
+    .map((entry) => {
+      if (typeof entry === 'string') {
+        const name = `${entry}`.trim();
+        return name ? { name, profileUrl: null } : null;
+      }
+      if (!entry || typeof entry !== 'object') return null;
+
+      const name = `${entry.name || ''}`.trim();
+      if (!name) return null;
+
+      const profileUrl = typeof entry.profileUrl === 'string' && entry.profileUrl
+        ? entry.profileUrl
+        : null;
+
+      return { name, profileUrl };
+    })
+    .filter(Boolean);
+
+  return {
+    cast: castPeople.map((person) => person.name),
+    castPeople
+  };
 }
 
 function parseGenres(value) {

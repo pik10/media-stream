@@ -5,6 +5,7 @@ import LibrariesPage from './pages/LibrariesPage';
 import BrowsePage from './pages/BrowsePage';
 import SettingsPage from './pages/SettingsPage';
 import VideoPlayer from './components/Video/VideoPlayer';
+import VideoDetailsPage from './pages/VideoDetailsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -42,6 +43,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BrowsePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/video/:libraryId/:videoKey"
+          element={
+            <ProtectedRoute>
+              <VideoDetailsPage />
             </ProtectedRoute>
           }
         />
