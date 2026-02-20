@@ -10,22 +10,6 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
     return baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   };
 
-  const formatBytes = (bytes) => {
-    if (!bytes) return '';
-    const mb = bytes / (1024 * 1024);
-    if (mb < 1024) return `${mb.toFixed(1)} MB`;
-    return `${(mb / 1024).toFixed(1)} GB`;
-  };
-
-  const formatDate = (value) => {
-    if (!value) return '';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString();
-  };
-
-  const displayDate = formatDate(video.lastModified || video.modifiedAt || video.updated_at);
-  const hasMeta = Boolean(video.size || displayDate);
   const displayTitle = metadata?.title || formatDisplayName(video.name) || video.name;
   const displayYear = metadata?.releaseDate ? new Date(metadata.releaseDate).getFullYear() : metadata?.year;
   const ratingLabel = metadata?.source === 'tmdb' ? 'TMDB' : 'IMDb';
@@ -62,7 +46,9 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
                 aria-hidden="true"
               >
                 <rect x="10" y="12" width="44" height="40" rx="8" fill="var(--ms-video-icon-body)" />
-                <polygon points="28,24 28,40 42,32" fill="var(--ms-video-icon-inner-play)" />
+                <rect x="18" y="22" width="28" height="4" rx="2" fill="var(--ms-video-icon-bars)" />
+                <rect x="18" y="30" width="20" height="4" rx="2" fill="var(--ms-video-icon-bars)" />
+                <rect x="18" y="38" width="24" height="4" rx="2" fill="var(--ms-video-icon-bars)" />
               </svg>
             )}
             {metadata?.certification && (
@@ -90,13 +76,6 @@ export default function LazyVideoCard({ video, onClick, index = 0 }) {
             {(runtime || genres.length > 0) && (
               <div className="ms-video-card-subtitle">
                 {[runtime, ...genres.slice(0, 2)].filter(Boolean).join(' • ')}
-              </div>
-            )}
-            {hasMeta && (
-              <div className="ms-video-card-meta">
-                {video.size && <span className="ms-video-card-size">{formatBytes(video.size)}</span>}
-                {video.size && displayDate && <span className="ms-video-card-dot">•</span>}
-                {displayDate && <span className="ms-video-card-date">{displayDate}</span>}
               </div>
             )}
           </div>

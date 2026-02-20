@@ -101,19 +101,21 @@
 
 .ms-video-card-overlay-title {
   color: #f9fafb;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .ms-video-card-overlay-subtitle {
-  color: #d1d5db;
-  font-size: 12px;
+  color: #f3f4f6;
+  font-size: 13px;
   margin-top: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .ms-video-card-info {
@@ -133,8 +135,8 @@
 }
 
 .ms-video-card-subtitle {
-  font-size: 12px;
-  color: var(--ms-text-subtle);
+  font-size: 13px;
+  color: var(--ms-text-muted);
   margin-bottom: 8px;
   min-height: 16px;
 }
